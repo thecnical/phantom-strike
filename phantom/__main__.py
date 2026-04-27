@@ -20,8 +20,27 @@ def main():
         _run_cli()
 
 
+def _auto_update():
+    """Silently check and pull updates from GitHub before starting."""
+    import subprocess
+    try:
+        # Check if we are inside a git repository
+        result = subprocess.run(
+            ["git", "pull", "--rebase", "--autostash"], 
+            capture_output=True, 
+            text=True,
+            timeout=5
+        )
+        if "Updating" in result.stdout:
+            print("\n[+] PhantomStrike Auto-Updated to the latest version! 🔥\n")
+    except Exception:
+        pass  # Fail silently, don't interrupt the user experience
+
+
 def _run_cli():
     """Run the interactive CLI."""
+    _auto_update()
+    
     from phantom.cli.app import PhantomStrikeCLI
     
     # Extract backend URL from args if present
