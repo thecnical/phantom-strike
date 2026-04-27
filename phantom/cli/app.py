@@ -108,7 +108,16 @@ class PhantomStrikeCLI:
 
     def __init__(self):
         self.config = load_config()
-        self.engine = PhantomEngine(self.config)
+        # Use enhanced engine
+        try:
+            from phantom.core.enhanced_engine import EnhancedPhantomEngine
+            self.engine = EnhancedPhantomEngine(self.config)
+            self._enhanced = True
+        except Exception as e:
+            console.print(f"[yellow]⚠ Could not load enhanced engine: {e}[/]")
+            from phantom.core.engine import PhantomEngine
+            self.engine = PhantomEngine(self.config)
+            self._enhanced = False
 
     async def run(self, backend_url: str = None):
         """Main CLI loop."""
@@ -118,7 +127,15 @@ class PhantomStrikeCLI:
             console.print(f"[bold green]✓[/bold green] Connected to Remote AI Backend: [cyan]{backend_url}[/cyan]")
             
         # Re-initialize engine with updated config
-        self.engine = PhantomEngine(self.config)
+        try:
+            from phantom.core.enhanced_engine import EnhancedPhantomEngine
+            self.engine = EnhancedPhantomEngine(self.config)
+        except:
+            from phantom.core.engine import PhantomEngine
+            self.engine = PhantomEngine(self.config)
+        
+        if self._enhanced:
+            console.print("[bold green]🚀 ENHANCED MODE ACTIVE[/] - Real vulnerability detection enabled")
         
         await self.engine.start()
         self._show_status_panel()

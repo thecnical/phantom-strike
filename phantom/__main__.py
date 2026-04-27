@@ -73,19 +73,39 @@ def _run_cli():
 
 
 def _run_api_server():
-    """Run the FastAPI backend server."""
+    """Run the enhanced FastAPI backend server with dashboard."""
     import uvicorn
-    from phantom.api.server import app
+    
+    # Try to use enhanced server with dashboard
+    try:
+        from phantom.api.enhanced_server import app
+        enhanced = True
+        print("\n🚀 Using ENHANCED server with Web Dashboard")
+    except Exception as e:
+        print(f"⚠ Could not load enhanced server: {e}")
+        from phantom.api.server import app
+        enhanced = False
 
     host = "0.0.0.0"
     port = int(sys.argv[2]) if len(sys.argv) > 2 else 10000
 
     print(f"\n🔥 PhantomStrike API Server starting on {host}:{port}")
-    print(f"   Docs: http://localhost:{port}/docs")
-    print(f"   Health: http://localhost:{port}/health\n")
+    print(f"   Dashboard: http://localhost:{port}/")
+    print(f"   API Docs: http://localhost:{port}/docs")
+    print(f"   Health: http://localhost:{port}/health")
+    print(f"   WebSocket: ws://localhost:{port}/ws")
+    
+    if enhanced:
+        print(f"\n   Features enabled:")
+        print(f"   ✓ Real-time vulnerability alerts")
+        print(f"   ✓ Web dashboard UI")
+        print(f"   ✓ Blind SQLi detection")
+        print(f"   ✓ Cloud storage scanning (S3/Azure/GCP)")
+        print(f"   ✓ AI-powered analysis")
+    print()
 
     uvicorn.run(
-        "phantom.api.server:app",
+        "phantom.api.enhanced_server:app" if enhanced else "phantom.api.server:app",
         host=host,
         port=port,
         reload=False,
