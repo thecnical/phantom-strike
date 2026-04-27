@@ -834,7 +834,14 @@ DASHBOARD_HTML = '''
                 });
                 
                 const result = await response.json();
-                addAIResponse(result.content);
+                
+                if (result.error) {
+                    addAIResponse('Error: ' + result.error);
+                } else if (result.content) {
+                    addAIResponse(result.content);
+                } else {
+                    addAIResponse('Error: AI service unavailable. Set API keys to enable AI features.');
+                }
                 
             } catch (error) {
                 addAIResponse('Error: AI service unavailable. Set API keys to enable AI features.');

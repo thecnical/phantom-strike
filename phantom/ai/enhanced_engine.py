@@ -185,87 +185,97 @@ class EnhancedPhantomAIEngine:
         force_provider: Optional[str] = None,
     ) -> AIResponse:
         """Send query to AI with smart failover."""
-        if not self._initialized:
-            await self.initialize()
+        try:
+            if not self._initialized:
+                await self.initialize()
 
-        # Check cache
-        cache_key = hashlib.md5(f"{prompt[:200]}_{system_prompt[:100]}".encode()).hexdigest()
-        if cache_key in self._response_cache:
-            cached = self._response_cache[cache_key]
-            return AIResponse(
-                content=cached.content,
-                provider=cached.provider,
-                model=cached.model,
-                cached=True,
-            )
+            # Check cache
+            cache_key = hashlib.md5(f"{prompt[:200]}_{system_prompt[:100]}".encode()).hexdigest()
+            if cache_key in self._response_cache:
+                cached = self._response_cache[cache_key]
+                return AIResponse(
+                    content=cached.content,
+                    provider=cached.provider,
+                    model=cached.model,
+                    cached=True,
+                )
 
-        # Get available providers
-        if force_provider and force_provider in self._clients:
-            providers = [(force_provider, self._providers[force_provider])]
-        else:
-            providers = self._get_sorted_providers()
+            # Get available providers
+            if force_provider and force_provider in self._clients:
+                providers = [(force_provider, self._providers[force_provider])]
+            else:
+                providers = self._get_sorted_providers()
 
-        if not providers:
-            # Fallback to local response if no AI available
+            if not providers:
+                # Fallback to local response if no AI available
+                return AIResponse(
+                    content=self._generate_fallback_response(prompt, system_prompt),
+                    provider="local_fallback",
+                    model="rule_based",
+                    tokens_used=0,
+                    latency_ms=0,
+                )
+
+            last_error = None
+
+            for provider_id, provider_config in providers:
+                try:
+                    start_time = time.time()
+
+                    if provider_id == "groq" or provider_id == "openrouter" or provider_id == "cerebras":
+                        response = await self._call_openai_compatible(
+                            provider_id, provider_config, prompt, system_prompt, temperature, max_tokens
+                        )
+                    elif provider_id == "gemini":
+                        response = await self._call_gemini(
+                            provider_id, provider_config, prompt, system_prompt, temperature, max_tokens
+                        )
+                    else:
+                        continue
+
+                    latency = (time.time() - start_time) * 1000
+                    self._rate_trackers[provider_id].record_request()
+                    self._last_provider_used = provider_id
+
+                    result = AIResponse(
+                        content=response,
+                        provider=provider_config["name"],
+                        model=provider_config["model"],
+                        tokens_used=len(prompt.split()) + len(response.split()),
+                        latency_ms=latency,
+                        raw_response={"provider": provider_id},
+                    )
+
+                    # Cache response
+                    self._response_cache[cache_key] = result
+
+                    logger.info(f"[AI] ✓ Response from {provider_config['name']} in {latency:.0f}ms")
+                    return result
+
+                except Exception as e:
+                    self._rate_trackers[provider_id].record_failure()
+                    last_error = e
+                    logger.warning(f"[AI] ✗ {provider_config['name']} failed: {e}")
+                    continue
+
+            # All providers failed - return fallback
+            logger.error(f"[AI] All providers failed. Last error: {last_error}")
             return AIResponse(
                 content=self._generate_fallback_response(prompt, system_prompt),
-                provider="local_fallback",
+                provider="fallback",
                 model="rule_based",
                 tokens_used=0,
                 latency_ms=0,
             )
-
-        last_error = None
-
-        for provider_id, provider_config in providers:
-            try:
-                start_time = time.time()
-
-                if provider_id == "groq" or provider_id == "openrouter" or provider_id == "cerebras":
-                    response = await self._call_openai_compatible(
-                        provider_id, provider_config, prompt, system_prompt, temperature, max_tokens
-                    )
-                elif provider_id == "gemini":
-                    response = await self._call_gemini(
-                        provider_id, provider_config, prompt, system_prompt, temperature, max_tokens
-                    )
-                else:
-                    continue
-
-                latency = (time.time() - start_time) * 1000
-                self._rate_trackers[provider_id].record_request()
-                self._last_provider_used = provider_id
-
-                result = AIResponse(
-                    content=response,
-                    provider=provider_config["name"],
-                    model=provider_config["model"],
-                    tokens_used=len(prompt.split()) + len(response.split()),
-                    latency_ms=latency,
-                    raw_response={"provider": provider_id},
-                )
-
-                # Cache response
-                self._response_cache[cache_key] = result
-
-                logger.info(f"[AI] ✓ Response from {provider_config['name']} in {latency:.0f}ms")
-                return result
-
-            except Exception as e:
-                self._rate_trackers[provider_id].record_failure()
-                last_error = e
-                logger.warning(f"[AI] ✗ {provider_config['name']} failed: {e}")
-                continue
-
-        # All providers failed - return fallback
-        logger.error(f"[AI] All providers failed. Last error: {last_error}")
-        return AIResponse(
-            content=self._generate_fallback_response(prompt, system_prompt),
-            provider="fallback",
-            model="rule_based",
-            tokens_used=0,
-            latency_ms=0,
-        )
+        except Exception as e:
+            logger.error(f"[AI] Query failed with error: {e}")
+            return AIResponse(
+                content=f"AI service error: {str(e)}. Set GROQ_API_KEY or other provider keys.",
+                provider="error",
+                model="error",
+                tokens_used=0,
+                latency_ms=0,
+            )
 
     async def _call_openai_compatible(
         self,
