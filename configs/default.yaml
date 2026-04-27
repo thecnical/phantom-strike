@@ -1,0 +1,61 @@
+# ═══════════════════════════════════════════════════════════
+# PhantomStrike Default Configuration
+# Copy to ~/.phantom-strike/config.yaml to customize
+# ═══════════════════════════════════════════════════════════
+
+# === General ===
+project_name: PhantomStrike
+log_level: INFO
+
+# === AI Engine ===
+ai_primary_provider: openrouter
+ai_fallback_enabled: true  # Auto-switch on rate limit
+
+# === Threading (Multi-Threaded Power) ===
+threading:
+  max_scan_threads: 200      # 200 concurrent port scans
+  max_exploit_threads: 20    # 20 concurrent exploit attempts
+  max_brute_threads: 100     # 100 brute force threads
+  max_osint_threads: 50      # 50 OSINT lookups at once
+  max_web_threads: 40        # 40 web attack threads
+  max_ai_threads: 5          # 5 AI API calls at once
+  use_uvloop: true           # Ultra-fast async on Linux
+  connection_pool_size: 200  # HTTP connection pool
+  connect_timeout: 10.0
+  read_timeout: 30.0
+  requests_per_second: 50    # Rate limit to target
+
+# === Playwright Browser ===
+playwright:
+  enabled: true
+  browser_type: chromium
+  headless: true
+  stealth_mode: true         # Anti-bot detection evasion
+  max_browser_instances: 5   # 5 parallel browsers
+  screenshot_on_vuln: true   # Screenshot every vuln found
+  intercept_requests: true   # MITM on browser requests
+  capture_cookies: true      # Auto-capture cookies
+  capture_storage: true      # Capture localStorage/sessionStorage
+  ignore_https_errors: true
+
+# === Attack Profile ===
+attack:
+  profile: normal            # stealth | normal | aggressive | chaos
+  auto_exploit: false        # Don't auto-exploit (safety)
+  auto_chain: true           # AI auto-chains attack paths
+  mitre_mapping: true        # Map to MITRE ATT&CK
+  evidence_collection: true  # Collect screenshots, logs
+  safe_mode: true            # Prevent destructive actions
+  scope_enforcement: true    # Strict scope enforcement
+  max_depth: 5               # Max attack chain depth
+  target_domains: []         # Add authorized targets here
+  excluded_domains:          # Never attack these
+    - "*.gov"
+    - "*.mil"
+    - "*.edu"
+
+# === Reporting ===
+report_format: html          # html | pdf | json | markdown
+
+# === Network ===
+tor_enabled: false

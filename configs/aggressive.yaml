@@ -1,0 +1,25 @@
+# Aggressive Attack Profile — Maximum speed, maximum coverage
+# Usage: phantom --config configs/aggressive.yaml
+# ⚠️ WARNING: This profile is LOUD and will be detected by IDS/IPS
+
+log_level: DEBUG
+
+threading:
+  max_scan_threads: 200
+  max_workers: 50
+  request_delay_ms: 0
+  max_concurrent_scans: 20
+
+attack:
+  profile: aggressive
+  safe_mode: false
+  auto_exploit: true
+  max_vuln_checks_per_target: 500
+  request_delay_ms: 0
+  evidence_collection: true
+
+playwright:
+  enabled: true
+  headless: true
+  stealth_mode: false
+  timeout: 60000

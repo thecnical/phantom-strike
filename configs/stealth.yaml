@@ -1,0 +1,25 @@
+# Stealth Attack Profile — Maximum evasion, minimum noise
+# Usage: phantom --config configs/stealth.yaml
+
+log_level: WARNING
+
+threading:
+  max_scan_threads: 20
+  max_workers: 5
+  request_delay_ms: 2000
+  max_concurrent_scans: 3
+
+attack:
+  profile: stealth
+  safe_mode: true
+  auto_exploit: false
+  max_vuln_checks_per_target: 30
+  request_delay_ms: 2000
+  evidence_collection: true
+
+playwright:
+  enabled: true
+  headless: true
+  stealth_mode: true
+  timeout: 30000
+  user_agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/125.0.0.0 Safari/537.36"

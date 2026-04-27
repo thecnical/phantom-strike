@@ -1,0 +1,137 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phantom-strike"
+version = "1.0.0-alpha"
+description = "The World's Most Powerful Open-Source Offensive Security Framework — AI-Powered, Multi-Threaded, Zero-Cost"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.12"
+authors = [
+    {name = "PhantomStrike Team"}
+]
+keywords = ["cybersecurity", "penetration-testing", "offensive-security", "red-team", "ai-hacking"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+
+dependencies = [
+    # === CORE ===
+    "rich>=13.7.0",
+    "textual>=0.50.0",
+    "click>=8.1.7",
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.1.0",
+    "pyyaml>=6.0.1",
+
+    # === MULTI-PROVIDER AI ENGINE (ALL FREE — 9 PROVIDERS) ===
+    "openai>=1.12.0",                # OpenAI-compatible client (works with Groq, OpenRouter, etc.)
+    "groq>=0.5.0",                   # Groq Cloud SDK — world's fastest AI (LPU)
+    "httpx>=0.27.0",                 # Async HTTP for AI API calls
+    "google-generativeai>=0.4.0",    # Google Gemini direct SDK
+    "huggingface-hub>=0.21.0",       # HuggingFace Inference API
+    "tiktoken>=0.6.0",              # Token counting for rate limit management
+
+    # === API SERVER (FOR RENDER DEPLOYMENT) ===
+    "fastapi>=0.110.0",              # Production REST API
+    "uvicorn[standard]>=0.27.0",     # ASGI server
+
+    # === BROWSER AUTOMATION (PLAYWRIGHT) ===
+    "playwright>=1.42.0",            # Elite browser automation — headless attacks
+                                     # Used for: JS rendering, XSS testing, auth bypass,
+                                     # screenshot evidence, session hijacking, CSRF testing,
+                                     # client-side vuln scanning, credential harvesting
+
+    # === NETWORKING & SCANNING ===
+    "aiohttp>=3.9.0",
+    "aiofiles>=23.2.1",
+    "scapy>=2.5.0",                  # Raw packet crafting & analysis
+    "python-nmap>=0.7.1",            # Nmap integration
+    "dnspython>=2.6.0",              # DNS operations
+    "paramiko>=3.4.0",               # SSH operations
+    "impacket>=0.11.0",              # Windows protocol attacks (SMB, NTLM, Kerberos)
+
+    # === WEB ATTACK ENGINE ===
+    "beautifulsoup4>=4.12.0",
+    "lxml>=5.1.0",
+    "requests>=2.31.0",
+
+    # === MULTI-THREADING & CONCURRENCY ===
+    "uvloop>=0.19.0; sys_platform != 'win32'",  # Ultra-fast event loop (Linux)
+    "aiomultiprocess>=0.9.0",        # Multi-process async
+    "concurrent-log-handler>=0.9.0", # Thread-safe logging
+
+    # === CRYPTO & SECURITY ===
+    "cryptography>=42.0.0",
+    "pycryptodome>=3.20.0",
+    "pyOpenSSL>=24.0.0",
+
+    # === REPORTING ===
+    "jinja2>=3.1.3",
+    "weasyprint>=61.0",              # PDF generation
+
+    # === DATA & STORAGE ===
+    "aiosqlite>=0.20.0",             # Async SQLite
+    "redis>=5.0.0",                  # Optional caching
+
+    # === OSINT ===
+    "shodan>=1.31.0",
+    "whois>=0.9.27",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "black>=24.0.0",
+    "ruff>=0.2.0",
+    "mypy>=1.8.0",
+]
+# API server (for Render deployment)
+api = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+]
+# Optional: Local LLM fallback (user can still use Ollama if they want)
+local-ai = [
+    "ollama>=0.1.0",
+]
+gpu = [
+    "hashcat-python>=0.1.0",
+]
+
+[project.scripts]
+phantom = "phantom.__main__:main"
+phantom-strike = "phantom.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/phantom-strike/phantom-strike"
+Documentation = "https://phantom-strike.readthedocs.io"
+Repository = "https://github.com/phantom-strike/phantom-strike"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["phantom*"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
