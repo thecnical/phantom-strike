@@ -3,24 +3,19 @@ PhantomStrike CLI — Full interactive command-line interface.
 Beautiful Rich-powered terminal UI with ALL commands working.
 """
 from __future__ import annotations
-import asyncio
 import json
 import sys
-from pathlib import Path
 
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.prompt import Prompt, Confirm
-from rich.live import Live
-from rich.layout import Layout
-from rich.text import Text
 from rich.tree import Tree
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
 from rich.syntax import Syntax
 
 from phantom.core.engine import PhantomEngine
-from phantom.core.config import load_config, AttackProfile
+from phantom.core.config import load_config
 
 console = Console()
 
@@ -495,7 +490,7 @@ class PhantomStrikeCLI:
             "session_id": self.engine._session_id,
         })
         data = result.data if hasattr(result, "data") else {}
-        console.print(f"[bold green]📊 Report generated![/]")
+        console.print("[bold green]📊 Report generated![/]")
         console.print(f"  HTML: {data.get('html_path', 'N/A')}")
         console.print(f"  JSON: {data.get('json_path', 'N/A')}")
 
@@ -613,7 +608,8 @@ class PhantomStrikeCLI:
             f"[green]✓[/] Threads: {self.config.threading.max_scan_threads} scan threads\n"
             f"[green]✓[/] Profile: {self.config.attack.profile.value}\n"
             f"[green]✓[/] Safe Mode: {'ON' if self.config.attack.safe_mode else 'OFF'}\n\n"
-            f"[dim]Type 'help' for all commands | 'help <cmd>' for details[/dim]",
+            f"[dim]Type 'help' for all commands | 'help <cmd>' for details[/dim]\n"
+            f"[bold cyan]Built by Chandan Pandey under CyberMindCLI[/bold cyan]",
             title="[bold green]⚡ PhantomStrike Ready[/bold green]",
             border_style="green",
         )

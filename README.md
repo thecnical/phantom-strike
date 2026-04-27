@@ -2,14 +2,13 @@
   <h1 align="center">🔥 PhantomStrike</h1>
   <p align="center"><b>"See Everything. Strike Anywhere. Leave Nothing."</b></p>
   <p align="center">The World's Most Powerful Open-Source AI-Powered Offensive Security Framework</p>
+  <p align="center"><i>Built by <b>Chandan Pandey</b> under <b>CyberMindCLI</b></i></p>
 </p>
 
 <p align="center">
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white"></a>
   <a href="https://github.com/thecnical/phantom-strike/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge"></a>
-  <a href="https://console.groq.com"><img src="https://img.shields.io/badge/AI-9_FREE_Providers-red?style=for-the-badge&logo=openai&logoColor=white"></a>
   <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/API-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white"></a>
-  <a href="https://render.com"><img src="https://img.shields.io/badge/Deploy-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white"></a>
 </p>
 
 <p align="center">
@@ -57,10 +56,8 @@ PhantomStrike is the **first fully AI-powered, end-to-end offensive security fra
 - [🏗️ Architecture](#%EF%B8%8F-architecture)
   - [System Workflow](#system-workflow)
   - [Kill Chain Pipeline](#kill-chain-pipeline)
-  - [AI Failover System](#ai-failover-system)
 - [💿 Installation](#-installation)
-  - [Local Installation](#local-installation)
-  - [Docker](#docker)
+  - [Standard Installation](#standard-installation-for-users)
   - [One-Command Install](#one-command-install)
 - [⚙️ Configuration](#%EF%B8%8F-configuration)
 - [🚀 Usage](#-usage)
@@ -68,8 +65,6 @@ PhantomStrike is the **first fully AI-powered, end-to-end offensive security fra
   - [API Server Mode](#api-server-mode)
   - [Example Usage](#example-usage)
 - [🌐 API Server](#-api-server)
-- [🧠 AI Engine](#-ai-engine)
-- [☁️ Deployment](#-deployment)
 - [🧪 Testing](#-testing)
 - [⚠️ Disclaimer](#%EF%B8%8F-disclaimer)
 - [📜 License](#-license)
@@ -290,30 +285,10 @@ PhantomStrike uses **3 attack profiles** for scanning:
 # Connect to a specific backend API (default config uses public URL)
 phantom --backend https://your-backend-api.onrender.com
 
+```bash
 # Use specific profile
 phantom --config configs/stealth.yaml
 ```
-
-### Creator Deployment (Backend Only)
-
-If you are the **creator/host**, you deploy the backend on Render and add your API keys there. Users will hit your backend.
-
-```bash
-# Priority #0 — FASTEST (500+ tokens/sec)
-GROQ_API_KEY=gsk_xxxx              # console.groq.com
-
-# Priority #1-8 — FAILOVER
-OPENROUTER_API_KEY=sk-or-xxxx
-GEMINI_API_KEY=xxxx
-CEREBRAS_API_KEY=xxxx
-MISTRAL_API_KEY=xxxx
-TOGETHER_API_KEY=xxxx
-HUGGINGFACE_API_KEY=xxxx
-NVIDIA_API_KEY=xxxx
-SAMBANOVA_API_KEY=xxxx
-```
-
-> 💡 The backend handles the failover cascade automatically. Users never see or need these keys.
 
 ---
 
@@ -420,45 +395,6 @@ curl -X POST https://your-app.onrender.com/api/ai/query \
 curl -X POST https://your-app.onrender.com/api/module/phantom-stealth \
   -H "Content-Type: application/json" \
   -d '{"target": "x", "options": {"type": "xss"}}'
-```
-
----
-
-## 🧠 AI Engine
-
-| # | Provider | Speed | Free Tier | Priority |
-|---|----------|-------|-----------|:--------:|
-| 🥇 | **Groq** (LPU) | **500+ tps** | 1000 req/day | `#0` |
-| 🥈 | OpenRouter | varies | 200 req/day | `#1` |
-| 🥉 | Google Gemini | fast | 1500 req/day | `#2` |
-| 4 | Cerebras | ultra-fast | 1M tokens/day | `#3` |
-| 5 | Mistral | fast | 1B tokens/month | `#4` |
-| 6 | Together AI | fast | Free tier | `#5` |
-| 7 | HuggingFace | varies | Free inference | `#6` |
-| 8 | NVIDIA NIM | fast | Free credits | `#7` |
-| 9 | SambaNova | fast | $5 credits | `#8` |
-
-**Combined capacity: ~5,000+ requests/day | ~400 RPM | ₹0**
-
----
-
-## ☁️ Deployment
-
-### Render (Free Tier)
-
-1. Push to GitHub
-2. Go to [render.com](https://render.com) → **New Web Service** → Connect repo
-3. Render auto-reads `render.yaml` + `Dockerfile`
-4. Add environment variables (API keys)
-5. Deploy → Your API is live!
-
-### Docker (VPS)
-
-```bash
-docker build -t phantom-strike .
-docker run -d -p 10000:10000 \
-  -e GROQ_API_KEY=gsk_xxxx \
-  phantom-strike
 ```
 
 ---
