@@ -62,7 +62,9 @@ DEFAULT_AI_PROVIDERS: dict[AIProviderType, AIProviderConfig] = {
         provider_type=AIProviderType.OPENROUTER,
         api_key="${OPENROUTER_API_KEY}",
         base_url="https://openrouter.ai/api/v1",
-        model="meta-llama/llama-3.3-70b-instruct:free",
+        # Upgraded to best OpenRouter Free models!
+        # Other great free options: 'deepseek/deepseek-r1:free', 'meta-llama/llama-3.3-70b-instruct:free', 'qwen/qwen-2.5-coder-32b-instruct:free'
+        model="google/gemini-2.5-pro:free", 
         priority=1, rate_limit_rpm=20, rate_limit_daily=200,
     ),
     AIProviderType.GEMINI: AIProviderConfig(
