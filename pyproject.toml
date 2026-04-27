@@ -8,7 +8,7 @@ version = "1.0.0-alpha"
 description = "The World's Most Powerful Open-Source Offensive Security Framework — AI-Powered, Multi-Threaded, Zero-Cost"
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 authors = [
     {name = "PhantomStrike Team"}
 ]
@@ -19,6 +19,8 @@ classifiers = [
     "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Security",
 ]

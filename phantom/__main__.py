@@ -9,8 +9,8 @@ import asyncio
 def main():
     """Entry point for PhantomStrike."""
     # Check Python version
-    if sys.version_info < (3, 12):
-        print(f"ERROR: Python 3.12+ required. You have {sys.version}")
+    if sys.version_info < (3, 10):
+        print(f"ERROR: Python 3.10+ required. You have {sys.version}")
         sys.exit(1)
 
     # Check if running as API server
