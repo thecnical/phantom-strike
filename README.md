@@ -80,9 +80,17 @@
 
 ### 🔥 v2.0 Enhanced Features
 
-<p align="center">
-  <img src="assets/killchain_diagram.svg" alt="MITRE ATT&CK Kill Chain" width="100%">
-</p>
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    PHANTOMSTRIKE v2.0 KILL CHAIN                        │
+├─────────────────────────────────────────────────────────────────────────┤
+│  RECONNAISSANCE → VULNERABILITY → EXPLOITATION → POST-EXPLOITATION    │
+├─────────────────────────────────────────────────────────────────────────┤
+│  1. OSINT          1. Web Scanner     1. Auto-Exploit   1. Privilege    │
+│  2. Network Scan   2. Cloud Audit    2. C2 Deploy      2. Lateral      │
+│  3. Web Crawl      3. AI Analysis    3. Payload Gen    3. Persistence  │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
 ### 🧠 AI-Powered Engine
 
@@ -123,9 +131,26 @@
 
 ## 🏗️ System Architecture
 
-<p align="center">
-  <img src="assets/architecture_diagram.svg" alt="PhantomStrike Architecture" width="100%">
-</p>
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         PHANTOMSTRIKE ARCHITECTURE v2.0                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        FRONTEND LAYER                                │   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
+│  │  │  Web UI      │  │  WebSocket   │  │   CLI        │               │   │
+│  │  │ (Dashboard)  │  │ (Live Feed)  │  │ (Rich/TUI)   │               │   │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        API LAYER (FastAPI)                           │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌─────────┐ │   │
+│  │  │ /api/scan│ │ /api/ai  │ │/api/payld│ │ /ws      │ │ /health │ │   │
+│  │  │ /start   │ │ /query   │ │ /gen     │ │ (RealTime)│ │         │ │   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └─────────┘ │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
 │                                    │                                        │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │                    CORE ENGINE (Async Python)                        │   │
@@ -159,12 +184,6 @@
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
-
-### 🔄 Kill Chain Pipeline
-
-<p align="center">
-  <img src="assets/modules_diagram.svg" alt="PhantomStrike Modules" width="100%">
-</p>
 
 ---
 
