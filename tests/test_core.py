@@ -317,6 +317,6 @@ async def test_db_vuln_crud():
 
 def test_api_app_exists():
     """FastAPI app can be imported."""
-    from phantom.api.server import app
+    from phantom.api.enhanced_server import app
     assert app is not None
     assert app.title == "PhantomStrike API"

@@ -126,6 +126,7 @@ class ThreadingConfig(BaseModel):
     max_osint_threads: int = Field(default=30, ge=1, le=100)
     max_web_threads: int = Field(default=40, ge=1, le=150)
     max_ai_threads: int = Field(default=5, ge=1, le=20)
+    max_workers: int = Field(default=10, ge=1, le=100)
     use_uvloop: bool = True
     event_loop_workers: int = Field(default=4, ge=1, le=32)
     connection_pool_size: int = Field(default=200, ge=10, le=1000)
