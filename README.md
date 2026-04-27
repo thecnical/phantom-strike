@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">🔥 PhantomStrike</h1>
   <p align="center"><b>"See Everything. Strike Anywhere. Leave Nothing."</b></p>
-  <p align="center">The World's Most Powerful Open-Source AI-Powered Offensive Security Framework</p>
+  <p align="center"><b>The World's Most Powerful Open-Source AI-Powered Offensive Security & Penetration Testing Framework</b></p>
   <p align="center"><i>Built by <b>Chandan Pandey</b> under <b>CyberMindCLI</b></i></p>
 </p>
 
@@ -9,23 +9,28 @@
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white"></a>
   <a href="https://github.com/thecnical/phantom-strike/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge"></a>
   <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/API-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white"></a>
-</p>
-
-<p align="center">
-  <a href="#-features">Features</a> •
-  <a href="#%EF%B8%8F-architecture">Architecture</a> •
-  <a href="#-installation">Installation</a> •
-  <a href="#-usage">Usage</a> •
-  <a href="#-api-server">API</a> •
-  <a href="#-ai-engine">AI Engine</a> •
-  <a href="#-deployment">Deployment</a>
+  <a href="https://buymeacoffee.com/chandanpandit"><img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black"></a>
 </p>
 
 ---
 
 ## 🎯 What is PhantomStrike?
 
-PhantomStrike is the **first fully AI-powered, end-to-end offensive security framework** that automates the entire penetration testing lifecycle — from OSINT to exploitation to reporting — using **9 free AI providers** with intelligent failover. No other tool does this.
+**PhantomStrike** is an elite, next-generation **Automated Penetration Testing Framework** powered entirely by Artificial Intelligence. Designed for cybersecurity professionals, ethical hackers, and red teamers, PhantomStrike automates the complete MITRE ATT&CK kill chain — from deep **OSINT reconnaissance** to **polymorphic payload generation** and **auto-exploitation**. 
+
+Unlike traditional vulnerability scanners (like Nessus, Nuclei, or Burp Suite), PhantomStrike leverages an intelligent AI brain to analyze vulnerabilities in real-time, generate stealthy, WAF-evading payloads, and plan attack vectors dynamically. 
+
+Whether you are performing **Web Application Security Testing**, **Cloud Security Auditing (AWS/Azure/GCP)**, **Network Scanning**, or **Identity/OAuth bypassing**, PhantomStrike operates silently, asynchronously, and accurately.
+
+<p align="center">
+  <a href="#-features">Features</a> •
+  <a href="#%EF%B8%8F-architecture">Architecture</a> •
+  <a href="#-installation">Installation</a> •
+  <a href="#-usage">Usage</a> •
+  <a href="#-api-server">API</a>
+</p>
+
+PhantomStrike is the **first fully AI-powered, end-to-end offensive security framework** that automates the entire penetration testing lifecycle. No other open-source tool does this.
 
 ### Why PhantomStrike?
 
