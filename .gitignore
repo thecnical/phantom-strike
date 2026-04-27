@@ -2,32 +2,19 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-*.egg-info/
+venv/
+.env
+
+# Reports
+reports/
+*.html
+*.json
+*.txt
+
+# Build
 dist/
 build/
-*.egg
+*.egg-info/
 
-# Virtual environments
-venv/
-.venv/
-env/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# PhantomStrike data
-.env
-*.db
-*.sqlite3
-reports/
-evidence/
-logs/
-
-# OS
-.DS_Store
-Thumbs.db
+# Logs
+*.log

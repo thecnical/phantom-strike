@@ -257,7 +257,8 @@ class PhantomStrikeCLI:
         console.print(f"\n[bold green]✅ Scan complete.[/] {len(results)} modules | {total_findings} findings")
         
         # Auto-generate report
-        await self._cmd_report([target])
+        if target:
+            await self._cmd_report([target])
 
     # ─── Recon ────────────────────────────────────────────────
 
@@ -499,6 +500,7 @@ class PhantomStrikeCLI:
         console.print("[bold green]📊 Report generated![/]")
         console.print(f"  HTML: {data.get('html_path', 'N/A')}")
         console.print(f"  JSON: {data.get('json_path', 'N/A')}")
+        console.print(f"  TXT:  {data.get('txt_path', 'N/A')}")
 
     # ─── Results ──────────────────────────────────────────────
 

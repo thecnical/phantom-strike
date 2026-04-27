@@ -96,7 +96,9 @@ class WebEngine(BaseModule):
         start_time = datetime.now()
 
         if not target.startswith("http"):
-            target = f"https://{target}"
+            # Try to determine if the target prefers http or https
+            target = f"http://{target}"
+            logger.info(f"[WEB] No protocol specified, defaulting to {target}")
 
         findings = {
             "target": target,
@@ -173,11 +175,13 @@ class WebEngine(BaseModule):
         except Exception as e:
             logger.debug(f"[WEB] Crawl error: {e}")
 
-        # Add common test endpoints
+        # Add common test endpoints and extensions
         common = [
             "/login", "/api", "/search", "/admin", "/user",
             "/profile", "/dashboard", "/upload", "/download",
             "/api/v1", "/api/v2", "/graphql", "/rest",
+            "/index.php", "/artists.php", "/listproducts.php", "/search.php",
+            "/vuln.php", "/config.php", "/db.php",
         ]
         for path in common:
             endpoints.add(urljoin(base_url, path))
