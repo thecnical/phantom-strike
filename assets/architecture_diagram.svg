@@ -1,0 +1,94 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="frontend" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f3460;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="api" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a5f3f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0d4f3c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="core" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a1c4a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d1b4e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="ai" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5d2e0c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#grad1)"/>
+  
+  <!-- Title -->
+  <text x="400" y="40" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FF6B00">PHANTOMSTRIKE v2.0 ARCHITECTURE</text>
+  
+  <!-- Frontend Layer -->
+  <rect x="50" y="80" width="700" height="100" rx="10" fill="url(#frontend)" stroke="#FF6B00" stroke-width="2"/>
+  <text x="400" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">FRONTEND LAYER</text>
+  <rect x="100" y="130" width="150" height="40" rx="5" fill="#0f3460" stroke="#00D4AA" stroke-width="1"/>
+  <text x="175" y="155" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#00D4AA">Web Dashboard</text>
+  <rect x="325" y="130" width="150" height="40" rx="5" fill="#0f3460" stroke="#00D4AA" stroke-width="1"/>
+  <text x="400" y="155" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#00D4AA">WebSocket</text>
+  <rect x="550" y="130" width="150" height="40" rx="5" fill="#0f3460" stroke="#00D4AA" stroke-width="1"/>
+  <text x="625" y="155" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#00D4AA">CLI (Rich/TUI)</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="180" x2="400" y2="200" stroke="#FF6B00" stroke-width="3" marker-end="url(#arrowhead)"/>
+  
+  <!-- API Layer -->
+  <rect x="50" y="210" width="700" height="100" rx="10" fill="url(#api)" stroke="#FF6B00" stroke-width="2"/>
+  <text x="400" y="240" text-anchor="middle" font-family="Arial, sans-serif" font16" font-weight="bold" fill="white">API LAYER (FastAPI)</text>
+  <text x="150" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#00FF88">/api/scan</text>
+  <text x="280" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#00FF88">/api/ai</text>
+  <text x="410" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#00FF88">/api/payload</text>
+  <text x="540" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#00FF88">/ws</text>
+  <text x="670" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#00FF88">/health</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="310" x2="400" y2="330" stroke="#FF6B00" stroke-width="3"/>
+  
+  <!-- Core Engine -->
+  <rect x="50" y="340" width="700" height="100" rx="10" fill="url(#core)" stroke="#FF6B00" stroke-width="2"/>
+  <text x="400" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">CORE ENGINE (Async Python)</text>
+  <rect x="100" y="390" width="120" height="40" rx="5" fill="#4a1c4a" stroke="#FF6B9D" stroke-width="1"/>
+  <text x="160" y="415" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#FF6B9D">EventBus</text>
+  <rect x="250" y="390" width="120" height="40" rx="5" fill="#4a1c4a" stroke="#FF6B9D" stroke-width="1"/>
+  <text x="310" y="415" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#FF6B9D">ModuleLoader</text>
+  <rect x="400" y="390" width="120" height="40" rx="5" fill="#4a1c4a" stroke="#FF6B9D" stroke-width="1"/>
+  <text x="460" y="415" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#FF6B9D">AI Engine</text>
+  <rect x="550" y="390" width="120" height="40" rx="5" fill="#4a1c4a" stroke="#FF6B9D" stroke-width="1"/>
+  <text x="610" y="415" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#FF6B9D">ScanLock</text>
+  
+  <!-- Arrows down -->
+  <line x1="200" y1="440" x2="200" y2="470" stroke="#FF6B00" stroke-width="2"/>
+  <line x1="600" y1="440" x2="600" y2="470" stroke="#FF6B00" stroke-width="2"/>
+  
+  <!-- Modules -->
+  <rect x="50" y="480" width="450" height="100" rx="10" fill="#2d1b4e" stroke="#FF6B00" stroke-width="2"/>
+  <text x="275" y="510" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">MODULES (11 Total)</text>
+  <text x="80" y="540" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">• OSINT</text>
+  <text x="160" y="540" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">• Network</text>
+  <text x="250" y="540" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">• Web</text>
+  <text x="320" y="540" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">• Cloud</text>
+  <text x="390" y="540" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">• Identity</text>
+  <text x="460" y="540" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">• Cred</text>
+  <text x="80" y="560" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">• Stealth</text>
+  <text x="160" y="560" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">• Exploit</text>
+  <text x="240" y="560" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">• C2</text>
+  <text x="300" y="560" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">• Post</text>
+  <text x="360" y="560" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">• Report</text>
+  
+  <!-- AI Engine -->
+  <rect x="520" y="480" width="230" height="100" rx="10" fill="url(#ai)" stroke="#FF6B00" stroke-width="2"/>
+  <text x="635" y="510" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">AI ENGINE</text>
+  <text x="570" y="540" font-family="Arial, sans-serif" font-size="11" fill="#FFD700">• Groq (Llama 3)</text>
+  <text x="700" y="540" font-family="Arial, sans-serif" font-size="11" fill="#FFD700">• OpenRouter</text>
+  <text x="570" y="565" font-family="Arial, sans-serif" font-size="11" fill="#FFD700">• Gemini Pro</text>
+  <text x="700" y="565" font-family="Arial, sans-serif" font-size="11" fill="#FFD700">• Cerebras</text>
+</svg>

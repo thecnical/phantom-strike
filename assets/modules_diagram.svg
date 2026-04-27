@@ -1,0 +1,102 @@
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#bg)"/>
+  
+  <!-- Title -->
+  <text x="400" y="40" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FF6B00">PHANTOMSTRIKE MODULES</text>
+  <text x="400" y="65" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#888888">11 Offensive Security Modules</text>
+  
+  <!-- Module Cards -->
+  <!-- Row 1 -->
+  <rect x="50" y="100" width="130" height="90" rx="8" fill="#1e3a8a" stroke="#00D4AA" stroke-width="1.5"/>
+  <text x="115" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">phantom-osint</text>
+  <text x="115" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#00D4AA">RECON</text>
+  <text x="115" y="165" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#93c5fd">Subdomains</text>
+  <text x="115" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#93c5fd">Emails, DNS</text>
+  
+  <rect x="210" y="100" width="130" height="90" rx="8" fill="#1e3a8a" stroke="#00D4AA" stroke-width="1.5"/>
+  <text x="275" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">phantom-network</text>
+  <text x="275" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#00D4AA">RECON</text>
+  <text x="275" y="165" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#93c5fd">Port Scanning</text>
+  <text x="275" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#93c5fd">Service Detection</text>
+  
+  <rect x="370" y="100" width="130" height="90" rx="8" fill="#4a1c4a" stroke="#FF6B6B" stroke-width="1.5"/>
+  <text x="435" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">phantom-web</text>
+  <text x="435" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#FF6B6B">VULN</text>
+  <text x="435" y="165" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#fca5a5">SQLi, XSS, CSRF</text>
+  <text x="435" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#fca5a5">XXE, IDOR</text>
+  
+  <rect x="530" y="100" width="130" height="90" rx="8" fill="#4a1c4a" stroke="#FF6B6B" stroke-width="1.5"/>
+  <text x="595" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">phantom-cloud</text>
+  <text x="595" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#FF6B6B">VULN</text>
+  <text x="595" y="165" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#fca5a5">AWS S3, Azure</text>
+  <text x="595" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#fca5a5">GCP Buckets</text>
+  
+  <rect x="690" y="100" width="100" height="90" rx="8" fill="#4a1c4a" stroke="#FF6B6B" stroke-width="1.5"/>
+  <text x="740" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">phantom-identity</text>
+  <text x="740" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#FF6B6B">VULN</text>
+  <text x="740" y="165" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#fca5a5">JWT, OAuth</text>
+  <text x="740" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#fca5a5">Auth Bypass</text>
+  
+  <!-- Row 2 -->
+  <rect x="50" y="210" width="130" height="90" rx="8" fill="#4a1c4a" stroke="#FF6B6B" stroke-width="1.5"/>
+  <text x="115" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">phantom-cred</text>
+  <text x="115" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#FF6B6B">VULN</text>
+  <text x="115" y="275" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#fca5a5">Brute Force</text>
+  <text x="115" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#fca5a5">Password Spray</text>
+  
+  <rect x="210" y="210" width="130" height="90" rx="8" fill="#8b4513" stroke="#FFD700" stroke-width="1.5"/>
+  <text x="275" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">phantom-stealth</text>
+  <text x="275" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#FFD700">EVASION</text>
+  <text x="275" y="275" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#fcd34d">WAF Bypass</text>
+  <text x="275" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#fcd34d">AV Evasion</text>
+  
+  <rect x="370" y="210" width="130" height="90" rx="8" fill="#0d4f3c" stroke="#FF6B00" stroke-width="1.5"/>
+  <text x="435" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">phantom-exploit</text>
+  <text x="435" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#FF6B00">EXPLOIT</text>
+  <text x="435" y="275" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#6ee7b7">Auto-Exploit</text>
+  <text x="435" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#6ee7b7">Safe Verify</text>
+  
+  <rect x="530" y="210" width="130" height="90" rx="8" fill="#2d1b4e" stroke="#C084FC" stroke-width="1.5"/>
+  <text x="595" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">phantom-c2</text>
+  <text x="595" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#C084FC">C2</text>
+  <text x="595" y="275" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#c4b5fd">Agent Mgmt</text>
+  <text x="595" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#c4b5fd">Encrypted</text>
+  
+  <rect x="690" y="210" width="100" height="90" rx="8" fill="#1e3a8a" stroke="#4ECDC4" stroke-width="1.5"/>
+  <text x="740" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">phantom-post</text>
+  <text x="740" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#4ECDC4">POST</text>
+  <text x="740" y="275" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#95E1D3">PrivEsc, Lateral</text>
+  <text x="740" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#95E1D3">Persistence</text>
+  
+  <!-- Row 3 - Centered -->
+  <rect x="335" y="330" width="130" height="90" rx="8" fill="#1e3a8a" stroke="#95E1D3" stroke-width="1.5"/>
+  <text x="400" y="355" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">phantom-report</text>
+  <text x="400" y="375" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#95E1D3">REPORT</text>
+  <text x="400" y="395" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#95E1D3">HTML/PDF</text>
+  <text x="400" y="410" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#95E1D3">MITRE ATT&CK</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="440" width="700" height="40" rx="5" fill="#0f172a" stroke="#FF6B00" stroke-width="1"/>
+  <text x="70" y="465" font-family="Arial, sans-serif" font-size="11" fill="#888888">RECON: </text>
+  <rect x="120" y="452" width="15" height="15" fill="#1e3a8a" stroke="#00D4AA"/>
+  <text x="145" y="465" font-family="Arial, sans-serif" font-size="11" fill="#888888">VULN: </text>
+  <rect x="180" y="452" width="15" height="15" fill="#4a1c4a" stroke="#FF6B6B"/>
+  <text x="205" y="465" font-family="Arial, sans-serif" font-size="11" fill="#888888">EVASION: </text>
+  <rect x="260" y="452" width="15" height="15" fill="#8b4513" stroke="#FFD700"/>
+  <text x="285" y="465" font-family="Arial, sans-serif" font-size="11" fill="#888888">EXPLOIT: </text>
+  <rect x="340" y="452" width="15" height="15" fill="#0d4f3c" stroke="#FF6B00"/>
+  <text x="365" y="465" font-family="Arial, sans-serif" font-size="11" fill="#888888">C2: </text>
+  <rect x="390" y="452" width="15" height="15" fill="#2d1b4e" stroke="#C084FC"/>
+  <text x="415" y="465" font-family="Arial, sans-serif" font-size="11" fill="#888888">POST: </text>
+  <rect x="455" y="452" width="15" height="15" fill="#1e3a8a" stroke="#4ECDC4"/>
+  <text x="480" y="465" font-family="Arial, sans-serif" font-size="11" fill="#888888">REPORT: </text>
+  <rect x="535" y="452" width="15" height="15" fill="#1e3a8a" stroke="#95E1D3"/>
+</svg>

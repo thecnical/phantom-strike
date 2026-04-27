@@ -110,9 +110,8 @@ We thank these security researchers for responsible disclosures:
 
 ## Contact
 
-- **Security Team**: security@phantomstrike.dev
-- **Project Lead**: chandan@cybermindcli.dev
-- **Emergency**: +91-XXX-XXX-XXXX (India)
+- **Security Team**: chandanabhay4456@gmail.com
+- **Project Lead**: chandanabhay4456@gmail.com
 
 ---
 

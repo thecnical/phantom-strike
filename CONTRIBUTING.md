@@ -233,7 +233,7 @@ Contributors will be:
 
 - [GitHub Discussions](https://github.com/thecnical/phantom-strike/discussions)
 - [Discord Community](https://discord.gg/phantomstrike) (coming soon)
-- Email: chandan@cybermindcli.dev
+- Email: chandanabhay4456@gmail.com
 
 ---
 
