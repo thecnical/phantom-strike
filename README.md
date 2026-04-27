@@ -1,407 +1,571 @@
 <p align="center">
-  <h1 align="center">🔥 PhantomStrike</h1>
-  <p align="center"><b>"See Everything. Strike Anywhere. Leave Nothing."</b></p>
-  <p align="center"><b>The World's Most Powerful Open-Source AI-Powered Offensive Security & Penetration Testing Framework</b></p>
-  <p align="center"><i>Built by <b>Chandan Pandey</b> under <b>CyberMindCLI</b></i></p>
+  <img src="https://raw.githubusercontent.com/thecnical/phantom-strike/main/assets/phantomstrike-logo.png" width="180" alt="PhantomStrike Logo">
+</p>
+
+<h1 align="center">
+  <img src="https://img.shields.io/badge/🔥%20PHANTOM%20STRIKE%20v2.0-FF6B00?style=for-the-badge&logo=ghost&logoColor=white" alt="PhantomStrike v2.0">
+</h1>
+
+<p align="center">
+  <b>AI-Powered Autonomous Offensive Security Framework</b><br>
+  <i>See Everything. Strike Anywhere. Leave Nothing.</i>
 </p>
 
 <p align="center">
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white"></a>
-  <a href="https://github.com/thecnical/phantom-strike/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge"></a>
-  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/API-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white"></a>
-  <a href="https://buymeacoffee.com/chandanpandit"><img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black"></a>
+  <a href="https://github.com/thecnical/phantom-strike/stargazers"><img src="https://img.shields.io/github/stars/thecnical/phantom-strike?style=for-the-badge&logo=github&color=FFD700" alt="Stars"></a>
+  <a href="https://github.com/thecnical/phantom-strike/network/members"><img src="https://img.shields.io/github/forks/thecnical/phantom-strike?style=for-the-badge&logo=github&color=00CED1" alt="Forks"></a>
+  <a href="https://github.com/thecnical/phantom-strike/issues"><img src="https://img.shields.io/github/issues/thecnical/phantom-strike?style=for-the-badge&logo=github&color=FF6B6B" alt="Issues"></a>
+  <a href="https://github.com/thecnical/phantom-strike/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-22D3EE?style=for-the-badge&logo=open-source-initiative&logoColor=white" alt="License"></a>
+</p>
+
+<p align="center">
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"></a>
+  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-0.110+-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI"></a>
+  <a href="https://groq.com"><img src="https://img.shields.io/badge/Groq%20AI-F55000?style=flat-square&logo=lightning&logoColor=white" alt="Groq"></a>
+  <a href="https://playwright.dev"><img src="https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=microsoft-edge&logoColor=white" alt="Playwright"></a>
+  <a href="https://www.docker.com"><img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker"></a>
+  <a href="https://render.com"><img src="https://img.shields.io/badge/Render-000000?style=flat-square&logo=render&logoColor=white" alt="Render"></a>
+</p>
+
+<p align="center">
+  <a href="https://phantom-strike.onrender.com"><img src="https://img.shields.io/badge/🌐%20Live%20Demo-LIVE%20ON%20RENDER-00FF00?style=for-the-badge&logo=rocket&logoColor=white" alt="Live Demo"></a>
 </p>
 
 ---
 
-## 🎯 What is PhantomStrike?
+## 🎯 Executive Summary
 
-**PhantomStrike** is an elite, next-generation **Automated Penetration Testing Framework** powered entirely by Artificial Intelligence. Designed for cybersecurity professionals, ethical hackers, and red teamers, PhantomStrike automates the complete MITRE ATT&CK kill chain — from deep **OSINT reconnaissance** to **polymorphic payload generation** and **auto-exploitation**. 
+**PhantomStrike** is the world's first **fully autonomous, AI-powered offensive security framework** that automates the complete penetration testing lifecycle. Built with cutting-edge technologies including **FastAPI**, **Playwright**, **Multi-Provider AI integration**, and **async Python**, it delivers enterprise-grade security assessment capabilities at zero cost.
 
-Unlike traditional vulnerability scanners (like Nessus, Nuclei, or Burp Suite), PhantomStrike leverages an intelligent AI brain to analyze vulnerabilities in real-time, generate stealthy, WAF-evading payloads, and plan attack vectors dynamically. 
+### 🏆 Why PhantomStrike Dominates
 
-Whether you are performing **Web Application Security Testing**, **Cloud Security Auditing (AWS/Azure/GCP)**, **Network Scanning**, or **Identity/OAuth bypassing**, PhantomStrike operates silently, asynchronously, and accurately.
-
-<p align="center">
-  <a href="#-features">Features</a> •
-  <a href="#%EF%B8%8F-architecture">Architecture</a> •
-  <a href="#-installation">Installation</a> •
-  <a href="#-usage">Usage</a> •
-  <a href="#-api-server">API</a>
-</p>
-
-PhantomStrike is the **first fully AI-powered, end-to-end offensive security framework** that automates the entire penetration testing lifecycle. No other open-source tool does this.
-
-### Why PhantomStrike?
-
-| Feature | Metasploit | Nmap | Nuclei | Burp Suite | **PhantomStrike** |
-|---------|:---------:|:----:|:------:|:----------:|:-----------------:|
-| AI Attack Planning | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Full Kill Chain Automation | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Cloud Security (AWS/Azure/GCP) | ❌ | ❌ | Limited | ❌ | ✅ |
-| Identity Attacks (JWT/OAuth) | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Polymorphic Payload Generation | ❌ | ❌ | ❌ | ❌ | ✅ |
-| C2 Framework | ❌ | ❌ | ❌ | ❌ | ✅ |
-| REST API (30+ endpoints) | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Multi-Provider AI Failover | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Browser Automation (Playwright) | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Cost | Free | Free | Free | **$449/yr** | **100% FREE** |
+| Capability | Metasploit | Burp Suite Pro | Nessus | Nuclei | **PhantomStrike** |
+|:-----------|:----------:|:--------------:|:------:|:------:|:-----------------:|
+| **AI Attack Planning** | ❌ | ❌ | ❌ | ❌ | ✅ **Groq + OpenRouter** |
+| **Real-Time Dashboard** | ❌ | ✅ $449/yr | ❌ | ❌ | ✅ **WebSocket Live** |
+| **Cloud Security (AWS/S3/Azure)** | ❌ | ❌ | ❌ | ❌ | ✅ **Bucket Enumeration** |
+| **Blind SQL Injection** | ❌ | ✅ | ❌ | ❌ | ✅ **Time-based Detection** |
+| **CSRF/XXE/IDOR Testing** | ❌ | ✅ | ❌ | ❌ | ✅ **Automated** |
+| **C2 Framework** | ✅ | ❌ | ❌ | ❌ | ✅ **Agent Management** |
+| **Browser Automation** | ❌ | ✅ | ❌ | ❌ | ✅ **Playwright** |
+| **MITRE ATT&CK Mapping** | ❌ | ❌ | ❌ | ❌ | ✅ **Auto-Mapped** |
+| **Cost** | Free | **$449/yr** | **$3,390/yr** | Free | **100% FREE** |
 
 ---
 
-## 📔 Table of Contents
+## 📋 Table of Contents
 
-- [🎯 What is PhantomStrike?](#-what-is-phantomstrike)
-- [✨ Features](#-features)
-  - [Reconnaissance](#-reconnaissance)
-  - [Vulnerability Discovery](#-vulnerability-discovery)
-  - [Exploitation & Post-Exploitation](#-exploitation--post-exploitation)
-  - [AI & Evasion](#-ai--evasion)
-  - [C2 & Reporting](#-c2--reporting)
-- [🏗️ Architecture](#%EF%B8%8F-architecture)
-  - [System Workflow](#system-workflow)
-  - [Kill Chain Pipeline](#kill-chain-pipeline)
-- [💿 Installation](#-installation)
-  - [Standard Installation](#standard-installation-for-users)
-  - [One-Command Install](#one-command-install)
-- [⚙️ Configuration](#%EF%B8%8F-configuration)
-- [🚀 Usage](#-usage)
-  - [CLI Mode](#cli-mode)
-  - [API Server Mode](#api-server-mode)
-  - [Example Usage](#example-usage)
-- [🌐 API Server](#-api-server)
+- [🎯 Executive Summary](#-executive-summary)
+- [✨ Core Features](#-core-features)
+- [🏗️ System Architecture](#️-system-architecture)
+- [🚀 Quick Start](#-quick-start)
+- [📦 Installation](#-installation)
+- [🔧 Configuration](#-configuration)
+- [💻 Usage Guide](#-usage-guide)
+- [🌐 API Reference](#-api-reference)
+- [🎛️ Web Dashboard](#️-web-dashboard)
+- [🤖 AI Integration](#-ai-integration)
+- [☁️ Cloud Deployment](#️-cloud-deployment)
 - [🧪 Testing](#-testing)
-- [⚠️ Disclaimer](#%EF%B8%8F-disclaimer)
+- [📸 Screenshots](#-screenshots)
+- [⚠️ Legal Disclaimer](#️-legal-disclaimer)
 - [📜 License](#-license)
+- [🙏 Acknowledgments](#-acknowledgments)
 
 ---
 
-## ✨ Features
+## ✨ Core Features
 
-PhantomStrike packs **12 offensive modules** covering every phase of the MITRE ATT&CK framework.
+### 🔥 v2.0 Enhanced Features
 
-### 🔍 Reconnaissance
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    PHANTOMSTRIKE v2.0 KILL CHAIN                        │
+├─────────────────────────────────────────────────────────────────────────┤
+│  RECONNAISSANCE → VULNERABILITY → EXPLOITATION → POST-EXPLOITATION    │
+├─────────────────────────────────────────────────────────────────────────┤
+│  1. OSINT          1. Web Scanner     1. Auto-Exploit   1. Privilege    │
+│  2. Network Scan   2. Cloud Audit    2. C2 Deploy      2. Lateral      │
+│  3. Web Crawl      3. AI Analysis    3. Payload Gen    3. Persistence  │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
-| Capability | Description | Module |
-|-----------|-------------|--------|
-| **Subdomain Enumeration** | Certificate Transparency (crt.sh) + DNS brute force | `phantom-osint` |
-| **Email Harvesting** | Discovers email addresses from target domain | `phantom-osint` |
-| **DNS Intelligence** | A, MX, NS, TXT record analysis | `phantom-osint` |
-| **Technology Detection** | Server, framework, CMS identification | `phantom-osint` |
-| **Port Scanning** | 200-thread async scanner with banner grabbing | `phantom-network` |
-| **Service Detection** | Version fingerprinting from banners | `phantom-network` |
-| **Browser Crawling** | Playwright-powered JS rendering & endpoint discovery | `core/browser` |
+### 🧠 AI-Powered Engine
 
-### 💉 Vulnerability Discovery
+| Feature | Provider | Status | Capabilities |
+|:--------|:---------|:------:|:-------------|
+| **Attack Planning** | Groq (Llama 3) | ✅ | Strategy generation, recon optimization |
+| **Payload Generation** | OpenRouter | ✅ | Polymorphic XSS, SQLi, RCE payloads |
+| **Vulnerability Analysis** | Gemini Pro | ⚡ | CVE matching, risk scoring |
+| **Report Generation** | Cerebras | ⚡ | MITRE ATT&CK mapped reports |
+| **Failover System** | Multi-Provider | ✅ | Auto-switch on rate limits |
 
-| Capability | Description | Module |
-|-----------|-------------|--------|
-| **SQL Injection** | Union, Boolean, Time-based, Error-based detection | `phantom-web` |
-| **Cross-Site Scripting** | Reflected & Stored XSS with polymorphic payloads | `phantom-web` |
-| **Local File Inclusion** | Path traversal with encoding bypass | `phantom-web` |
-| **Server-Side Request Forgery** | Internal network access detection | `phantom-web` |
-| **Remote Code Execution** | Command injection detection | `phantom-web` |
-| **Security Headers** | Missing CSP, HSTS, X-Frame-Options analysis | `phantom-web` |
-| **Cloud Misconfig** | S3 buckets, Azure Blobs, GCP Storage exposure | `phantom-cloud` |
-| **Cloud Metadata SSRF** | 169.254.169.254 access detection | `phantom-cloud` |
-| **JWT Vulnerabilities** | None algorithm, weak secret, expired token attacks | `phantom-identity` |
-| **OAuth/Auth Bypass** | Path traversal, header injection bypass | `phantom-identity` |
-| **Credential Testing** | Password spraying with anti-lockout | `phantom-cred` |
-| **Hash Cracking** | MD5, SHA1, SHA256, SHA512 dictionary attack | `phantom-cred` |
+### 🌐 Web Dashboard (Real-Time)
 
-### ⚡ Exploitation & Post-Exploitation
+- **Live Scan Monitoring** via WebSocket
+- **Vulnerability Alerts** with severity colors
+- **AI Chat Assistant** for attack guidance
+- **Payload Generator** with one-click copy
+- **C2 Agent Management** panel
+- **Scan History & Reports** viewer
 
-| Capability | Description | Module |
-|-----------|-------------|--------|
-| **Auto-Exploit SQLi** | UNION-based data extraction (tables, users, version) | `phantom-exploit` |
-| **Auto-Exploit XSS** | Cookie stealing payload injection | `phantom-exploit` |
-| **Auto-Exploit LFI** | /etc/passwd, SSH keys, log extraction | `phantom-exploit` |
-| **Auto-Exploit RCE** | Command execution (id, whoami, uname) | `phantom-exploit` |
-| **Linux PrivEsc** | 14 checks: SUID, sudo, cron, docker, capabilities | `phantom-post` |
-| **Lateral Movement** | 8 checks: ARP, SSH, Docker, Kubernetes discovery | `phantom-post` |
-| **Persistence** | Cron, SSH key, bashrc, systemd techniques | `phantom-post` |
-| **Enumeration Scripts** | Auto-generated bash scripts for target | `phantom-post` |
+### 🛡️ Security Modules (11 Total)
 
-### 🧠 AI & Evasion
-
-| Capability | Description | Module |
-|-----------|-------------|--------|
-| **AI Attack Planning** | MITRE ATT&CK-mapped attack chains via Groq LPU | `ai/attack_planner` |
-| **AI Vuln Analysis** | Severity assessment & exploit strategy | `ai/engine` |
-| **AI Payload Generation** | Context-aware evasive payloads | `ai/attack_planner` |
-| **Polymorphic XSS** | 9 tags × 6 events × 5 handlers × 7 encodings | `phantom-stealth` |
-| **Polymorphic SQLi** | Random comments, encoding, case mutation | `phantom-stealth` |
-| **WAF Bypass** | URL, double-URL, Unicode, hex, base64, HTML entity | `phantom-stealth` |
-| **Reverse Shells** | 6 languages: Bash, Python, Perl, PHP, NC, PowerShell | `phantom-stealth` |
-
-### 📡 C2 & Reporting
-
-| Capability | Description | Module |
-|-----------|-------------|--------|
-| **Agent Management** | Register, track, command remote agents | `phantom-c2` |
-| **Agent Payloads** | Python & Bash agent generation | `phantom-c2` |
-| **Encrypted Channels** | AES-256-GCM design (HTTPS/WebSocket/DNS) | `phantom-c2` |
-| **HTML Reports** | Stunning dark-theme with risk scoring | `phantom-report` |
-| **MITRE ATT&CK Mapping** | Automatic technique mapping for findings | `phantom-report` |
-| **JSON Export** | Machine-readable results export | `phantom-report` |
+| Module | Phase | Key Features |
+|:-------|:------|:-------------|
+| `phantom-osint` | Recon | Subdomain enum, email harvest, DNS intel |
+| `phantom-network` | Recon | Async port scan, service detection, OS fingerprint |
+| `phantom-web` | Vuln | SQLi (Blind/Union), XSS (Stored/Reflected), CSRF, XXE, IDOR |
+| `phantom-cloud` | Vuln | S3/Azure/GCP bucket enumeration, IAM misconfig |
+| `phantom-identity` | Vuln | JWT attacks, OAuth abuse, auth bypass |
+| `phantom-cred` | Vuln | Brute force, password spray, hash cracking |
+| `phantom-stealth` | Evasion | WAF bypass, AV evasion, polymorphic payloads |
+| `phantom-exploit` | Exploit | Auto-exploitation with safe verification |
+| `phantom-c2` | C2 | Agent deployment, encrypted channels |
+| `phantom-post` | Post-Exploit | Privesc, lateral movement, persistence |
+| `phantom-report` | Reporting | HTML/PDF reports with MITRE mapping |
 
 ---
 
-## 🏗️ Architecture
-
-### System Workflow
+## 🏗️ System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         CLIENT LAYER                                │
-│   ┌───────────────┐  ┌──────────────────┐  ┌───────────────────┐   │
-│   │   CLI (Rich)  │  │  FastAPI (30+ep) │  │  Future Frontend  │   │
-│   └───────┬───────┘  └────────┬─────────┘  └─────────┬─────────┘   │
-└───────────┼────────────────────┼──────────────────────┼─────────────┘
-            │                    │                      │
-            ▼                    ▼                      ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                       MASTER ENGINE                                 │
-│   ┌─────────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│   │  Module Loader   │  │  Event Bus   │  │  Task Queue          │  │
-│   │  (Auto-Discover) │  │  (Async PubSub│  │  (Multi-Thread)     │  │
-│   └────────┬────────┘  └──────┬───────┘  └──────────────────────┘  │
-└────────────┼───────────────────┼────────────────────────────────────┘
-             │                   │
-┌────────────┼───────────────────┼────────────────────────────────────┐
-│            ▼                   ▼           AI LAYER                  │
-│   ┌────────────────────────────────────────────────────────────┐    │
-│   │              AI ENGINE (9 FREE Providers)                  │    │
-│   │  ┌──────┐ ┌──────────┐ ┌──────┐ ┌────────┐ ┌──────────┐  │    │
-│   │  │ Groq │→│OpenRouter│→│Gemini│→│Cerebras│→│ 5 More...│  │    │
-│   │  │ #0   │ │   #1     │ │  #2  │ │   #3   │ │  #4-#8   │  │    │
-│   │  └──────┘ └──────────┘ └──────┘ └────────┘ └──────────┘  │    │
-│   └──────────────────────┬─────────────────────────────────────┘    │
-│                          ▼                                          │
-│   ┌──────────────────────────────────────────────────────────┐     │
-│   │  Attack Planner │ Vuln Analyzer │ Payload Generator      │     │
-│   └──────────────────────────────────────────────────────────┘     │
-└─────────────────────────────────────────────────────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                     12 OFFENSIVE MODULES                            │
-│  ┌──────┐ ┌───────┐ ┌─────┐ ┌───────┐ ┌──────┐ ┌────────┐        │
-│  │OSINT │ │Network│ │ Web │ │ Cloud │ │ Cred │ │Identity│        │
-│  └──────┘ └───────┘ └─────┘ └───────┘ └──────┘ └────────┘        │
-│  ┌───────┐ ┌───────┐ ┌────┐ ┌──────┐ ┌──────┐                    │
-│  │Stealth│ │Exploit│ │ C2 │ │ Post │ │Report│                    │
-│  └───────┘ └───────┘ └────┘ └──────┘ └──────┘                    │
-└─────────────────────────────────────────────────────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                    PERSISTENCE LAYER                                │
-│   ┌──────────────┐  ┌────────────────┐  ┌────────────────────┐     │
-│   │ SQLite (7 DB)│  │ Evidence Store │  │ HTML/JSON Reports  │     │
-│   └──────────────┘  └────────────────┘  └────────────────────┘     │
-└─────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         PHANTOMSTRIKE ARCHITECTURE v2.0                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        FRONTEND LAYER                                │   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
+│  │  │  Web UI      │  │  WebSocket   │  │   CLI        │               │   │
+│  │  │ (Dashboard)  │  │ (Live Feed)  │  │ (Rich/TUI)   │               │   │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        API LAYER (FastAPI)                           │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌─────────┐ │   │
+│  │  │ /api/scan│ │ /api/ai  │ │/api/payld│ │ /ws      │ │ /health │ │   │
+│  │  │ /start   │ │ /query   │ │ /gen     │ │ (RealTime)│ │         │ │   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └─────────┘ │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    CORE ENGINE (Async Python)                        │   │
+│  │  ┌───────────────────────────────────────────────────────────────┐  │   │
+│  │  │              EnhancedPhantomEngine (v2.0)                     │  │   │
+│  │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │  │   │
+│  │  │  │  Event   │ │  Module  │ │   AI     │ │  Scan    │          │  │   │
+│  │  │  │  Bus     │ │  Loader  │ │  Engine  │ │  Lock    │          │  │   │
+│  │  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘          │  │   │
+│  │  └───────────────────────────────────────────────────────────────┘  │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    MODULE LAYER (11 Modules)                       │   │
+│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐  │   │
+│  │  │ OSINT  │ │Network │ │  Web   │ │ Cloud  │ │Identity│ │  Cred  │  │   │
+│  │  └────────┘ └────────┘ └────────┘ └────────┘ └────────┘ └────────┘  │   │
+│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐            │   │
+│  │  │Stealth │ │Exploit │ │   C2   │ │  Post  │ │ Report │            │   │
+│  │  └────────┘ └────────┘ └────────┘ └────────┘ └────────┘            │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    AI ENGINE LAYER                                  │   │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐          │   │
+│  │  │   Groq   │  │OpenRouter│  │  Gemini  │  │ Cerebras │          │   │
+│  │  │ (Llama3) │  │ (Multi)  │  │  (Pro)   │  │ (Llama3) │          │   │
+│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘          │   │
+│  │                           │ Failover                              │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Kill Chain Pipeline
-
-PhantomStrike automates the **complete 7-phase kill chain** with a single command:
+### 🔄 Kill Chain Pipeline
 
 ```
-phantom> attack example.com
-
-  Phase 1          Phase 2          Phase 3           Phase 4
-┌──────────┐    ┌───────────┐    ┌────────────┐    ┌────────────┐
-│  RECON   │───▶│   VULN    │───▶│  AI PLAN   │───▶│  PAYLOAD   │
-│  OSINT + │    │  Web+Cloud│    │  Attack    │    │  Polymorphic│
-│  Network │    │  +Identity│    │  Chains    │    │  Generation │
-└──────────┘    └───────────┘    └────────────┘    └────────────┘
-                                                         │
-  Phase 7          Phase 6          Phase 5               │
-┌──────────┐    ┌───────────┐    ┌────────────┐          │
-│  REPORT  │◀───│POST-EXPL  │◀───│  EXPLOIT   │◀─────────┘
-│  HTML +  │    │  PrivEsc  │    │  Auto-Run  │
-│  MITRE   │    │  Lateral  │    │  Chains    │
-└──────────┘    └───────────┘    └────────────┘
-```
-
-### AI Failover System
-
-```
-Request ──▶ Groq (500+ tps, Priority #0)
-             │ rate limited?
-             ▼
-           OpenRouter (Priority #1)
-             │ rate limited?
-             ▼
-           Gemini (1500 req/day, Priority #2)
-             │ rate limited?
-             ▼
-           Cerebras → Mistral → Together → HuggingFace → NVIDIA → SambaNova
-             │
-             ▼
-           ✅ Response (always succeeds with 9 providers!)
-
-Combined: ~5,000+ free requests/day | ~400 RPM | ₹0 cost
+Target Input
+     │
+     ▼
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  OSINT      │────▶│  Network    │────▶│  Web Crawl  │
+│  Recon      │     │  Scan       │     │  & Analysis │
+└─────────────┘     └─────────────┘     └─────────────┘
+     │                                         │
+     │         ┌─────────────┐                │
+     └────────▶│  AI Brain   │◀───────────────┘
+               │  Analysis   │
+               └─────────────┘
+                     │
+     ┌───────────────┼───────────────┐
+     ▼               ▼               ▼
+┌─────────┐    ┌─────────┐    ┌─────────┐
+│ Payload │    │Exploit  │    │  C2     │
+│Generator│    │Execution│    │Deploy   │
+└─────────┘    └─────────┘    └─────────┘
+     │               │               │
+     └───────────────┴───────────────┘
+                     │
+                     ▼
+            ┌─────────────┐
+            │   Report    │
+            │  Generation │
+            └─────────────┘
 ```
 
 ---
 
-## 💿 Installation
+## 🚀 Quick Start
+
+### ☁️ One-Click Deploy (Render)
+
+[![Deploy to Render](https://img.shields.io/badge/Deploy%20to-Render-000000?style=for-the-badge&logo=render)](https://render.com/deploy?repo=https://github.com/thecnical/phantom-strike)
+
+**Live Instance**: [https://phantom-strike.onrender.com](https://phantom-strike.onrender.com)
+
+### 🐳 Docker (30 seconds)
+
+```bash
+# Pull and run
+docker pull phantomstrike/phantom-strike:latest
+docker run -p 10000:10000 phantomstrike/phantom-strike:latest
+
+# Access dashboard
+open http://localhost:10000
+```
+
+### 📦 pip Install (60 seconds)
+
+```bash
+# Install from PyPI (coming soon)
+pip install phantom-strike
+
+# Or install from source
+git clone https://github.com/thecnical/phantom-strike.git
+cd phantom-strike
+pip install -e ".[api]"
+
+# Start server
+phantom api-server
+```
+
+---
+
+## 📦 Installation
 
 ### Prerequisites
 
-- **Python 3.10+**
-- **Linux recommended** (Kali, Parrot, Ubuntu, Debian) — also works on Windows/macOS
-- **Zero API Keys required** — PhantomStrike connects to a cloud-deployed AI backend.
+- Python 3.10+ 
+- 4GB RAM minimum (8GB recommended)
+- Linux/macOS/Windows WSL
 
-### Standard Installation (For Users)
+### Full Installation
 
 ```bash
+# 1. Clone repository
 git clone https://github.com/thecnical/phantom-strike.git
 cd phantom-strike
 
-# For Kali Linux/Ubuntu (bypasses 'externally-managed-environment' error)
-pip install -e "." --break-system-packages
+# 2. Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate  # Windows
 
-# For Windows/Virtual Environments
-pip install -e "."
+# 3. Install with all features
+pip install -e ".[api,dev]"
+
+# 4. Install Playwright browsers
+playwright install chromium
+
+# 5. Configure API keys (optional, for AI features)
+cp configs/config.yaml.example configs/config.yaml
+# Edit config.yaml with your API keys
 ```
 
-That's it! No `.env` files or API keys needed. The CLI automatically connects to the deployed backend to perform AI analysis. Playwright browsers will auto-install on their first use.
+### AI Provider Setup (Optional)
 
-### One-Command Install
+| Provider | Get API Key | Free Tier |
+|:---------|:------------|:---------:|
+| **Groq** | [console.groq.com](https://console.groq.com) | ✅ 14K requests/day |
+| **OpenRouter** | [openrouter.ai](https://openrouter.ai) | ✅ Pay-as-you-go |
+| **Gemini** | [makersuite.google.com](https://makersuite.google.com) | ✅ 60 queries/min |
+| **Cerebras** | [cerebras.ai](https://cerebras.ai) | ✅ Developer tier |
 
-```bash
-bash <(curl -sL https://raw.githubusercontent.com/thecnical/phantom-strike/main/install.sh)
+Set in Render Environment Variables:
 ```
-
----
-
-## ⚙️ Configuration
-
-PhantomStrike uses **3 attack profiles** for scanning:
-
-| Profile | Threads | Delay | Auto-Exploit | Use Case |
-|---------|---------|-------|:------------:|----------|
-| `default.yaml` | 100 | 100ms | ❌ | Balanced scanning |
-| `stealth.yaml` | 20 | 2000ms | ❌ | Evade IDS/IPS detection |
-| `aggressive.yaml` | 200 | 0ms | ✅ | Maximum speed & coverage |
-
-```bash
-# Connect to a specific backend API (default config uses public URL)
-phantom --backend https://your-backend-api.onrender.com
-
-```bash
-# Use specific profile
-phantom --config configs/stealth.yaml
+GROQ_API_KEY=gsk_xxxxxxxxxxxx
+OPENROUTER_API_KEY=sk-or-v1-xxxxxxxx
+GEMINI_API_KEY=AIxxxxxxxxxxxx
+CEREBRAS_API_KEY=csk_xxxxxxxxxxx
 ```
 
 ---
 
-## 🚀 Usage
+## 🔧 Configuration
 
-### CLI Mode
+### `configs/config.yaml`
 
-```bash
-python -m phantom          # Interactive CLI
-phantom-strike             # Or use the command
-```
-
-### API Server Mode
-
-```bash
-python -m phantom serve              # Default port 10000
-python -m phantom serve 8080         # Custom port
-uvicorn phantom.api.server:app       # Direct uvicorn
-```
-
-### Example Usage
-
-```bash
-# ── Reconnaissance ──────────────────────────────
-phantom> recon example.com                 # Full OSINT + network recon
-phantom> module phantom-osint example.com  # OSINT only
-
-# ── Scanning ────────────────────────────────────
-phantom> scan example.com                  # Quick vulnerability scan
-phantom> scan example.com phantom-web      # Web-only scan
-
-# ── Full Kill Chain ─────────────────────────────
-phantom> attack example.com                # 7-phase automated attack
-
-# ── AI ──────────────────────────────────────────
-phantom> ai status                         # Provider status
-phantom> ai ask "explain JWT none attack"  # Ask AI anything
-phantom> ai plan example.com              # AI attack planning
-
-# ── Stealth Payloads ───────────────────────────
-phantom> stealth xss 20                    # 20 polymorphic XSS payloads
-phantom> stealth sqli 10                   # 10 polymorphic SQLi payloads
-phantom> stealth reverse_shell 10.0.0.1 4444  # 6 reverse shells
-
-# ── C2 (Command & Control) ─────────────────────
-phantom> c2 status                         # C2 status
-phantom> c2 agents                         # List agents
-phantom> c2 generate 10.0.0.1 4444         # Generate agent payload
-phantom> c2 cmd agent_abc whoami           # Send command
-
-# ── Reporting ───────────────────────────────────
-phantom> report example.com                # Generate HTML report
-
-# ── System ──────────────────────────────────────
-phantom> modules                           # List loaded modules
-phantom> status                            # Engine status
-phantom> help scan                         # Detailed help
+```yaml
+phantom:
+  # AI Engine Configuration
+  ai:
+    enabled: true
+    primary_provider: groq
+    fallback_providers: [openrouter, gemini]
+    timeout: 30
+    max_retries: 3
+    
+  # Module Configuration  
+  modules:
+    concurrent_limit: 5
+    timeout: 300
+    
+  # Network Scanning
+  network:
+    threads: 200
+    timeout: 5
+    ports: [21,22,23,25,53,80,110,143,443,445,3306,3389,5432,8080,8443]
+    
+  # Web Scanning
+  web:
+    crawl_depth: 3
+    max_pages: 100
+    forms_per_page: 5
+    
+  # Cloud Scanning
+  cloud:
+    s3_enabled: true
+    azure_enabled: true
+    gcp_enabled: true
+    
+  # Reporting
+  report:
+    formats: [html, json, pdf]
+    auto_generate: true
 ```
 
 ---
 
-## 🌐 API Server
+## 💻 Usage Guide
 
-30+ REST endpoints available at `/docs` (Swagger UI):
-
-| Category | Method | Endpoint | Description |
-|----------|--------|----------|-------------|
-| **Core** | `GET` | `/health` | Health check |
-| | `GET` | `/api/status` | Engine status |
-| | `GET` | `/api/modules` | List modules |
-| **Scan** | `POST` | `/api/scan` | Run scan |
-| | `POST` | `/api/scan/full` | Full kill chain |
-| **Module** | `POST` | `/api/module/{name}` | Run any module |
-| | `POST` | `/api/osint` | OSINT scan |
-| | `POST` | `/api/network` | Port scan |
-| | `POST` | `/api/web` | Web vuln scan |
-| | `POST` | `/api/cloud` | Cloud scan |
-| | `POST` | `/api/identity` | JWT/Auth scan |
-| | `POST` | `/api/cred` | Credential attacks |
-| | `POST` | `/api/stealth` | Payload generation |
-| **AI** | `POST` | `/api/ai/query` | Query AI |
-| | `GET` | `/api/ai/status` | Provider status |
-| | `POST` | `/api/ai/plan` | Attack planning |
-| **C2** | `POST` | `/api/c2/checkin` | Agent check-in |
-| | `GET` | `/api/c2/agents` | List agents |
-| | `POST` | `/api/c2/command/{id}` | Send command |
-| | `POST` | `/api/c2/generate` | Generate agent |
-| **Results** | `GET` | `/api/results` | All results |
-
-### API Examples (cURL)
+### 🖥️ CLI Mode
 
 ```bash
+# Interactive CLI
+phantom
+
 # Quick scan
-curl -X POST https://your-app.onrender.com/api/scan \
-  -H "Content-Type: application/json" \
-  -d '{"target": "example.com"}'
+phantom scan --target example.com --type full
 
-# AI query
-curl -X POST https://your-app.onrender.com/api/ai/query \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "How to detect JWT vulnerabilities?"}'
+# Network only
+phantom scan --target 192.168.1.1/24 --type network
 
-# Generate XSS payloads
-curl -X POST https://your-app.onrender.com/api/module/phantom-stealth \
+# Web only
+phantom scan --target https://example.com --type web
+
+# With AI assistance
+phantom scan --target example.com --ai --auto-exploit
+
+# Generate payload
+phantom payload --type xss --waf cloudflare
+
+# Start API server
+phantom api-server --host 0.0.0.0 --port 10000
+```
+
+### 🌐 API Mode
+
+```bash
+# Start enhanced server
+phantom api-server
+
+# Access dashboard
+open http://localhost:10000
+
+# API documentation
+open http://localhost:10000/docs
+```
+
+### 📡 API Examples
+
+**Start Scan:**
+```bash
+curl -X POST "https://phantom-strike.onrender.com/api/scan/start" \
   -H "Content-Type: application/json" \
-  -d '{"target": "x", "options": {"type": "xss"}}'
+  -d '{
+    "target": "scanme.nmap.org",
+    "scan_type": "full",
+    "profile": "aggressive",
+    "auto_exploit": false
+  }'
+```
+
+**AI Query:**
+```bash
+curl -X POST "https://phantom-strike.onrender.com/api/ai/query" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "Generate SQLi payloads for MySQL 5.7",
+    "context": {"target_type": "web", "db_type": "mysql"}
+  }'
+```
+
+**Generate Payload:**
+```bash
+curl -X POST "https://phantom-strike.onrender.com/api/payload/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "vulnerability_type": "xss",
+    "target_tech": {"waf": "cloudflare", "context": "reflected"}
+  }'
+```
+
+---
+
+## 🌐 API Reference
+
+### Endpoints Overview
+
+| Endpoint | Method | Description |
+|:---------|:------:|:------------|
+| `/` | GET | Web Dashboard UI |
+| `/health` | GET | Health Check |
+| `/ws` | WS | WebSocket Live Feed |
+| `/api/scan/start` | POST | Start Background Scan |
+| `/api/scan/quick` | POST | Quick Synchronous Scan |
+| `/api/scan/status/{id}` | GET | Scan Status |
+| `/api/ai/query` | POST | AI Attack Planning |
+| `/api/ai/status` | GET | AI Provider Status |
+| `/api/payload/generate` | POST | Generate Payload |
+| `/api/modules` | GET | List Modules |
+| `/api/c2/agents` | GET | C2 Agent List |
+| `/api/reports` | GET | Generated Reports |
+
+### WebSocket Commands
+
+```javascript
+// Connect
+const ws = new WebSocket('wss://phantom-strike.onrender.com/ws');
+
+// Ping
+ws.send(JSON.stringify({cmd: 'ping'}));
+
+// Get status
+ws.send(JSON.stringify({cmd: 'get_status'}));
+
+// Start scan
+ws.send(JSON.stringify({
+  cmd: 'start_scan',
+  target: 'example.com',
+  scan_type: 'web'
+}));
+```
+
+---
+
+## 🎛️ Web Dashboard
+
+### Features
+
+- 🎯 **Scan Launcher** - Configure and launch scans
+- 📊 **Live Progress** - Real-time scan updates
+- 🚨 **Vuln Alerts** - Severity-based notifications
+- 🧠 **AI Chat** - Ask attack questions
+- 💣 **Payload Gen** - One-click payload generation
+- 📡 **C2 Panel** - Agent management
+- 📋 **History** - Past scan results
+
+### Dashboard URL
+```
+https://phantom-strike.onrender.com
+```
+
+---
+
+## 🤖 AI Integration
+
+### Multi-Provider Failover
+
+```python
+# Automatic failover sequence:
+1. Groq (Llama 3 70B) → Fastest, 14K req/day free
+2. OpenRouter → 100+ models, pay-as-you-go
+3. Gemini Pro → Google, 60 req/min free
+4. Cerebras → Fast inference
+5. Rule-Based Fallback → Always works
+```
+
+### AI Capabilities
+
+| Task | AI Model | Use Case |
+|:-----|:---------|:---------|
+| Attack Planning | Groq/Llama3 | Recon strategy, tool selection |
+| Payload Generation | OpenRouter | Context-aware XSS/SQLi payloads |
+| Vuln Analysis | Gemini Pro | CVE research, risk assessment |
+| Report Writing | Cerebras | Professional pentest reports |
+| Code Review | Groq | Exploit code validation |
+
+---
+
+## ☁️ Cloud Deployment
+
+### Render (Recommended)
+
+```yaml
+# render.yaml
+services:
+  - type: web
+    name: phantom-strike
+    runtime: docker
+    repo: https://github.com/thecnical/phantom-strike
+    plan: standard
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+```
+
+### Docker Compose
+
+```yaml
+version: '3.8'
+services:
+  phantom-strike:
+    image: phantomstrike/phantom-strike:latest
+    ports:
+      - "10000:10000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    volumes:
+      - ./reports:/root/.phantom-strike/reports
+```
+
+### Kubernetes
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phantom-strike
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: phantom-strike
+  template:
+    metadata:
+      labels:
+        app: phantom-strike
+    spec:
+      containers:
+      - name: phantom
+        image: phantomstrike/phantom-strike:latest
+        ports:
+        - containerPort: 10000
 ```
 
 ---
@@ -409,73 +573,83 @@ curl -X POST https://your-app.onrender.com/api/module/phantom-stealth \
 ## 🧪 Testing
 
 ```bash
-pip install -e ".[dev]"
-pytest tests/ -v                    # 22 test cases
-pytest tests/ -v --cov=phantom      # With coverage
+# Run all tests
+pytest tests/ -v
+
+# Run specific module tests
+pytest tests/test_web_module.py -v
+
+# Run with coverage
+pytest tests/ --cov=phantom --cov-report=html
+
+# Test against real target (safe)
+python test_real_attack.py
 ```
 
 ---
 
-## 📁 Project Structure
+## 📸 Screenshots
 
-```
-phantom-strike/
-├── phantom/
-│   ├── __main__.py              # Entry point (CLI + API)
-│   ├── api/server.py            # FastAPI backend (30+ endpoints)
-│   ├── ai/
-│   │   ├── engine.py            # 9-provider AI with failover
-│   │   └── attack_planner.py    # MITRE ATT&CK attack planner
-│   ├── cli/app.py               # Interactive Rich CLI (20 commands)
-│   ├── core/
-│   │   ├── config.py            # Config + 9 AI providers
-│   │   ├── engine.py            # Master orchestration (7-phase)
-│   │   ├── events.py            # Async event bus
-│   │   ├── loader.py            # Dynamic module loader
-│   │   ├── browser.py           # Playwright stealth engine
-│   │   └── task_queue.py        # Multi-threaded queue
-│   ├── db/store.py              # SQLite (7 tables)
-│   └── modules/
-│       ├── base.py              # Base module interface
-│       ├── osint/engine.py      # OSINT reconnaissance
-│       ├── network/engine.py    # Port scanning
-│       ├── web/engine.py        # Web vulnerability scanning
-│       ├── cloud/engine.py      # Cloud security
-│       ├── cred/engine.py       # Credential attacks
-│       ├── identity/engine.py   # JWT/OAuth attacks
-│       ├── stealth/engine.py    # Polymorphic payloads
-│       ├── exploit/engine.py    # Auto-exploitation
-│       ├── c2/engine.py         # Command & Control
-│       ├── post/engine.py       # Post-exploitation
-│       └── report/engine.py     # Report generation
-├── configs/                     # Attack profiles
-├── tests/test_core.py           # 22 test cases
-├── Dockerfile                   # Container build
-├── render.yaml                  # Render deployment
-└── pyproject.toml               # Python project config
-```
+<p align="center">
+  <img src="assets/screenshot-dashboard.png" width="800" alt="Dashboard">
+  <br>
+  <i>PhantomStrike Web Dashboard - Real-time Vulnerability Monitoring</i>
+</p>
+
+<p align="center">
+  <img src="assets/screenshot-cli.png" width="800" alt="CLI">
+  <br>
+  <i>Rich Terminal Interface with Live Scan Progress</i>
+</p>
 
 ---
 
-## ⚠️ Disclaimer
+## ⚠️ Legal Disclaimer
 
-> **PhantomStrike is designed EXCLUSIVELY for authorized penetration testing, security research, and educational purposes.**
->
-> - Always obtain **written authorization** before testing any system
-> - Never use against systems you don't own or have explicit permission to test
-> - The developers are **not responsible** for any misuse of this tool
-> - Comply with all applicable local, national, and international laws
-> - Usage for attacking targets without prior consent is **illegal**
+**IMPORTANT**: PhantomStrike is intended for authorized security testing only.
+
+- ✅ **USE FOR**: Authorized penetration testing, security audits, vulnerability assessments, educational purposes
+- ❌ **DO NOT USE FOR**: Unauthorized access, illegal activities, attacking systems you don't own
+
+**By using this tool, you agree to:**
+1. Only scan systems you own or have written authorization to test
+2. Follow responsible disclosure for any vulnerabilities found
+3. Comply with all local, national, and international laws
+4. Not use this tool for malicious purposes
+
+**The developers assume no liability for misuse of this tool.**
 
 ---
 
 ## 📜 License
 
-This project is licensed under the [MIT License](LICENSE).
+MIT License - see [LICENSE](LICENSE) for details.
+
+Copyright (c) 2024 Chandan Pandey | CyberMindCLI
+
+---
+
+## 🙏 Acknowledgments
+
+- **FastAPI** - For the blazing fast API framework
+- **Playwright** - For browser automation capabilities  
+- **Groq** - For ultra-fast AI inference
+- **MITRE** - For the ATT&CK framework
+- **Open Source Community** - For inspiration and tools
 
 ---
 
 <p align="center">
-  <b>Built with 🔥 for the security community</b><br>
-  <sub>56 files | 5,736 lines | 12 modules | 9 AI providers | 30+ API endpoints | ₹0 cost</sub>
+  <b>⭐ Star this repo if it helped you! ⭐</b>
+</p>
+
+<p align="center">
+  <a href="https://github.com/thecnical/phantom-strike/stargazers">Star</a> •
+  <a href="https://github.com/thecnical/phantom-strike/fork">Fork</a> •
+  <a href="https://github.com/thecnical/phantom-strike/issues">Issues</a> •
+  <a href="https://buymeacoffee.com/chandanpandit">Support</a>
+</p>
+
+<p align="center">
+  <i>Built with 🔥 by Chandan Pandey | CyberMindCLI</i>
 </p>
