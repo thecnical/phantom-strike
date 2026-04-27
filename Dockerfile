@@ -28,4 +28,4 @@ EXPOSE 10000
 HEALTHCHECK --interval=30s --timeout=10s CMD curl -f http://localhost:10000/health || exit 1
 
 # Run the API server
-CMD ["uvicorn", "phantom.api.server:app", "--host", "0.0.0.0", "--port", "10000", "--workers", "1"]
+CMD ["uvicorn", "phantom.api.enhanced_server:app", "--host", "0.0.0.0", "--port", "10000", "--workers", "1"]
