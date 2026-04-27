@@ -135,11 +135,20 @@ class EnhancedPhantomAIEngine:
         """Initialize all available AI providers."""
         active = []
 
+        # Debug: Log all available environment variables (only show if keys found)
+        env_vars = {k: v for k, v in os.environ.items() if 'API_KEY' in k or 'GROQ' in k or 'GEMINI' in k or 'OPENROUTER' in k or 'CEREBRAS' in k}
+        if env_vars:
+            logger.info(f"[AI] Found environment variables: {list(env_vars.keys())}")
+        else:
+            logger.warning(f"[AI] No AI provider API keys found in environment")
+            logger.info(f"[AI] Looking for: GROQ_API_KEY, OPENROUTER_API_KEY, GEMINI_API_KEY, CEREBRAS_API_KEY")
+
         for provider_id, provider_config in self._providers.items():
-            api_key = os.getenv(provider_config["api_key_env"], "")
+            env_var_name = provider_config["api_key_env"]
+            api_key = os.getenv(env_var_name, "").strip()
 
             if not api_key:
-                logger.warning(f"[AI] No API key for {provider_config['name']} ({provider_config['api_key_env']})")
+                logger.warning(f"[AI] No API key for {provider_config['name']} ({env_var_name})")
                 continue
 
             try:
@@ -287,7 +296,9 @@ class EnhancedPhantomAIEngine:
         max_tokens: int,
     ) -> str:
         """Call OpenAI-compatible API."""
-        api_key = os.getenv(config["api_key_env"])
+        api_key = os.getenv(config["api_key_env"], "").strip()
+        if not api_key:
+            raise ValueError(f"No API key found for {provider_id}")
 
         messages = []
         if system_prompt:
@@ -327,7 +338,9 @@ class EnhancedPhantomAIEngine:
         max_tokens: int,
     ) -> str:
         """Call Google Gemini API."""
-        api_key = os.getenv(config["api_key_env"])
+        api_key = os.getenv(config["api_key_env"], "").strip()
+        if not api_key:
+            raise ValueError(f"No API key found for {provider_id}")
 
         contents = [{"parts": [{"text": prompt}]}]
         if system_prompt:
