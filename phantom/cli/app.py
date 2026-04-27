@@ -255,6 +255,9 @@ class PhantomStrikeCLI:
             if isinstance(r, dict) and "error" not in r
         )
         console.print(f"\n[bold green]✅ Scan complete.[/] {len(results)} modules | {total_findings} findings")
+        
+        # Auto-generate report
+        await self._cmd_report([target])
 
     # ─── Recon ────────────────────────────────────────────────
 
@@ -281,6 +284,9 @@ class PhantomStrikeCLI:
         if not Confirm.ask(f"[bold red]⚠ Execute FULL KILL CHAIN on {target}?[/]"):
             return
         await self.engine.execute_full_chain(target)
+        
+        # Auto-generate report
+        await self._cmd_report([target])
 
     # ─── Module (Run Specific) ────────────────────────────────
 
@@ -534,7 +540,16 @@ class PhantomStrikeCLI:
                 console.print(f"[green]XSS test: {result}[/green]")
             await browser.shutdown()
         except Exception as e:
-            console.print(f"[yellow]Browser: {e}. Run 'playwright install chromium' first.[/yellow]")
+            if "playwright" in str(e).lower() or "browser" in str(e).lower():
+                console.print("[yellow]Playwright browsers not found. Installing automatically...[/yellow]")
+                import subprocess
+                try:
+                    subprocess.run(["python", "-m", "playwright", "install", "chromium"], check=True)
+                    console.print("[green]✅ Playwright installed successfully! Please re-run your command.[/green]")
+                except subprocess.CalledProcessError:
+                    console.print("[red]❌ Failed to install Playwright. Run 'python -m playwright install chromium' manually.[/red]")
+            else:
+                console.print(f"[yellow]Browser Error: {e}[/yellow]")
 
     # ─── Status, Config, Modules ──────────────────────────────
 
