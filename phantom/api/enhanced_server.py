@@ -310,6 +310,122 @@ async def run_module(module_name: str, target: str, options: Dict = None, engine
 
 
 # ═══════════════════════════════════════════════════════════════════
+# API Routes - Attack Modes
+# ═══════════════════════════════════════════════════════════════════
+
+class AttackModeRequest(BaseModel):
+    target: str
+    mode: str = Field(default="full-killchain", pattern="^(full-killchain|stealth|aggressive|recon|web|c2)$")
+    auto_exploit: bool = False
+
+
+@app.post("/api/attack/start")
+async def start_attack_mode(
+    request: AttackModeRequest,
+    background_tasks: BackgroundTasks,
+    engine=Depends(get_engine)
+):
+    """Start attack in specific mode (full-killchain, stealth, aggressive)."""
+    from phantom.core.attack_modes import AttackModeEngine, AttackConfig, AttackMode
+    
+    try:
+        # Map string to enum
+        mode_map = {
+            "full-killchain": AttackMode.FULL_KILLCHAIN,
+            "stealth": AttackMode.STEALTH,
+            "aggressive": AttackMode.AGGRESSIVE,
+            "recon": AttackMode.RECON,
+            "web": AttackMode.WEB,
+            "c2": AttackMode.C2,
+        }
+        
+        attack_mode = mode_map.get(request.mode, AttackMode.FULL_KILLCHAIN)
+        
+        # Create config
+        config = AttackConfig(
+            mode=attack_mode,
+            target=request.target,
+            auto_exploit=request.auto_exploit if attack_mode == AttackMode.FULL_KILLCHAIN else False,
+            auto_post_exploit=False,
+            auto_report=True,
+        )
+        
+        # Create attack engine
+        attack_engine = AttackModeEngine(engine)
+        attack_engine.configure(config)
+        
+        # Register progress callback to broadcast to dashboard
+        async def progress_callback(percent: int, message: str):
+            await _dashboard.send_attack_mode_status(request.mode, "running", percent, message)
+            await _dashboard.send_terminal_output(f"[{request.mode}] {percent}% - {message}", "info")
+        
+        attack_engine.on_progress(progress_callback)
+        
+        # Start in background
+        background_tasks.add_task(attack_engine.execute)
+        
+        await _dashboard.send_log(f"Attack started: {request.mode} mode on {request.target}", "warning")
+        
+        return {
+            "status": "started",
+            "mode": request.mode,
+            "target": request.target,
+            "message": f"{request.mode.upper()} attack initiated on {request.target}"
+        }
+        
+    except Exception as e:
+        logger.error(f"Attack mode start failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/attack/modes")
+async def get_attack_modes():
+    """Get available attack modes and their descriptions."""
+    return {
+        "modes": [
+            {
+                "id": "full-killchain",
+                "name": "Full Kill Chain",
+                "description": "Autonomous complete engagement: recon → exploit → post-exploit → report",
+                "threads": "150",
+                "dangerous": True,
+            },
+            {
+                "id": "stealth",
+                "name": "Stealth Mode",
+                "description": "Evasive, slow scanning to avoid detection. Low and slow approach.",
+                "threads": "20",
+                "evasion": ["random_user_agent", "request_throttling", "jitter_delays"],
+            },
+            {
+                "id": "aggressive",
+                "name": "Aggressive",
+                "description": "Fast, loud scanning for internal pentests. Maximum speed.",
+                "threads": "200-300",
+            },
+            {
+                "id": "recon",
+                "name": "Reconnaissance Only",
+                "description": "Information gathering only. No exploitation.",
+                "threads": "100",
+            },
+            {
+                "id": "web",
+                "name": "Web Focus",
+                "description": "Web application security testing only.",
+                "threads": "100",
+            },
+            {
+                "id": "c2",
+                "name": "C2 Operations",
+                "description": "Command & Control focused operations.",
+                "threads": "50",
+            },
+        ]
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════
 # API Routes - AI
 # ═══════════════════════════════════════════════════════════════════
 

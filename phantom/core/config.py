@@ -120,19 +120,33 @@ DEFAULT_AI_PROVIDERS: dict[AIProviderType, AIProviderConfig] = {
 
 
 class ThreadingConfig(BaseModel):
-    max_scan_threads: int = Field(default=100, ge=1, le=500)
-    max_exploit_threads: int = Field(default=20, ge=1, le=100)
-    max_brute_threads: int = Field(default=50, ge=1, le=200)
-    max_osint_threads: int = Field(default=30, ge=1, le=100)
-    max_web_threads: int = Field(default=40, ge=1, le=150)
-    max_ai_threads: int = Field(default=5, ge=1, le=20)
-    max_workers: int = Field(default=10, ge=1, le=100)
+    # Dynamic scaling settings
+    dynamic_scaling: bool = True
+    min_threads: int = Field(default=20, ge=1, le=100)
+    max_threads: int = Field(default=200, ge=50, le=500)
+    aggressive_max_threads: int = Field(default=300, ge=100, le=500)
+    
+    # Module-specific threads
+    max_scan_threads: int = Field(default=150, ge=1, le=500)
+    max_exploit_threads: int = Field(default=50, ge=1, le=200)
+    max_brute_threads: int = Field(default=100, ge=1, le=300)
+    max_osint_threads: int = Field(default=50, ge=1, le=200)
+    max_web_threads: int = Field(default=100, ge=1, le=300)
+    max_ai_threads: int = Field(default=10, ge=1, le=50)
+    max_workers: int = Field(default=50, ge=1, le=200)
+    
+    # Scaling thresholds
+    scale_cpu_high: float = 80.0
+    scale_cpu_low: float = 40.0
+    scale_memory_high: float = 85.0
+    scale_interval: float = 5.0
+    
     use_uvloop: bool = True
-    event_loop_workers: int = Field(default=4, ge=1, le=32)
-    connection_pool_size: int = Field(default=200, ge=10, le=1000)
+    event_loop_workers: int = Field(default=8, ge=1, le=32)
+    connection_pool_size: int = Field(default=300, ge=10, le=1000)
     connect_timeout: float = 10.0
     read_timeout: float = 30.0
-    requests_per_second: int = Field(default=50, ge=1, le=1000)
+    requests_per_second: int = Field(default=100, ge=1, le=1000)
 
 
 class PlaywrightConfig(BaseModel):

@@ -882,20 +882,235 @@ DASHBOARD_HTML = '''
             }
         }
         
+        // ========== LIVE TERMINAL OUTPUT ==========
+        let terminalLines = [];
+        let terminalBuffer = [];
+        let isTerminalActive = true;
+        
+        function addTerminalLine(line, type = 'output') {
+            const terminal = document.getElementById('terminal-output');
+            if (!terminal) return;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const typeClass = {
+                'input': 'terminal-input',
+                'output': 'terminal-output',
+                'error': 'terminal-error',
+                'success': 'terminal-success',
+                'warning': 'terminal-warning',
+                'info': 'terminal-info'
+            }[type] || 'terminal-output';
+            
+            const lineElement = document.createElement('div');
+            lineElement.className = `terminal-line ${typeClass}`;
+            lineElement.innerHTML = `<span class="terminal-time">[${timestamp}]</span> <span class="terminal-content">${escapeHtml(line)}</span>`;
+            
+            terminal.appendChild(lineElement);
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            // Keep only last 500 lines for performance
+            while (terminal.children.length > 500) {
+                terminal.removeChild(terminal.firstChild);
+            }
+        }
+        
+        function addTerminalCommand(command) {
+            addTerminalLine(`$ ${command}`, 'input');
+        }
+        
+        function clearTerminal() {
+            const terminal = document.getElementById('terminal-output');
+            if (terminal) terminal.innerHTML = '';
+            terminalLines = [];
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // ========== AI CHAT STREAMING ==========
+        let aiStreamingEnabled = true;
+        let currentAIResponse = '';
+        let streamingInterval = null;
+        
+        async function sendAIQueryStreaming() {
+            const input = document.getElementById('ai-input');
+            const query = input.value.trim();
+            if (!query) return;
+            
+            // Add user message
+            const chat = document.getElementById('ai-chat');
+            chat.innerHTML += `<div class="chat-message user">${escapeHtml(query)}</div>`;
+            input.value = '';
+            chat.scrollTop = chat.scrollHeight;
+            
+            // Create streaming response container
+            const responseId = 'ai-response-' + Date.now();
+            chat.innerHTML += `<div class="chat-message ai" id="${responseId}"><strong>Phantom AI:</strong><div class="streaming-content"></div></div>`;
+            chat.scrollTop = chat.scrollHeight;
+            
+            const responseContainer = document.querySelector(`#${responseId} .streaming-content`);
+            document.getElementById('ai-status').innerHTML = '<div class="loading-spinner"></div> Thinking...';
+            
+            try {
+                const response = await fetch('/api/ai/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: query, stream: true })
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    responseContainer.innerHTML = `<span class="error">Error: ${escapeHtml(result.error)}</span>`;
+                } else if (result.content) {
+                    // Stream the response word by word for effect
+                    const words = result.content.split(' ');
+                    let wordIndex = 0;
+                    let displayedContent = '';
+                    
+                    streamingInterval = setInterval(() => {
+                        if (wordIndex < words.length) {
+                            displayedContent += words[wordIndex] + ' ';
+                            responseContainer.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">${escapeHtml(displayedContent)}</pre>`;
+                            chat.scrollTop = chat.scrollHeight;
+                            wordIndex++;
+                        } else {
+                            clearInterval(streamingInterval);
+                            streamingInterval = null;
+                        }
+                    }, 30); // 30ms per word for smooth streaming
+                } else {
+                    responseContainer.innerHTML = '<span class="error">AI service unavailable. Set API keys.</span>';
+                }
+                
+            } catch (error) {
+                responseContainer.innerHTML = `<span class="error">Error: ${escapeHtml(error.message)}</span>`;
+            }
+            
+            document.getElementById('ai-status').textContent = 'Ready';
+        }
+        
+        // Override sendAIQuery with streaming version
+        sendAIQuery = sendAIQueryStreaming;
+        
+        // ========== NETWORK GRAPH VISUALIZATION ==========
+        let networkNodes = [];
+        let networkLinks = [];
+        
+        function addNetworkNode(node) {
+            // node: {id, label, type, severity, x, y}
+            networkNodes.push(node);
+            updateNetworkGraph();
+        }
+        
+        function addNetworkLink(from, to, type) {
+            networkLinks.push({from, to, type});
+            updateNetworkGraph();
+        }
+        
+        function updateNetworkGraph() {
+            const canvas = document.getElementById('network-graph');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw links
+            ctx.strokeStyle = 'rgba(100, 200, 255, 0.3)';
+            ctx.lineWidth = 1;
+            networkLinks.forEach(link => {
+                const fromNode = networkNodes.find(n => n.id === link.from);
+                const toNode = networkNodes.find(n => n.id === link.to);
+                if (fromNode && toNode) {
+                    ctx.beginPath();
+                    ctx.moveTo(fromNode.x || width/2, fromNode.y || height/2);
+                    ctx.lineTo(toNode.x || width/2, toNode.y || height/2);
+                    ctx.stroke();
+                }
+            });
+            
+            // Draw nodes
+            networkNodes.forEach(node => {
+                const x = node.x || Math.random() * width;
+                const y = node.y || Math.random() * height;
+                const radius = node.type === 'target' ? 20 : 10;
+                
+                // Node color based on severity
+                const colors = {
+                    'critical': '#ff0040',
+                    'high': '#ff8800',
+                    'medium': '#ffcc00',
+                    'low': '#00ccff',
+                    'info': '#00ff88'
+                };
+                ctx.fillStyle = colors[node.severity] || '#00ccff';
+                
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Label
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '10px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(node.label, x, y + radius + 15);
+            });
+        }
+        
+        function clearNetworkGraph() {
+            networkNodes = [];
+            networkLinks = [];
+            updateNetworkGraph();
+        }
+        
+        // ========== LOGGING ==========
         function log(message, level = 'info') {
             const console = document.getElementById('log-console');
             const time = new Date().toLocaleTimeString();
-            console.innerHTML += `<div class="log-entry"><span class="log-time">[${time}]</span> <span class="log-${level}">${message}</span></div>`;
+            console.innerHTML += `<div class="log-entry"><span class="log-time">[${time}]</span> <span class="log-${level}">${escapeHtml(message)}</span></div>`;
             console.scrollTop = console.scrollHeight;
+            
+            // Also add to terminal if it's a scan message
+            if (message.includes('[MODE]') || message.includes('[SCAN]') || message.includes('[EXPLOIT]')) {
+                addTerminalLine(message, level);
+            }
         }
         
         function clearLogs() {
             document.getElementById('log-console').innerHTML = '';
         }
         
+        // ========== ATTACK MODE FUNCTIONS ==========
+        function startAttack(mode) {
+            const target = document.getElementById('attack-target').value;
+            if (!target) {
+                alert('Please enter a target');
+                return;
+            }
+            
+            addTerminalLine(`Starting ${mode} attack on ${target}`, 'info');
+            addTerminalCommand(`phantom-strike --mode ${mode} --target ${target}`);
+            
+            // Send to backend
+            fetch('/api/attack/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({mode, target})
+            });
+        }
+        
         // Initialize
         connectWebSocket();
         log('PhantomStrike Dashboard loaded', 'success');
+        addTerminalLine('PhantomStrike Terminal Ready', 'success');
+        addTerminalLine('Type commands or use the UI to control attacks', 'info');
     </script>
 </body>
 </html>
@@ -959,6 +1174,63 @@ class DashboardManager:
             "type": "log",
             "message": message,
             "level": level
+        })
+        
+    async def send_terminal_output(self, line: str, line_type: str = "output"):
+        """Send terminal-like output to dashboard."""
+        await self.broadcast({
+            "type": "terminal",
+            "line": line,
+            "line_type": line_type,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    async def send_network_node(self, node_id: str, label: str, node_type: str, severity: str, x: float, y: float):
+        """Send network graph node update."""
+        await self.broadcast({
+            "type": "network_node",
+            "node": {
+                "id": node_id,
+                "label": label,
+                "type": node_type,
+                "severity": severity,
+                "x": x,
+                "y": y
+            }
+        })
+        
+    async def send_network_link(self, from_id: str, to_id: str, link_type: str = "connection"):
+        """Send network graph link update."""
+        await self.broadcast({
+            "type": "network_link",
+            "link": {
+                "from": from_id,
+                "to": to_id,
+                "type": link_type
+            }
+        })
+        
+    async def send_attack_mode_status(self, mode: str, status: str, progress: int, message: str = ""):
+        """Send attack mode status update."""
+        await self.broadcast({
+            "type": "attack_mode",
+            "mode": mode,
+            "status": status,
+            "progress": progress,
+            "message": message,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    async def send_thread_metrics(self, active_threads: int, queued_tasks: int, cpu_percent: float, memory_percent: float):
+        """Send thread pool metrics."""
+        await self.broadcast({
+            "type": "thread_metrics",
+            "metrics": {
+                "active_threads": active_threads,
+                "queued_tasks": queued_tasks,
+                "cpu_percent": cpu_percent,
+                "memory_percent": memory_percent
+            }
         })
 
 
