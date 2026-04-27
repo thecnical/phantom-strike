@@ -251,7 +251,7 @@ Combined: ~5,000+ free requests/day | ~400 RPM | ₹0 cost
 
 ### Prerequisites
 
-- **Python 3.12+**
+- **Python 3.10+**
 - **Linux recommended** (Kali, Parrot, Ubuntu, Debian) — also works on Windows/macOS
 - **Zero API Keys required** — PhantomStrike connects to a cloud-deployed AI backend.
 
@@ -260,13 +260,15 @@ Combined: ~5,000+ free requests/day | ~400 RPM | ₹0 cost
 ```bash
 git clone https://github.com/thecnical/phantom-strike.git
 cd phantom-strike
-pip install -e "."
 
-# Optional: For browser automation
-playwright install chromium
+# For Kali Linux/Ubuntu (bypasses 'externally-managed-environment' error)
+pip install -e "." --break-system-packages
+
+# For Windows/Virtual Environments
+pip install -e "."
 ```
 
-That's it! No `.env` files or API keys needed. The CLI automatically connects to the deployed backend to perform AI analysis.
+That's it! No `.env` files or API keys needed. The CLI automatically connects to the deployed backend to perform AI analysis. Playwright browsers will auto-install on their first use.
 
 ### One-Command Install
 
