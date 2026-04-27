@@ -173,8 +173,9 @@ class PhantomStrikeConfig(BaseSettings):
     log_level: str = "INFO"
 
     # ── Backend Connection (Users connect to creator's deployed API) ──
-    backend_url: str = ""  # e.g. https://phantom-strike-api.onrender.com
-    backend_enabled: bool = False  # True = AI calls go through backend
+    # Hardcoded to True so users don't need any API keys or --backend flags!
+    backend_url: str = "https://phantom-strike.onrender.com"  
+    backend_enabled: bool = True  # True = AI calls ALWAYS go through backend by default
 
     # ── AI Providers (Only needed on backend/creator side) ──
     ai_providers: dict[str, AIProviderConfig] = {}
