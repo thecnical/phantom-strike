@@ -171,10 +171,17 @@ class PhantomStrikeConfig(BaseSettings):
     version: str = "1.0.0-alpha"
     data_dir: Path = Path.home() / ".phantom-strike"
     log_level: str = "INFO"
+
+    # ── Backend Connection (Users connect to creator's deployed API) ──
+    backend_url: str = ""  # e.g. https://phantom-strike-api.onrender.com
+    backend_enabled: bool = False  # True = AI calls go through backend
+
+    # ── AI Providers (Only needed on backend/creator side) ──
     ai_providers: dict[str, AIProviderConfig] = {}
     ai_primary_provider: AIProviderType = AIProviderType.GROQ
     ai_fallback_enabled: bool = True
     ai_cache_responses: bool = False
+
     threading: ThreadingConfig = ThreadingConfig()
     playwright: PlaywrightConfig = PlaywrightConfig()
     attack: AttackConfig = AttackConfig()

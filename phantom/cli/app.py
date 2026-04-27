@@ -115,8 +115,16 @@ class PhantomStrikeCLI:
         self.config = load_config()
         self.engine = PhantomEngine(self.config)
 
-    async def run(self):
+    async def run(self, backend_url: str = None):
         """Main CLI loop."""
+        if backend_url:
+            self.config.backend_enabled = True
+            self.config.backend_url = backend_url
+            console.print(f"[bold green]✓[/bold green] Connected to Remote AI Backend: [cyan]{backend_url}[/cyan]")
+            
+        # Re-initialize engine with updated config
+        self.engine = PhantomEngine(self.config)
+        
         await self.engine.start()
         self._show_status_panel()
 

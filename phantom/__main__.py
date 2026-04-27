@@ -23,6 +23,18 @@ def main():
 def _run_cli():
     """Run the interactive CLI."""
     from phantom.cli.app import PhantomStrikeCLI
+    
+    # Extract backend URL from args if present
+    import sys
+    args = sys.argv[1:]
+    backend_url = None
+    i = 0
+    while i < len(args):
+        if args[i] == "--backend" and i + 1 < len(args):
+            backend_url = args[i + 1]
+            break
+        i += 1
+        
     cli = PhantomStrikeCLI()
 
     try:
@@ -33,7 +45,7 @@ def _run_cli():
         except ImportError:
             pass
 
-        asyncio.run(cli.run())
+        asyncio.run(cli.run(backend_url))
     except KeyboardInterrupt:
         print("\nPhantomStrike terminated.")
     except Exception as e:

@@ -253,31 +253,20 @@ Combined: ~5,000+ free requests/day | ~400 RPM | ₹0 cost
 
 - **Python 3.12+**
 - **Linux recommended** (Kali, Parrot, Ubuntu, Debian) — also works on Windows/macOS
-- **At least 1 AI API key** (free) — [Groq recommended](https://console.groq.com)
+- **Zero API Keys required** — PhantomStrike connects to a cloud-deployed AI backend.
 
-### Local Installation
+### Standard Installation (For Users)
 
 ```bash
 git clone https://github.com/thecnical/phantom-strike.git
 cd phantom-strike
-pip install -e ".[api]"
+pip install -e "."
 
-# Optional: Browser automation
+# Optional: For browser automation
 playwright install chromium
-
-# Setup API keys
-cp .env.example .env
-# Edit .env — add your GROQ_API_KEY (free from console.groq.com)
 ```
 
-### Docker
-
-```bash
-git clone https://github.com/thecnical/phantom-strike.git
-cd phantom-strike
-docker build -t phantom-strike .
-docker run -p 10000:10000 --env-file .env phantom-strike
-```
+That's it! No `.env` files or API keys needed. The CLI automatically connects to the deployed backend to perform AI analysis.
 
 ### One-Command Install
 
@@ -289,7 +278,7 @@ bash <(curl -sL https://raw.githubusercontent.com/thecnical/phantom-strike/main/
 
 ## ⚙️ Configuration
 
-PhantomStrike uses **3 attack profiles**:
+PhantomStrike uses **3 attack profiles** for scanning:
 
 | Profile | Threads | Delay | Auto-Exploit | Use Case |
 |---------|---------|-------|:------------:|----------|
@@ -298,28 +287,33 @@ PhantomStrike uses **3 attack profiles**:
 | `aggressive.yaml` | 200 | 0ms | ✅ | Maximum speed & coverage |
 
 ```bash
+# Connect to a specific backend API (default config uses public URL)
+phantom --backend https://your-backend-api.onrender.com
+
 # Use specific profile
 phantom --config configs/stealth.yaml
 ```
 
-### AI Provider Setup (`.env`)
+### Creator Deployment (Backend Only)
+
+If you are the **creator/host**, you deploy the backend on Render and add your API keys there. Users will hit your backend.
 
 ```bash
 # Priority #0 — FASTEST (500+ tokens/sec)
 GROQ_API_KEY=gsk_xxxx              # console.groq.com
 
-# Priority #1-8 — FAILOVER (add as many as you want)
-OPENROUTER_API_KEY=sk-or-xxxx      # openrouter.ai
-GEMINI_API_KEY=xxxx                # aistudio.google.com
-CEREBRAS_API_KEY=xxxx              # cloud.cerebras.ai
-MISTRAL_API_KEY=xxxx               # console.mistral.ai
-TOGETHER_API_KEY=xxxx              # api.together.ai
-HUGGINGFACE_API_KEY=xxxx           # huggingface.co
-NVIDIA_API_KEY=xxxx                # build.nvidia.com
-SAMBANOVA_API_KEY=xxxx             # cloud.sambanova.ai
+# Priority #1-8 — FAILOVER
+OPENROUTER_API_KEY=sk-or-xxxx
+GEMINI_API_KEY=xxxx
+CEREBRAS_API_KEY=xxxx
+MISTRAL_API_KEY=xxxx
+TOGETHER_API_KEY=xxxx
+HUGGINGFACE_API_KEY=xxxx
+NVIDIA_API_KEY=xxxx
+SAMBANOVA_API_KEY=xxxx
 ```
 
-> 💡 More providers = more resilience. With all 9: **~5,000+ free requests/day, near-zero downtime.**
+> 💡 The backend handles the failover cascade automatically. Users never see or need these keys.
 
 ---
 

@@ -35,7 +35,15 @@ class PhantomEngine:
     def __init__(self, config: Optional[PhantomStrikeConfig] = None):
         self.config = config or load_config()
         self.event_bus = EventBus()
-        self.ai_engine = PhantomAIEngine(self.config)
+        
+        # Determine AI backend mode
+        if self.config.backend_enabled and self.config.backend_url:
+            from phantom.ai.remote import RemoteAIClient
+            self.ai_engine = RemoteAIClient(self.config.backend_url)
+            logger.info(f"Using REMOTE backend AI at {self.config.backend_url}")
+        else:
+            self.ai_engine = PhantomAIEngine(self.config)
+            
         self._modules: dict[str, object] = {}
         self._start_time: Optional[datetime] = None
         self._session_id: str = ""
