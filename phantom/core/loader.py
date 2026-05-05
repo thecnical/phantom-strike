@@ -35,14 +35,14 @@ async def load_all_modules(event_bus: EventBus) -> dict[str, BaseModule]:
         logger.warning(f"Could not load Network module: {e}")
 
     try:
-        from phantom.modules.web.engine import WebEngine
-        module_classes.append(WebEngine)
+        from phantom.modules.web.enhanced_engine import EnhancedWebEngine
+        module_classes.append(EnhancedWebEngine)
     except ImportError as e:
         logger.warning(f"Could not load Web module: {e}")
 
     try:
-        from phantom.modules.cloud.engine import CloudEngine
-        module_classes.append(CloudEngine)
+        from phantom.modules.cloud.enhanced_engine import EnhancedCloudEngine
+        module_classes.append(EnhancedCloudEngine)
     except ImportError as e:
         logger.warning(f"Could not load Cloud module: {e}")
 

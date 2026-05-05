@@ -320,3 +320,123 @@ def test_api_app_exists():
     from phantom.api.enhanced_server import app
     assert app is not None
     assert app.title == "PhantomStrike Enhanced API"
+
+
+# ─── Attack Modes Tests ──────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_attack_mode_config():
+    """AttackModeEngine configures modes correctly."""
+    from phantom.core.attack_modes import AttackModeEngine, AttackConfig, AttackMode
+
+    class MockEngine:
+        async def execute_module(self, *a, **kw):
+            return {"success": True, "data": {}, "findings_count": 0}
+
+    engine = AttackModeEngine(MockEngine())
+    config = AttackConfig(mode=AttackMode.STEALTH, target="example.com")
+    engine.configure(config)
+
+    assert config.delay_jitter is True
+    assert config.max_threads == 20
+    assert "random_user_agent" in config.evasion_techniques
+
+
+@pytest.mark.asyncio
+async def test_attack_mode_aggressive_config():
+    """Aggressive mode sets max threads."""
+    from phantom.core.attack_modes import AttackModeEngine, AttackConfig, AttackMode
+
+    class MockEngine:
+        async def execute_module(self, *a, **kw):
+            return {"success": True, "data": {}, "findings_count": 0}
+
+    engine = AttackModeEngine(MockEngine())
+    config = AttackConfig(mode=AttackMode.AGGRESSIVE, target="example.com")
+    engine.configure(config)
+
+    assert config.max_threads == 200
+    assert config.request_delay == 0.0
+
+
+@pytest.mark.asyncio
+async def test_attack_mode_recon_only():
+    """Recon-only mode runs without exploitation."""
+    from phantom.core.attack_modes import AttackModeEngine, AttackConfig, AttackMode
+
+    call_log = []
+
+    class MockEngine:
+        async def execute_module(self, module_name, target, options=None):
+            call_log.append(module_name)
+            return {"success": True, "data": {"subdomains": [], "open_ports": []}, "findings_count": 0}
+
+    engine = AttackModeEngine(MockEngine())
+    config = AttackConfig(mode=AttackMode.RECON, target="example.com")
+    engine.configure(config)
+    results = await engine.execute()
+
+    assert results["completed"] is True
+    assert "phantom-osint" in call_log
+    assert "phantom-network" in call_log
+    # No exploit modules should be called
+    assert "phantom-exploit" not in call_log
+
+
+# ─── Exploit Engine Tests ────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_exploit_engine_no_vulns():
+    """Exploit engine handles empty vuln list gracefully."""
+    from phantom.core.events import EventBus
+    from phantom.modules.exploit.engine import ExploitEngine
+    bus = EventBus()
+    await bus.start()
+    exploit = ExploitEngine(event_bus=bus)
+    await exploit.initialize()
+    result = await exploit.run("example.com", {"vulnerabilities": []})
+    assert result.success
+    assert result.data["exploited"] == []
+    assert result.data["failed"] == []
+    await bus.stop()
+
+
+@pytest.mark.asyncio
+async def test_exploit_engine_inject_param():
+    """URL parameter injection uses urllib.parse correctly."""
+    from phantom.core.events import EventBus
+    from phantom.modules.exploit.engine import ExploitEngine
+    bus = EventBus()
+    await bus.start()
+    exploit = ExploitEngine(event_bus=bus)
+    await exploit.initialize()
+
+    # Test proper URL injection
+    result = exploit._inject_param(
+        "https://example.com/page?id=1&name=test",
+        "id",
+        "' OR 1=1--",
+    )
+    assert "id=%27+OR+1%3D1--" in result or "id=%27%20OR%201%3D1--" in result or "' OR 1=1--" in result
+    assert "name=test" in result  # Other params preserved
+    await bus.stop()
+
+
+# ─── Config Tests ────────────────────────────────────────────
+
+def test_backend_disabled_by_default():
+    """Backend should be opt-in, not forced on."""
+    from phantom.core.config import load_config
+    config = load_config()
+    assert config.backend_enabled is False, (
+        "backend_enabled must default to False — users should opt-in, not be forced through remote backend"
+    )
+
+
+def test_playwright_config_exists():
+    """PlaywrightConfig is present in main config."""
+    from phantom.core.config import load_config
+    config = load_config()
+    assert config.playwright is not None
+    assert config.playwright.browser_type == "chromium"
+    assert config.playwright.headless is True

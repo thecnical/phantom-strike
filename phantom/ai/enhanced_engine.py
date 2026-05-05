@@ -36,7 +36,7 @@ class RateLimitTracker:
             self.requests_this_minute = 0
             self.minute_start = now
         if now - self.day_start >= 86400:
-            requests_today = 0
+            self.requests_today = 0
             self.day_start = now
         if self.is_blocked and now < self.block_until:
             return False

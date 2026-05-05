@@ -198,6 +198,9 @@ class EnhancedWebEngine(BaseModule):
             logger.info(f"[WEB] Running {len(vuln_tasks)} vulnerability tests...")
             await asyncio.gather(*vuln_tasks, return_exceptions=True)
 
+            # Playwright browser-based XSS verification (if available)
+            await self._playwright_xss_scan(target, findings)
+
         except Exception as e:
             logger.error(f"[WEB] Scan error: {e}")
             import traceback
@@ -211,7 +214,8 @@ class EnhancedWebEngine(BaseModule):
             len(findings["lfi"]) + len(findings["ssrf"]) +
             len(findings["rce"]) + len(findings["xxe"]) +
             len(findings["csrf"]) + len(findings["idor"]) +
-            len(findings["jwt_vulns"])
+            len(findings["jwt_vulns"]) +
+            len(findings.get("browser_cookies", []))
         )
 
         self.status = ModuleStatus.COMPLETED
@@ -910,6 +914,73 @@ class EnhancedWebEngine(BaseModule):
 
         return issues
 
+    async def _playwright_xss_scan(self, target: str, findings: dict):
+        """
+        Use Playwright for JS-rendered XSS detection.
+        Falls back gracefully if Playwright is not installed.
+        """
+        try:
+            from phantom.core.browser import PhantomBrowser
+            from phantom.core.config import PlaywrightConfig
+
+            pw_config = PlaywrightConfig(
+                enabled=True,
+                headless=True,
+                screenshot_on_vuln=True,
+                timeout=15000,
+            )
+            browser = PhantomBrowser(pw_config, self.event_bus)
+            started = await browser.start()
+            if not started:
+                return
+
+            try:
+                xss_results = await browser.test_xss(target)
+                for result in xss_results:
+                    if result.get("vulnerable"):
+                        vuln = {
+                            "type": "browser_xss",
+                            "subtype": "playwright_verified",
+                            "url": result.get("url", target),
+                            "payload": result.get("payload", ""),
+                            "evidence": "XSS dialog triggered in real browser (Playwright)",
+                            "screenshot": result.get("screenshot", ""),
+                            "severity": "high",
+                        }
+                        findings["xss"].append(vuln)
+                        await self._emit_vuln(vuln)
+                        logger.info(f"[WEB] 🔴 Browser XSS CONFIRMED: {result.get('url')}")
+
+                # Also do a full crawl to capture cookies and storage
+                crawl_findings = await browser.crawl_page(target)
+                if crawl_findings.cookies:
+                    findings.setdefault("browser_cookies", [])
+                    for cookie in crawl_findings.cookies:
+                        issues = []
+                        if not cookie.get("secure"):
+                            issues.append("Missing Secure flag")
+                        if not cookie.get("httpOnly"):
+                            issues.append("Missing HttpOnly flag")
+                        if not cookie.get("sameSite"):
+                            issues.append("Missing SameSite attribute")
+                        if issues:
+                            findings["browser_cookies"].append({
+                                "name": cookie.get("name"),
+                                "issues": issues,
+                                "severity": "medium",
+                            })
+
+                if crawl_findings.technologies_detected:
+                    findings.setdefault("browser_technologies", crawl_findings.technologies_detected)
+
+            finally:
+                await browser.shutdown()
+
+        except ImportError:
+            logger.debug("[WEB] Playwright not installed — skipping browser XSS scan")
+        except Exception as e:
+            logger.debug(f"[WEB] Playwright scan error: {e}")
+
     async def _emit_vuln(self, vuln: dict):
         """Emit vulnerability found event."""
         await self.event_bus.emit(Event(
@@ -923,5 +994,5 @@ class EnhancedWebEngine(BaseModule):
         """Check if URLs belong to same domain."""
         try:
             return urlparse(url1).netloc == urlparse(url2).netloc
-        except:
+        except Exception:
             return False

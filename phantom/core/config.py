@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Optional
 import yaml
 from pydantic import BaseModel, Field, field_validator
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class AIProviderType(str, Enum):
@@ -189,10 +189,11 @@ class PhantomStrikeConfig(BaseSettings):
     data_dir: Path = Path.home() / ".phantom-strike"
     log_level: str = "INFO"
 
-    # ── Backend Connection (Users connect to creator's deployed API) ──
-    # Hardcoded to True so users don't need any API keys or --backend flags!
-    backend_url: str = "https://phantom-strike.onrender.com"  
-    backend_enabled: bool = True  # True = AI calls ALWAYS go through backend by default
+    # ── Backend Connection (opt-in remote AI proxy) ──
+    # Set backend_enabled=True in .env or phantom.yaml to route AI through remote backend.
+    # When False (default), AI uses local provider keys (GROQ_API_KEY etc.)
+    backend_url: str = "https://phantom-strike.onrender.com"
+    backend_enabled: bool = False  # False = use local API keys by default
 
     # ── AI Providers (Only needed on backend/creator side) ──
     ai_providers: dict[str, AIProviderConfig] = {}
@@ -208,10 +209,11 @@ class PhantomStrikeConfig(BaseSettings):
     proxy: Optional[str] = None
     tor_enabled: bool = False
 
-    class Config:
-        env_prefix = "PHANTOM_"
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_prefix="PHANTOM_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
 
     def model_post_init(self, __context) -> None:
         if not self.ai_providers:

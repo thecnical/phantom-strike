@@ -5,6 +5,7 @@ session hijacking, token manipulation, and auth bypass testing.
 from __future__ import annotations
 import asyncio
 import base64
+import hashlib
 import json
 import logging
 import time
@@ -157,9 +158,8 @@ class IdentityEngine(BaseModule):
                                 hmac.new(secret.encode(), signing_input, hashlib.sha256).digest()
                             ).rstrip(b"=").decode()
                         elif header["alg"] == "HS384":
-                            import hashlib as hl
                             sig = base64.urlsafe_b64encode(
-                                hmac.new(secret.encode(), signing_input, hl.sha384).digest()
+                                hmac.new(secret.encode(), signing_input, hashlib.sha384).digest()
                             ).rstrip(b"=").decode()
                         else:
                             continue
