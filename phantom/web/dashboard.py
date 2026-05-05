@@ -260,38 +260,39 @@ _HTML_PART2 = """
   <aside class="sidebar">
     <div class="nav-group">
       <span class="nav-group-label">Operations</span>
-      <div class="nav-item active" id="nav-scan" onclick="showSection('scan',this)">
+      <div class="nav-item active" id="nav-scan" onclick="showSection('scan')">
         <span class="ni">&#127919;</span> New Scan
         <span class="nav-badge" id="badge-scan" style="display:none">0</span>
       </div>
-      <div class="nav-item" id="nav-results" onclick="showSection('results',this)">
+      <div class="nav-item" id="nav-results" onclick="showSection('results')">
         <span class="ni">&#128202;</span> Results
         <span class="nav-badge" id="badge-results" style="display:none">0</span>
       </div>
-      <div class="nav-item" id="nav-ai" onclick="showSection('ai',this)">
+      <div class="nav-item" id="nav-ai" onclick="showSection('ai')">
         <span class="ni">&#129504;</span> AI Assistant
       </div>
     </div>
     <div class="nav-group">
       <span class="nav-group-label">Tools</span>
-      <div class="nav-item" id="nav-payloads" onclick="showSection('payloads',this)">
+      <div class="nav-item" id="nav-payloads" onclick="showSection('payloads')">
         <span class="ni">&#128163;</span> Payloads
       </div>
-      <div class="nav-item" id="nav-c2" onclick="showSection('c2',this)">
+      <div class="nav-item" id="nav-c2" onclick="showSection('c2')">
         <span class="ni">&#128225;</span> C2 Console
         <span class="nav-badge" id="badge-c2" style="display:none">0</span>
       </div>
-      <div class="nav-item" id="nav-reports" onclick="showSection('reports',this)">
+      <div class="nav-item" id="nav-reports" onclick="showSection('reports')">
         <span class="ni">&#128196;</span> Reports
       </div>
     </div>
     <div class="nav-group">
       <span class="nav-group-label">System</span>
-      <div class="nav-item" id="nav-config" onclick="showSection('config',this)">
+      <div class="nav-item" id="nav-config" onclick="showSection('config')">
         <span class="ni">&#9881;&#65039;</span> Configuration
       </div>
-      <div class="nav-item" id="nav-logs" onclick="showSection('logs',this)">
+      <div class="nav-item" id="nav-logs" onclick="showSection('logs')">
         <span class="ni">&#128203;</span> Logs
+      </div>
       </div>
     </div>
   </aside>
@@ -608,12 +609,13 @@ _HTML_PART3 = (
     '    case "attack_mode":updateAttackMode(d);break;'
     '  }'
     '}'
-    'function showSection(name,el){'
+    'function showSection(name){'
     '  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));'
     '  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));'
     '  const sec=document.getElementById("section-"+name);'
     '  if(sec)sec.classList.add("active");'
-    '  if(el)el.classList.add("active");'
+    '  const navEl=document.getElementById("nav-"+name);'
+    '  if(navEl)navEl.classList.add("active");'
     '  if(name==="results")loadResults();'
     '  if(name==="config")loadConfig();'
     '  if(name==="c2")loadAgents();'
