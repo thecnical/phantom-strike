@@ -151,8 +151,11 @@ phantom
 phantom> scan example.com              # vulnerability scan
 phantom> attack example.com           # full 7-phase kill chain
 phantom> recon example.com            # OSINT + network recon only
-phantom> ai ask "explain XSS"         # ask AI anything
+phantom> ai ask "explain XSS"         # ask AI anything (with memory)
+phantom> ai chat                      # persistent AI chat (type 'bye' to exit)
+phantom> ai plan example.com          # AI generates plan + auto-executes it
 phantom> ai status                    # show AI provider status
+phantom> ai memory                    # show conversation memory
 phantom> stealth xss 20               # generate 20 XSS payloads
 phantom> stealth sqli 10              # generate 10 SQLi payloads
 phantom> stealth reverse_shell 10.0.0.1 4444
