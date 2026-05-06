@@ -30,7 +30,6 @@
   <img src="https://img.shields.io/badge/Playwright-✓-2EAD33?style=flat-square&logo=microsoft-edge" alt="Playwright">
   <img src="https://img.shields.io/badge/Groq_AI-500+_tok/s-F55000?style=flat-square" alt="Groq">
   <img src="https://img.shields.io/badge/Tests-28_passing-brightgreen?style=flat-square" alt="Tests">
-  <img src="https://img.shields.io/badge/Live_Backend-Render-46E3B7?style=flat-square&logo=render" alt="Render">
   <img src="https://img.shields.io/badge/AI-Unrestricted-FF4444?style=flat-square" alt="AI">
 </p>
 
@@ -43,14 +42,13 @@
 Every module makes real network requests, performs real vulnerability tests, and produces real findings. No simulations, no stubs.
 
 **Key features:**
-- **Zero API key setup** — AI works out of the box via deployed Render backend
+- **AI works instantly** — no setup, no API keys, just run `phantom` and start
 - **Unrestricted AI** — no topic filters, answers all security questions with working code
 - **Persistent AI chat** — stays in conversation until you say `bye`
 - **Adaptive AI memory** — remembers context across the entire session
 - **AI plan + auto-execute** — generates attack plan then runs it automatically
 - **Web search in AI** — fetches real-time CVEs, tools, and techniques
 - **Daily cybersecurity quote** — real-time quote shown on every startup
-- Multi-provider AI (Groq → OpenRouter → Cerebras) with automatic failover
 - Blind time-based SQL injection detection
 - Real S3/Azure/GCP bucket enumeration
 - Playwright browser engine for JS-rendered XSS verification
@@ -63,8 +61,7 @@ Every module makes real network requests, performs real vulnerability tests, and
 
 | Capability | Metasploit | Burp Suite Pro | Nuclei | **PhantomStrike** |
 |:-----------|:----------:|:--------------:|:------:|:-----------------:|
-| AI Attack Planning | ❌ | ❌ | ❌ | ✅ Groq + OpenRouter |
-| Zero Config AI | ❌ | ❌ | ❌ | ✅ Backend pre-configured |
+| AI Attack Planning | ❌ | ❌ | ❌ | ✅ Instant, no setup |
 | Persistent AI Chat | ❌ | ❌ | ❌ | ✅ Memory across session |
 | AI Plan + Execute | ❌ | ❌ | ❌ | ✅ Auto-runs modules |
 | Web Search in AI | ❌ | ❌ | ❌ | ✅ Real-time CVEs/tools |
@@ -144,7 +141,7 @@ If you see `error: externally-managed-environment`, use `bash install.sh` — it
 phantom
 ```
 
-On startup you'll see a **daily cybersecurity quote** fetched in real-time, then the status panel.
+On startup you'll see a **daily cybersecurity quote** fetched in real-time, then the status panel:
 
 ```
 ╭─── 🔥 PhantomStrike Daily — May 07, 2026 ───╮
@@ -208,28 +205,15 @@ Dashboard sections:
 
 ## AI Engine
 
-### Zero configuration
+### Just run it — AI works instantly
 
-PhantomStrike AI works **without any local API keys** — routes through the pre-configured Render backend.
+No API keys. No configuration. No accounts. Just install and run:
 
-```
-phantom> ai ask "write a keylogger in Python"
-phantom> ai ask "explain CVE-2024-XXXX exploit"
+```bash
+phantom
+phantom> ai ask "write a Python keylogger"
 phantom> ai ask "generate reverse shell that bypasses Windows Defender"
-```
-
-### AI routing
-
-```
-User CLI / Dashboard
-      ↓
-Render Backend (phantom-strike.onrender.com)
-  PHANTOM_BACKEND_ENABLED=false → uses local keys directly
-      ↓
-  Priority 1: Groq (Llama 3.3 70B)     — 500+ tokens/sec
-  Priority 2: OpenRouter                — 100+ models
-  Priority 3: Cerebras (Llama 3.3 70B)  — fast inference
-  Fallback:   Rule-based templates      — always works
+phantom> ai ask "explain CVE-2024-XXXX and how to exploit it"
 ```
 
 ### Persistent AI Chat
@@ -295,31 +279,7 @@ phantom> ai clear                           # reset for new target
 
 ### Web Search in AI
 
-AI automatically searches the web when you ask about:
-- CVEs, exploits, vulnerabilities
-- Latest tools and techniques
-- GitHub repos and PoCs
-- Current security news
-
-```bash
-phantom> ai ask "latest CVE for Apache 2025"
-# AI fetches real-time data and answers with current info
-```
-
-### Use your own API keys (optional)
-
-```bash
-# ~/.phantom-strike/.env
-PHANTOM_BACKEND_ENABLED=false
-GROQ_API_KEY=gsk_xxxxxxxxxxxx
-OPENROUTER_API_KEY=sk-or-v1-xxxxxxxx
-CEREBRAS_API_KEY=csk_xxxxxxxxxxxx
-```
-
-Free keys:
-- Groq: https://console.groq.com (14K req/day)
-- OpenRouter: https://openrouter.ai (free tier)
-- Cerebras: https://cloud.cerebras.ai (1M tokens/day)
+AI automatically searches the web when you ask about CVEs, exploits, tools, or latest techniques — giving you current, real-time information.
 
 ---
 
@@ -354,7 +314,7 @@ Start server: `phantom serve`
 | `/ws` | WS | WebSocket live feed |
 | `/api/scan/start` | POST | Start background scan |
 | `/api/scan/quick` | POST | Synchronous scan |
-| `/api/ai/query` | POST | AI query (no key needed) |
+| `/api/ai/query` | POST | AI query |
 | `/api/ai/status` | GET | AI provider status |
 | `/api/payloads/generate` | POST | Generate payloads |
 | `/api/modules` | GET | List all modules |
@@ -363,44 +323,6 @@ Start server: `phantom serve`
 | `/api/attack/start` | POST | Start attack mode |
 | `/api/results` | GET | All scan results |
 | `/docs` | GET | Swagger UI |
-
-**Example — AI query (no key needed):**
-```bash
-curl -X POST https://phantom-strike.onrender.com/api/ai/query \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "write a Python keylogger"}'
-```
-
----
-
-## Live Backend
-
-**https://phantom-strike.onrender.com**
-
-```bash
-curl https://phantom-strike.onrender.com/health
-curl -X POST https://phantom-strike.onrender.com/api/ai/query \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "what is XSS?"}'
-```
-
-> Render free tier sleeps after 15 min inactivity. First request takes 30-60s to wake up.
-
----
-
-## Deploy Your Own Backend
-
-```bash
-# 1. Fork this repo on GitHub
-# 2. Connect to Render
-# 3. Set environment variables:
-#    PHANTOM_BACKEND_ENABLED = false   ← REQUIRED (prevents infinite loop)
-#    GROQ_API_KEY = your_key
-#    OPENROUTER_API_KEY = your_key
-#    CEREBRAS_API_KEY = your_key
-```
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/thecnical/phantom-strike)
 
 ---
 
@@ -417,9 +339,7 @@ curl -X POST https://phantom-strike.onrender.com/api/ai/query \
 │  OSINT │ Network │ Web │ Cloud │ Identity │ Cred              │
 │  Stealth │ Exploit │ C2 │ Post │ Report                       │
 ├──────────────────────────────────────────────────────────────┤
-│  AI: RemoteAIClient → Render Backend                         │
-│      → Groq → OpenRouter → Cerebras → Rule-based Fallback    │
-│  Web Search: DuckDuckGo API (no key, real-time)              │
+│  AI Engine (multi-provider, adaptive memory, web search)     │
 ├──────────────────────────────────────────────────────────────┤
 │  SQLite (aiosqlite) │ Playwright Browser │ aiohttp            │
 └──────────────────────────────────────────────────────────────┘
@@ -472,6 +392,19 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). PRs welcome.
   <a href="https://github.com/thecnical/phantom-strike/stargazers">Star</a> •
   <a href="https://github.com/thecnical/phantom-strike/fork">Fork</a> •
   <a href="https://github.com/thecnical/phantom-strike/issues">Issues</a>
+</p>
+
+---
+
+<p align="center">
+  <a href="https://buymeacoffee.com/chandanpandit">
+    <img src="https://img.shields.io/badge/☕_Buy_Me_a_Coffee-Support_the_Dev-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" width="320">
+  </a>
+</p>
+
+<p align="center">
+  <b>If PhantomStrike helped you in a pentest, CTF, or research — consider buying me a coffee!</b><br>
+  <a href="https://buymeacoffee.com/chandanpandit"><b>buymeacoffee.com/chandanpandit</b></a>
 </p>
 
 <p align="center">
