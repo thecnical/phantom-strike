@@ -151,7 +151,8 @@ class StealthEngine(BaseModule):
                 "encoding": encoding_name,
                 "tag": tag,
                 "event": event,
-                "unique_hash": hashlib.md5(encoded.encode()).hexdigest()[:8],
+                # Include index in hash to guarantee uniqueness across payloads
+                "unique_hash": hashlib.md5(f"{i}:{encoded}".encode()).hexdigest()[:8],
             })
 
         self._generated_count += count
@@ -187,7 +188,7 @@ class StealthEngine(BaseModule):
                 "original": payload,
                 "encoding": enc_name,
                 "comment_style": comment.strip() or "space",
-                "unique_hash": hashlib.md5(encoded.encode()).hexdigest()[:8],
+                "unique_hash": hashlib.md5(f"{i}:{encoded}".encode()).hexdigest()[:8],
             })
 
         return payloads

@@ -218,7 +218,7 @@ echo "[*] PrivEsc check complete."
 
     def _generate_collection_script(self) -> str:
         """Generate data collection script."""
-        return """#!/bin/bash
+        return r"""#!/bin/bash
 # PhantomStrike Data Collection — Authorized testing only
 OUTDIR="/tmp/.phantom_collect_$(date +%s)"
 mkdir -p "$OUTDIR"
