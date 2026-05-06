@@ -130,7 +130,7 @@ class PhantomStrikeCLI:
         try:
             from phantom.core.enhanced_engine import EnhancedPhantomEngine
             self.engine = EnhancedPhantomEngine(self.config)
-        except:
+        except Exception:
             from phantom.core.engine import PhantomEngine
             self.engine = PhantomEngine(self.config)
         
@@ -146,11 +146,24 @@ class PhantomStrikeCLI:
                     "\n[bold cyan]phantom[/bold cyan][bold red]>[/bold red]",
                     default="help",
                 )
-                await self._handle_command(cmd.strip())
+                cmd = cmd.strip()
+                if not cmd:
+                    continue
+                # Handle exit/quit directly here so SystemExit is never swallowed
+                if cmd.lower() in ("exit", "quit", "q", ":q", "bye"):
+                    await self._do_exit()
+                await self._handle_command(cmd)
             except KeyboardInterrupt:
-                console.print("\n[yellow]Use 'exit' to quit[/yellow]")
+                # Ctrl+C — ask once, then exit cleanly
+                console.print()
+                try:
+                    if Confirm.ask("[yellow]Exit PhantomStrike?[/yellow]", default=True):
+                        await self._do_exit()
+                except KeyboardInterrupt:
+                    await self._do_exit()
             except EOFError:
-                break
+                # Ctrl+D — exit cleanly
+                await self._do_exit()
 
     async def _handle_command(self, cmd: str):
         """Route commands to handlers."""
@@ -179,16 +192,22 @@ class PhantomStrikeCLI:
             "clear": self._cmd_clear,
             "exit": self._cmd_exit,
             "quit": self._cmd_exit,
+            "q":    self._cmd_exit,
+            ":q":   self._cmd_exit,
+            "bye":  self._cmd_exit,
         }
 
         handler = handlers.get(command)
         if handler:
             try:
                 await handler(args)
+            except SystemExit:
+                # Re-raise so exit/quit actually works
+                raise
             except Exception as e:
                 console.print(f"[red]Error: {e}[/red]")
         else:
-            console.print(f"[red]Unknown command: {command}. Type 'help'.[/red]")
+            console.print(f"[red]Unknown command: '{command}'. Type 'help' for all commands.[/red]")
 
     # ─── Help ─────────────────────────────────────────────────
 
@@ -621,11 +640,19 @@ class PhantomStrikeCLI:
         """Clear screen."""
         console.clear()
 
-    async def _cmd_exit(self, args: list):
-        """Exit."""
-        console.print("[bold cyan]Shutting down PhantomStrike...[/bold cyan]")
-        await self.engine.stop()
+    async def _do_exit(self):
+        """Graceful shutdown — always works, never swallowed."""
+        console.print("\n[bold cyan]👋 Shutting down PhantomStrike...[/bold cyan]")
+        try:
+            await self.engine.stop()
+        except Exception:
+            pass
+        console.print("[dim]Session ended. Goodbye.[/dim]")
         sys.exit(0)
+
+    async def _cmd_exit(self, args: list):
+        """Exit PhantomStrike."""
+        await self._do_exit()
 
     # ─── UI ───────────────────────────────────────────────────
 

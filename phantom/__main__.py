@@ -65,8 +65,10 @@ def _run_cli():
             pass
 
         asyncio.run(cli.run(backend_url))
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
+        # Clean exit — sys.exit(0) from _do_exit() or Ctrl+C at top level
         print("\nPhantomStrike terminated.")
+        sys.exit(0)
     except Exception as e:
         print(f"Fatal error: {e}")
         sys.exit(1)
