@@ -159,7 +159,7 @@ class PhantomStrikeCLI:
             self.config.backend_enabled = True
             self.config.backend_url = backend_url
             console.print(f"[bold green]✓[/bold green] Connected to Remote AI Backend: [cyan]{backend_url}[/cyan]")
-            
+
         # Re-initialize engine with updated config
         try:
             from phantom.core.enhanced_engine import EnhancedPhantomEngine
@@ -167,11 +167,15 @@ class PhantomStrikeCLI:
         except Exception:
             from phantom.core.engine import PhantomEngine
             self.engine = PhantomEngine(self.config)
-        
+
         if self._enhanced:
             console.print("[bold green]🚀 ENHANCED MODE ACTIVE[/] - Real vulnerability detection enabled")
-        
+
         await self.engine.start()
+
+        # Show daily cybersecurity quote (async, non-blocking)
+        await self._show_daily_quote()
+
         self._show_status_panel()
 
         while True:
@@ -188,7 +192,6 @@ class PhantomStrikeCLI:
                     await self._do_exit()
                 await self._handle_command(cmd)
             except KeyboardInterrupt:
-                # Ctrl+C — ask once, then exit cleanly
                 console.print()
                 try:
                     if Confirm.ask("[yellow]Exit PhantomStrike?[/yellow]", default=True):
@@ -196,7 +199,6 @@ class PhantomStrikeCLI:
                 except KeyboardInterrupt:
                     await self._do_exit()
             except EOFError:
-                # Ctrl+D — exit cleanly
                 await self._do_exit()
 
     async def _handle_command(self, cmd: str):
@@ -964,8 +966,14 @@ class PhantomStrikeCLI:
         console.print(f"[dim]Total: {len(modules)} modules loaded[/dim]")
 
     async def _cmd_clear(self, args: list):
-        """Clear screen."""
+        """Clear screen — works on all terminals."""
+        # console.clear() alone sometimes doesn't work in all terminals
+        # Use ANSI escape + os system clear for guaranteed full clear
+        import os
+        os.system("clear 2>/dev/null || cls 2>/dev/null || true")
         console.clear()
+        # Reprint the prompt header so user knows they're still in phantom
+        console.print("[bold cyan]phantom[/bold cyan][bold red]>[/bold red] [dim]Screen cleared[/dim]")
 
     async def _do_exit(self):
         """Graceful shutdown — always works, never swallowed."""
@@ -982,6 +990,93 @@ class PhantomStrikeCLI:
         await self._do_exit()
 
     # ─── UI ───────────────────────────────────────────────────
+
+    async def _show_daily_quote(self):
+        """Fetch and display a real-time cybersecurity quote/news on startup."""
+        # Fallback quotes — used if web fetch fails
+        FALLBACK_QUOTES = [
+            ("The quieter you become, the more you are able to hear.", "Ram Dass"),
+            ("Offense is the best defense. Know your enemy.", "Sun Tzu"),
+            ("Security is not a product, but a process.", "Bruce Schneier"),
+            ("The only truly secure system is one that is powered off.", "Gene Spafford"),
+            ("Hackers are breaking the systems for profit. Before, it was about intellectual curiosity.", "Kevin Mitnick"),
+            ("The art of war teaches us to rely not on the likelihood of the enemy not coming, but on our own readiness.", "Sun Tzu"),
+            ("Privacy is not something that I'm merely entitled to, it's an absolute prerequisite.", "Marlon Brando"),
+            ("Amateurs hack systems, professionals hack people.", "Bruce Schneier"),
+            ("The best defense is a good offense.", "Jack Dempsey"),
+            ("Every system can be hacked. The question is whether it's worth the effort.", "Unknown"),
+        ]
+
+        quote_text = None
+        quote_source = None
+
+        try:
+            # Try to fetch a real cybersecurity quote/news from the web
+            import urllib.request
+            import urllib.parse
+            import ssl
+            import json as _json
+            import hashlib
+            from datetime import date
+
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+
+            # Use ZenQuotes API — free, no key, returns random inspirational quotes
+            req = urllib.request.Request(
+                "https://zenquotes.io/api/today",
+                headers={"User-Agent": "PhantomStrike/2.0"},
+            )
+            with urllib.request.urlopen(req, context=ctx, timeout=4) as resp:
+                data = _json.loads(resp.read().decode())
+                if data and isinstance(data, list) and data[0].get("q"):
+                    quote_text = data[0]["q"]
+                    quote_source = data[0].get("a", "Unknown")
+
+        except Exception:
+            pass
+
+        # If web fetch failed, use deterministic daily fallback (changes each day)
+        if not quote_text:
+            from datetime import date
+            day_index = date.today().toordinal() % len(FALLBACK_QUOTES)
+            quote_text, quote_source = FALLBACK_QUOTES[day_index]
+
+        # Try to get a real cybersecurity news headline too
+        news_line = ""
+        try:
+            import urllib.request
+            import ssl
+            import json as _json
+
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+
+            # DuckDuckGo instant answer for latest cybersecurity news
+            req = urllib.request.Request(
+                "https://api.duckduckgo.com/?q=cybersecurity+news+2026&format=json&no_html=1",
+                headers={"User-Agent": "PhantomStrike/2.0"},
+            )
+            with urllib.request.urlopen(req, context=ctx, timeout=3) as resp:
+                data = _json.loads(resp.read().decode())
+                if data.get("Abstract"):
+                    news_line = f"\n[dim]📰 {data['Abstract'][:120]}...[/dim]"
+        except Exception:
+            pass
+
+        # Display the quote panel
+        from datetime import date
+        today = date.today().strftime("%B %d, %Y")
+        console.print(Panel(
+            f'[bold yellow]"{quote_text}"[/bold yellow]\n'
+            f'[dim]— {quote_source}[/dim]'
+            + news_line,
+            title=f"[bold cyan]🔥 PhantomStrike Daily — {today}[/bold cyan]",
+            border_style="cyan",
+            padding=(1, 2),
+        ))
 
     def _show_status_panel(self):
         """Show initial status panel."""
