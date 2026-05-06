@@ -5,10 +5,15 @@ services:
   - type: web
     name: phantom-strike-api
     runtime: docker
-    repo: https://github.com/phantom-strike/phantom-strike
+    repo: https://github.com/thecnical/phantom-strike
     plan: free
     dockerfilePath: ./Dockerfile
     envVars:
+      # ── CRITICAL: Backend must use LOCAL keys, not call itself ──
+      - key: PHANTOM_BACKEND_ENABLED
+        value: "false"   # Backend uses local keys directly — prevents infinite loop
+
+      # ── AI Provider Keys (set these in Render Dashboard → Environment) ──
       - key: GROQ_API_KEY
         sync: false
       - key: OPENROUTER_API_KEY
@@ -27,8 +32,12 @@ services:
         sync: false
       - key: SAMBANOVA_API_KEY
         sync: false
+
+      # ── Server Config ──
       - key: PORT
         value: "10000"
+      - key: PHANTOM_LOG_LEVEL
+        value: "WARNING"
     healthCheckPath: /health
     numInstances: 1
     autoDeploy: true

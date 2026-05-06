@@ -192,9 +192,10 @@ class PhantomStrikeConfig(BaseSettings):
     # ── Backend Connection ──
     # backend_enabled=True routes ALL AI calls through the deployed Render backend.
     # The backend has all API keys configured — users need ZERO local keys.
-    # Set PHANTOM_BACKEND_ENABLED=false in .env to use local keys instead.
+    # IMPORTANT: The backend itself must set PHANTOM_BACKEND_ENABLED=false
+    # to use local keys directly (prevents infinite loop).
     backend_url: str = "https://phantom-strike.onrender.com"
-    backend_enabled: bool = True  # True = use Render backend (has all keys, zero config)
+    backend_enabled: bool = True  # True = use Render backend (has all keys)
 
     # ── AI Providers (Only needed on backend/creator side) ──
     ai_providers: dict[str, AIProviderConfig] = {}
