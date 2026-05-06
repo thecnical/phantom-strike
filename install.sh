@@ -211,28 +211,43 @@ install_system_deps() {
 setup_repo() {
     step "3/8 — Repository"
 
-    # If we're already inside the repo (local install), skip cloning
+    # Case 1: Running from inside the cloned repo already
     if [ -f "pyproject.toml" ] && grep -q "phantom-strike" pyproject.toml 2>/dev/null; then
         REPO_PATH="$(pwd)"
         success "Running from local clone: $REPO_PATH"
         return
     fi
 
-    REPO_PATH="$PHANTOM_DIR/src"
-
-    if [ "$UPDATE_MODE" = true ] && [ -d "$REPO_PATH/.git" ]; then
-        info "Pulling latest changes..."
-        git -C "$REPO_PATH" pull --rebase --autostash
-        success "Repository updated to latest"
-    else
-        if [ -d "$REPO_PATH" ]; then
-            warn "Removing old installation..."
-            rm -rf "$REPO_PATH"
-        fi
-        info "Cloning PhantomStrike..."
-        git clone --depth=1 "$REPO_URL" "$REPO_PATH"
-        success "Repository cloned"
+    # Case 2: phantom-strike folder exists in current directory
+    if [ -d "phantom-strike" ] && [ -f "phantom-strike/pyproject.toml" ]; then
+        REPO_PATH="$(pwd)/phantom-strike"
+        success "Found local clone at: $REPO_PATH"
+        return
     fi
+
+    # Case 3: Already cloned to default location
+    REPO_PATH="$PHANTOM_DIR/src"
+    if [ -d "$REPO_PATH" ] && [ -f "$REPO_PATH/pyproject.toml" ]; then
+        if [ "$UPDATE_MODE" = true ]; then
+            info "Pulling latest changes..."
+            git -C "$REPO_PATH" pull --rebase --autostash 2>/dev/null || \
+                warn "Git pull failed — using existing code"
+            success "Repository updated"
+        else
+            success "Using existing clone at: $REPO_PATH"
+        fi
+        return
+    fi
+
+    # Case 4: Need to clone fresh
+    if [ -d "$REPO_PATH" ]; then
+        warn "Removing incomplete installation..."
+        rm -rf "$REPO_PATH"
+    fi
+    info "Cloning PhantomStrike into $REPO_PATH ..."
+    git clone --depth=1 "$REPO_URL" "$REPO_PATH" || \
+        error "Git clone failed. Check internet connection."
+    success "Repository cloned to $REPO_PATH"
 }
 
 # ── Create virtual environment ────────────────────────────────────────────
@@ -282,7 +297,14 @@ install_packages() {
     # Safety check: we must be inside a venv to avoid externally-managed-environment error
     if [ -z "${VIRTUAL_ENV:-}" ] && [ "$NO_VENV" = false ]; then
         warn "Not inside a virtual environment. Activating..."
+        # shellcheck disable=SC1090
         source "$VENV_BIN/activate" || error "Cannot activate venv at $VENV_BIN"
+    fi
+
+    # CRITICAL: cd into the repo so pip finds pyproject.toml
+    # This is the fix for "does not appear to be a Python project" error
+    if [ -z "${REPO_PATH:-}" ] || [ ! -f "${REPO_PATH}/pyproject.toml" ]; then
+        error "Cannot find pyproject.toml in '${REPO_PATH:-<unset>}'. Run install.sh from inside the phantom-strike folder."
     fi
 
     info "Upgrading pip, setuptools, wheel..."
@@ -295,14 +317,17 @@ install_packages() {
         info "Installing with dev extras (pytest, ruff, mypy)..."
     fi
 
-    info "Installing PhantomStrike and all dependencies..."
+    info "Installing PhantomStrike from: ${REPO_PATH}"
     info "This may take 2-5 minutes on first install..."
 
-    # Install from repo path — NEVER use --break-system-packages
-    # We are inside a venv so this is always safe
-    pip install -e "${REPO_PATH}[${INSTALL_EXTRAS}]" \
-        --no-warn-script-location \
-        2>&1 | grep -E "(Successfully|ERROR|error|WARNING)" || true
+    # cd into repo first, then install with -e .
+    # This is the ONLY reliable way — avoids path quoting issues
+    (
+        cd "${REPO_PATH}" || error "Cannot cd into ${REPO_PATH}"
+        pip install -e ".[${INSTALL_EXTRAS}]" \
+            --no-warn-script-location \
+            2>&1 | grep -E "(Successfully|ERROR|error|WARNING|Collecting|Installing)" || true
+    )
 
     # Verify key packages installed
     REQUIRED_PACKAGES=(

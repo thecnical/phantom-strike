@@ -100,25 +100,30 @@ playwright install chromium   # optional — for browser-based XSS
 If you see `error: externally-managed-environment`, use this instead:
 
 ```bash
+# Step 1: Clone the repo
 git clone https://github.com/thecnical/phantom-strike.git
-cd phantom-strike
+cd phantom-strike          # <-- MUST be inside this folder
 
-# Fix: install venv support first
+# Step 2: Install venv support
 sudo apt install -y python3-venv python3-pip
 
-# Create and activate virtual environment
+# Step 3: Create virtual environment
 python3 -m venv ~/.phantom-strike/venv
+
+# Step 4: Activate it
 source ~/.phantom-strike/venv/bin/activate
 
-# Now install normally
+# Step 5: Install (you must be inside phantom-strike/ folder)
 pip install -e ".[api,dev]"
-playwright install chromium   # optional
 
-# Run
+# Step 6: Run
 phantom serve
+# or CLI: phantom
 ```
 
-Or use the one-command installer which handles this automatically:
+**Common mistake:** Running `pip install -e ".[api,dev]"` from `/home/kali` instead of `/home/kali/phantom-strike`. Always `cd phantom-strike` first.
+
+Or use the one-command installer which handles everything automatically:
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/thecnical/phantom-strike/main/install.sh | bash
