@@ -166,6 +166,7 @@ install_system_deps() {
         debian)
             info "Installing system packages (apt)..."
             sudo apt-get update -qq 2>/dev/null || true
+            # python3-venv is CRITICAL — must install before setup_venv
             sudo apt-get install -y \
                 git curl wget build-essential \
                 libssl-dev libffi-dev libxml2-dev libxslt1-dev \
@@ -176,6 +177,13 @@ install_system_deps() {
                 libcups2 libdrm2 libxkbcommon0 libxcomposite1 \
                 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2 \
                 2>/dev/null || warn "Some system packages failed — continuing anyway"
+
+            # Kali/Debian: also install venv for the specific python version found
+            if [ -n "${PYTHON_BIN:-}" ]; then
+                local pyver
+                pyver=$("$PYTHON_BIN" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || echo "3")
+                sudo apt-get install -y "python${pyver}-venv" 2>/dev/null || true
+            fi
             ;;
         arch)
             info "Installing system packages (pacman)..."
@@ -237,15 +245,32 @@ setup_venv() {
         return
     fi
 
+    # Ensure python3-venv is available (critical for Kali/Debian externally-managed)
+    if ! "$PYTHON_BIN" -m venv --help &>/dev/null 2>&1; then
+        warn "python3-venv not available. Installing..."
+        case "$OS" in
+            debian)
+                local pyver
+                pyver=$("$PYTHON_BIN" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || echo "3")
+                sudo apt-get install -y "python${pyver}-venv" python3-venv 2>/dev/null || \
+                    error "Cannot install python3-venv. Run: sudo apt install python3-venv"
+                ;;
+            arch) sudo pacman -Sy --noconfirm python 2>/dev/null || true ;;
+            fedora) sudo dnf install -y python3-venv 2>/dev/null || true ;;
+        esac
+    fi
+
     if [ "$UPDATE_MODE" = true ] && [ -d "$VENV_DIR" ]; then
         info "Reusing existing virtual environment at $VENV_DIR"
     else
         info "Creating virtual environment at $VENV_DIR..."
-        "$PYTHON_BIN" -m venv "$VENV_DIR"
+        "$PYTHON_BIN" -m venv "$VENV_DIR" || \
+            error "Failed to create venv. Run: sudo apt install python3-venv python3-full"
         success "Virtual environment created"
     fi
 
     # Activate
+    # shellcheck disable=SC1090
     source "$VENV_BIN/activate"
     success "Virtual environment activated (Python $(python --version 2>&1 | cut -d' ' -f2))"
 }
@@ -253,6 +278,12 @@ setup_venv() {
 # ── Install Python packages ───────────────────────────────────────────────
 install_packages() {
     step "5/8 — Python packages"
+
+    # Safety check: we must be inside a venv to avoid externally-managed-environment error
+    if [ -z "${VIRTUAL_ENV:-}" ] && [ "$NO_VENV" = false ]; then
+        warn "Not inside a virtual environment. Activating..."
+        source "$VENV_BIN/activate" || error "Cannot activate venv at $VENV_BIN"
+    fi
 
     info "Upgrading pip, setuptools, wheel..."
     pip install --upgrade pip setuptools wheel --quiet
@@ -267,7 +298,8 @@ install_packages() {
     info "Installing PhantomStrike and all dependencies..."
     info "This may take 2-5 minutes on first install..."
 
-    # Install from repo path
+    # Install from repo path — NEVER use --break-system-packages
+    # We are inside a venv so this is always safe
     pip install -e "${REPO_PATH}[${INSTALL_EXTRAS}]" \
         --no-warn-script-location \
         2>&1 | grep -E "(Successfully|ERROR|error|WARNING)" || true
