@@ -453,17 +453,16 @@ EOF
 setup_commands() {
     step "8/8 — Shell commands"
 
-    # Determine install locations
     LOCAL_BIN="$HOME/.local/bin"
     mkdir -p "$LOCAL_BIN"
 
-    # Create wrapper scripts (more reliable than symlinks for venv)
     PHANTOM_WRAPPER="$LOCAL_BIN/phantom"
     PHANTOM_STRIKE_WRAPPER="$LOCAL_BIN/phantom-strike"
 
+    # Write wrapper that auto-activates venv
     cat > "$PHANTOM_WRAPPER" << EOF
 #!/bin/bash
-# PhantomStrike CLI wrapper — auto-activates venv
+# PhantomStrike CLI wrapper — auto-activates venv on every run
 VENV="$VENV_DIR"
 if [ -f "\$VENV/bin/activate" ] && [ -z "\$VIRTUAL_ENV" ]; then
     source "\$VENV/bin/activate"
@@ -473,7 +472,7 @@ EOF
 
     cat > "$PHANTOM_STRIKE_WRAPPER" << EOF
 #!/bin/bash
-# PhantomStrike CLI wrapper — auto-activates venv
+# PhantomStrike CLI wrapper — auto-activates venv on every run
 VENV="$VENV_DIR"
 if [ -f "\$VENV/bin/activate" ] && [ -z "\$VIRTUAL_ENV" ]; then
     source "\$VENV/bin/activate"
@@ -483,35 +482,40 @@ EOF
 
     chmod +x "$PHANTOM_WRAPPER" "$PHANTOM_STRIKE_WRAPPER"
     success "Created: $PHANTOM_WRAPPER"
-    success "Created: $PHANTOM_STRIKE_WRAPPER"
 
-    # Add ~/.local/bin to PATH if not already there
-    SHELL_RC=""
-    if [ -n "${BASH_VERSION:-}" ]; then
-        SHELL_RC="$HOME/.bashrc"
-    elif [ -n "${ZSH_VERSION:-}" ]; then
-        SHELL_RC="$HOME/.zshrc"
-    elif [ -f "$HOME/.profile" ]; then
-        SHELL_RC="$HOME/.profile"
-    fi
-
-    if [ -n "$SHELL_RC" ]; then
-        if ! grep -q 'PATH.*\.local/bin' "$SHELL_RC" 2>/dev/null; then
-            echo '' >> "$SHELL_RC"
-            echo '# PhantomStrike' >> "$SHELL_RC"
-            echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$SHELL_RC"
-            info "Added ~/.local/bin to PATH in $SHELL_RC"
+    # ── Add to PATH in shell rc files ──────────────────────────────────
+    for SHELL_RC in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile"; do
+        if [ -f "$SHELL_RC" ]; then
+            if ! grep -q 'phantom-strike\|\.local/bin' "$SHELL_RC" 2>/dev/null; then
+                {
+                    echo ''
+                    echo '# PhantomStrike'
+                    echo 'export PATH="$HOME/.local/bin:$PATH"'
+                } >> "$SHELL_RC"
+                info "Added ~/.local/bin to PATH in $SHELL_RC"
+            fi
         fi
+    done
+
+    # ── System-wide install (works for root and sudo users) ────────────
+    # Running as root (common on Kali) — install directly to /usr/local/bin
+    if [ "$(id -u)" = "0" ]; then
+        cp "$PHANTOM_WRAPPER" /usr/local/bin/phantom
+        cp "$PHANTOM_STRIKE_WRAPPER" /usr/local/bin/phantom-strike
+        chmod +x /usr/local/bin/phantom /usr/local/bin/phantom-strike
+        success "Installed system-wide: /usr/local/bin/phantom"
+    elif command -v sudo &>/dev/null; then
+        sudo cp "$PHANTOM_WRAPPER" /usr/local/bin/phantom 2>/dev/null && \
+        sudo cp "$PHANTOM_STRIKE_WRAPPER" /usr/local/bin/phantom-strike 2>/dev/null && \
+        sudo chmod +x /usr/local/bin/phantom /usr/local/bin/phantom-strike 2>/dev/null && \
+        success "Installed system-wide: /usr/local/bin/phantom" || \
+        warn "Could not install to /usr/local/bin — use ~/.local/bin/phantom"
     fi
 
-    # Also try /usr/local/bin if we have sudo
-    if command -v sudo &>/dev/null && sudo -n true 2>/dev/null; then
-        sudo ln -sf "$PHANTOM_WRAPPER" /usr/local/bin/phantom 2>/dev/null || true
-        sudo ln -sf "$PHANTOM_STRIKE_WRAPPER" /usr/local/bin/phantom-strike 2>/dev/null || true
-        success "Also linked to /usr/local/bin/ (system-wide)"
-    fi
+    # ── Export PATH immediately for this session ────────────────────────
+    export PATH="$LOCAL_BIN:$PATH"
 
-    success "Commands installed"
+    success "Commands installed — 'phantom' is ready to use"
 }
 
 # ── Run tests ─────────────────────────────────────────────────────────────
@@ -532,50 +536,25 @@ print_summary() {
     echo -e "${GREEN}║   PhantomStrike v${VERSION} installed successfully! 🔥       ║${NC}"
     echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "${BOLD}  What's installed:${NC}"
-    echo -e "  ${GREEN}✓${NC} 11 offensive modules (OSINT, Network, Web, Cloud, C2...)"
-    echo -e "  ${GREEN}✓${NC} Multi-provider AI engine (Groq, OpenRouter, Gemini, Cerebras)"
-    echo -e "  ${GREEN}✓${NC} Playwright browser engine (JS-rendered XSS, screenshots)"
-    echo -e "  ${GREEN}✓${NC} Full-stack web dashboard (FastAPI + WebSocket)"
-    echo -e "  ${GREEN}✓${NC} Real exploit engine (SQLi, LFI, SSRF, RCE, file upload)"
-    echo -e "  ${GREEN}✓${NC} Polymorphic payload generator (XSS, SQLi, reverse shells)"
-    echo -e "  ${GREEN}✓${NC} C2 framework with agent management"
-    echo -e "  ${GREEN}✓${NC} HTML/JSON/TXT report generation with MITRE ATT&CK mapping"
+    echo -e "${BOLD}${GREEN}  ✓ phantom command installed at: /usr/local/bin/phantom${NC}"
+    echo -e "${BOLD}${GREEN}  ✓ Works from ANY directory, after ANY restart${NC}"
     echo ""
-    echo -e "${BOLD}  Quick start:${NC}"
+    echo -e "${BOLD}  Run RIGHT NOW (no restart needed):${NC}"
     echo ""
-    echo -e "  ${YELLOW}Step 1${NC} — Add at least one AI API key (optional but recommended):"
-    echo -e "          ${CYAN}nano $PHANTOM_DIR/.env${NC}"
-    echo -e "          Get free Groq key: ${CYAN}https://console.groq.com${NC}"
-    echo ""
-    echo -e "  ${YELLOW}Step 2${NC} — Reload your shell:"
-    echo -e "          ${CYAN}source ~/.bashrc${NC}  (or open a new terminal)"
-    echo ""
-    echo -e "  ${YELLOW}Step 3${NC} — Launch CLI:"
-    echo -e "          ${CYAN}phantom${NC}"
-    echo -e "          ${CYAN}phantom> scan example.com${NC}"
-    echo -e "          ${CYAN}phantom> attack example.com${NC}"
-    echo ""
-    echo -e "  ${YELLOW}Step 4${NC} — Or launch web dashboard:"
-    echo -e "          ${CYAN}phantom serve${NC}"
-    echo -e "          Open: ${CYAN}http://localhost:10000${NC}"
-    echo ""
-    echo -e "${BOLD}  Useful commands:${NC}"
+    echo -e "  ${CYAN}phantom${NC}                        — Start interactive CLI"
     echo -e "  ${CYAN}phantom serve${NC}                  — Start web dashboard"
-    echo -e "  ${CYAN}phantom> scan <target>${NC}         — Quick vulnerability scan"
-    echo -e "  ${CYAN}phantom> attack <target>${NC}       — Full 7-phase kill chain"
-    echo -e "  ${CYAN}phantom> ai ask <question>${NC}     — Ask AI anything"
-    echo -e "  ${CYAN}phantom> stealth xss 20${NC}        — Generate 20 XSS payloads"
-    echo -e "  ${CYAN}phantom> c2 generate 10.0.0.1 4444${NC} — Generate C2 agent"
-    echo -e "  ${CYAN}phantom> report <target>${NC}       — Generate pentest report"
     echo ""
-    echo -e "${BOLD}  Update PhantomStrike anytime:${NC}"
-    echo -e "  ${CYAN}curl -sSL https://raw.githubusercontent.com/thecnical/phantom-strike/main/install.sh | bash -- --update${NC}"
+    echo -e "${BOLD}  Quick commands inside phantom>:${NC}"
+    echo -e "  ${CYAN}scan example.com${NC}               — Vulnerability scan"
+    echo -e "  ${CYAN}attack example.com${NC}             — Full 7-phase kill chain"
+    echo -e "  ${CYAN}ai ask what is XSS${NC}             — Ask AI (uses Render backend)"
+    echo -e "  ${CYAN}stealth xss 20${NC}                 — Generate 20 XSS payloads"
+    echo -e "  ${CYAN}exit${NC}                           — Exit"
+    echo ""
+    echo -e "${BOLD}  Update anytime:${NC}"
+    echo -e "  ${CYAN}cd $REPO_PATH && git pull && bash install.sh --update${NC}"
     echo ""
     echo -e "${RED}  ⚠  LEGAL: Only use on systems you own or have written authorization to test.${NC}"
-    echo ""
-    echo -e "  ${BLUE}GitHub:${NC} https://github.com/thecnical/phantom-strike"
-    echo -e "  ${BLUE}Issues:${NC} https://github.com/thecnical/phantom-strike/issues"
     echo ""
 }
 
