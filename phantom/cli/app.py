@@ -365,6 +365,9 @@ class PhantomStrikeCLI:
         subcmd = args[0]
 
         if subcmd == "status":
+            if not self.engine.ai_engine:
+                console.print("[red]AI engine not available[/red]")
+                return
             status = self.engine.ai_engine.get_status()
             table = Table(title="🧠 AI Providers", border_style="cyan")
             table.add_column("Provider", style="bold")
@@ -374,13 +377,20 @@ class PhantomStrikeCLI:
             table.add_column("Status")
 
             for name, info in status.items():
-                active = "✅" if info["active"] else "❌"
-                blocked = "🔴 Blocked" if info["blocked"] else "🟢 Ready"
+                active = "✅" if info.get("active") else "❌"
+                blocked = "🔴 Blocked" if info.get("blocked") else "🟢 Ready"
+                daily = info.get("daily_limit", info.get("daily", "?"))
                 table.add_row(
-                    name, info["model"], active,
-                    f"{info['requests_today']}/{info['daily_limit']}", blocked,
+                    info.get("name", name),
+                    info.get("model", "?"),
+                    active,
+                    f"{info.get('requests_today', 0)}/{daily}",
+                    blocked,
                 )
             console.print(table)
+            # Show backend URL if using remote
+            if "remote-backend" in status:
+                console.print(f"[dim]  Backend: {status['remote-backend'].get('backend_url', '')}[/dim]")
 
         elif subcmd == "ask" and len(args) > 1:
             query = " ".join(args[1:])
@@ -658,13 +668,20 @@ class PhantomStrikeCLI:
 
     def _show_status_panel(self):
         """Show initial status panel."""
-        ai_count = len([
-            p for p in self.config.ai_providers.values()
-            if p.enabled and p.api_key
-        ])
+        # Count AI providers — handle both local and remote backend
+        if self.engine.ai_engine:
+            status = self.engine.ai_engine.get_status()
+            if "remote-backend" in status:
+                ai_info = "Remote backend (Render) ✅"
+            else:
+                active = sum(1 for p in status.values() if p.get("active"))
+                ai_info = f"{active} configured (Groq #1)" if active else "0 — set API keys"
+        else:
+            ai_info = "Not available"
+
         modules = self.engine.list_modules()
         panel = Panel(
-            f"[green]✓[/] AI Providers: {ai_count} configured (Groq #1)\n"
+            f"[green]✓[/] AI Engine: {ai_info}\n"
             f"[green]✓[/] Modules: {len(modules)} loaded\n"
             f"[green]✓[/] Threads: {self.config.threading.max_scan_threads} scan threads\n"
             f"[green]✓[/] Profile: {self.config.attack.profile.value}\n"

@@ -33,15 +33,23 @@ class EnhancedPhantomEngine:
     def __init__(self, config: Optional[PhantomStrikeConfig] = None):
         self.config = config or load_config()
         self.event_bus = EventBus()
-        
-        # Use enhanced AI engine
-        try:
-            from phantom.ai.enhanced_engine import EnhancedPhantomAIEngine
-            self.ai_engine = EnhancedPhantomAIEngine(self.config)
-        except Exception as e:
-            logger.warning(f"Could not load enhanced AI: {e}")
-            self.ai_engine = None
-            
+
+        # ── AI Engine Selection ──────────────────────────────────────────
+        # If backend_enabled=True → route through Render (has all keys, zero config)
+        # If backend_enabled=False → use local API keys from environment
+        if self.config.backend_enabled and self.config.backend_url:
+            from phantom.ai.remote import RemoteAIClient
+            self.ai_engine = RemoteAIClient(self.config.backend_url)
+            logger.debug(f"[Engine] Using REMOTE AI backend: {self.config.backend_url}")
+        else:
+            try:
+                from phantom.ai.enhanced_engine import EnhancedPhantomAIEngine
+                self.ai_engine = EnhancedPhantomAIEngine(self.config)
+                logger.debug("[Engine] Using LOCAL AI engine")
+            except Exception as e:
+                logger.warning(f"Could not load enhanced AI: {e}")
+                self.ai_engine = None
+
         self._modules: Dict[str, Any] = {}
         self._start_time: Optional[datetime] = None
         self._session_id: str = ""
@@ -63,10 +71,16 @@ class EnhancedPhantomEngine:
         # Initialize AI
         if self.ai_engine:
             try:
-                active_providers = await self.ai_engine.initialize()
-                console.print(f"  [bold green]✓[/] AI Engine: {len(active_providers)} providers active")
-                if not active_providers:
-                    console.print("  [yellow]⚠ AI: No providers configured. Set GROQ_API_KEY or other provider keys.[/]")
+                # RemoteAIClient doesn't have initialize() — handle both cases
+                if hasattr(self.ai_engine, "initialize"):
+                    active_providers = await self.ai_engine.initialize()
+                    if active_providers:
+                        console.print(f"  [bold green]✓[/] AI Engine: {len(active_providers)} providers active")
+                    else:
+                        console.print("  [bold green]✓[/] AI Engine: Remote backend (Render)")
+                else:
+                    # RemoteAIClient — always active
+                    console.print(f"  [bold green]✓[/] AI Engine: Remote backend → {self.config.backend_url}")
             except Exception as e:
                 console.print(f"  [yellow]⚠ AI Engine: {e}[/]")
 
