@@ -87,7 +87,7 @@ class EnhancedPhantomAIEngine:
         self._initialized = False
         self._last_provider_used: str = ""
 
-        # Define all providers with real working endpoints
+        # Providers — Gemini removed (user request), only OpenAI-compatible APIs
         self._providers = {
             "groq": {
                 "name": "Groq",
@@ -109,22 +109,12 @@ class EnhancedPhantomAIEngine:
                 "daily": 200,
                 "timeout": 60.0,
             },
-            "gemini": {
-                "name": "Gemini",
-                "base_url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-                "api_key_env": "GEMINI_API_KEY",
-                "model": "gemini-2.5-flash",
-                "priority": 3,
-                "rpm": 60,
-                "daily": 1500,
-                "timeout": 60.0,
-            },
             "cerebras": {
                 "name": "Cerebras",
                 "base_url": "https://api.cerebras.ai/v1/chat/completions",
                 "api_key_env": "CEREBRAS_API_KEY",
                 "model": "llama3.3-70b",
-                "priority": 4,
+                "priority": 3,
                 "rpm": 30,
                 "daily": 500,
                 "timeout": 60.0,
@@ -194,6 +184,11 @@ class EnhancedPhantomAIEngine:
         force_provider: Optional[str] = None,
     ) -> AIResponse:
         """Send query to AI with smart failover."""
+        # Sanitize inputs — never pass None
+        prompt = prompt or ""
+        system_prompt = system_prompt or ""
+        force_provider = force_provider or None
+
         try:
             if not self._initialized:
                 await self.initialize()
@@ -216,7 +211,6 @@ class EnhancedPhantomAIEngine:
                 providers = self._get_sorted_providers()
 
             if not providers:
-                # Fallback to local response if no AI available
                 return AIResponse(
                     content=self._generate_fallback_response(prompt, system_prompt),
                     provider="local_fallback",
@@ -230,18 +224,10 @@ class EnhancedPhantomAIEngine:
             for provider_id, provider_config in providers:
                 try:
                     start_time = time.time()
-
-                    if provider_id == "groq" or provider_id == "openrouter" or provider_id == "cerebras":
-                        response = await self._call_openai_compatible(
-                            provider_id, provider_config, prompt, system_prompt, temperature, max_tokens
-                        )
-                    elif provider_id == "gemini":
-                        response = await self._call_gemini(
-                            provider_id, provider_config, prompt, system_prompt, temperature, max_tokens
-                        )
-                    else:
-                        continue
-
+                    # All remaining providers use OpenAI-compatible API
+                    response = await self._call_openai_compatible(
+                        provider_id, provider_config, prompt, system_prompt, temperature, max_tokens
+                    )
                     latency = (time.time() - start_time) * 1000
                     self._rate_trackers[provider_id].record_request()
                     self._last_provider_used = provider_id
@@ -254,10 +240,7 @@ class EnhancedPhantomAIEngine:
                         latency_ms=latency,
                         raw_response={"provider": provider_id},
                     )
-
-                    # Cache response
                     self._response_cache[cache_key] = result
-
                     logger.info(f"[AI] ✓ Response from {provider_config['name']} in {latency:.0f}ms")
                     return result
 
@@ -267,7 +250,6 @@ class EnhancedPhantomAIEngine:
                     logger.warning(f"[AI] ✗ {provider_config['name']} failed: {e}")
                     continue
 
-            # All providers failed - return fallback
             logger.error(f"[AI] All providers failed. Last error: {last_error}")
             return AIResponse(
                 content=self._generate_fallback_response(prompt, system_prompt),
@@ -277,9 +259,9 @@ class EnhancedPhantomAIEngine:
                 latency_ms=0,
             )
         except Exception as e:
-            logger.error(f"[AI] Query failed with error: {e}")
+            logger.error(f"[AI] Query failed: {e}", exc_info=True)
             return AIResponse(
-                content=f"AI service error: {str(e)}. Set GROQ_API_KEY or other provider keys.",
+                content=f"AI error: {e}",
                 provider="error",
                 model="error",
                 tokens_used=0,
@@ -295,10 +277,10 @@ class EnhancedPhantomAIEngine:
         temperature: float,
         max_tokens: int,
     ) -> str:
-        """Call OpenAI-compatible API."""
+        """Call OpenAI-compatible API (Groq, OpenRouter, Cerebras)."""
         api_key = os.getenv(config["api_key_env"], "").strip()
         if not api_key:
-            raise ValueError(f"No API key found for {provider_id}")
+            raise ValueError(f"No API key for {provider_id} ({config['api_key_env']})")
 
         messages = []
         if system_prompt:
@@ -318,50 +300,10 @@ class EnhancedPhantomAIEngine:
         }
 
         client = self._clients[provider_id]
-        response = await client.post(
-            config["base_url"],
-            json=payload,
-            headers=headers,
-        )
+        response = await client.post(config["base_url"], json=payload, headers=headers)
         response.raise_for_status()
         data = response.json()
-
         return data["choices"][0]["message"]["content"]
-
-    async def _call_gemini(
-        self,
-        provider_id: str,
-        config: Dict,
-        prompt: str,
-        system_prompt: str,
-        temperature: float,
-        max_tokens: int,
-    ) -> str:
-        """Call Google Gemini API."""
-        api_key = os.getenv(config["api_key_env"], "").strip()
-        if not api_key:
-            raise ValueError(f"No API key found for {provider_id}")
-
-        contents = [{"parts": [{"text": prompt}]}]
-        if system_prompt:
-            contents[0]["parts"].insert(0, {"text": system_prompt})
-
-        payload = {
-            "contents": contents,
-            "generationConfig": {
-                "temperature": temperature,
-                "maxOutputTokens": max_tokens,
-            },
-        }
-
-        url = f"{config['base_url']}?key={api_key}"
-
-        client = self._clients[provider_id]
-        response = await client.post(url, json=payload)
-        response.raise_for_status()
-        data = response.json()
-
-        return data["candidates"][0]["content"]["parts"][0]["text"]
 
     def _generate_fallback_response(self, prompt: str, system_prompt: str) -> str:
         """Generate rule-based fallback response when AI is unavailable."""

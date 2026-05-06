@@ -433,12 +433,19 @@ async def get_attack_modes():
 async def ai_query(request: AIQueryRequest, engine=Depends(get_engine)):
     """Query the AI engine."""
     if not engine.ai_engine:
-        raise HTTPException(status_code=503, detail="AI engine not available")
-    
+        return {
+            "content": "AI engine not available. Check server logs.",
+            "provider": "error",
+            "model": "none",
+            "tokens_used": 0,
+            "latency_ms": 0,
+            "cached": False,
+        }
+
     try:
         response = await engine.ai_engine.query(
             prompt=request.prompt,
-            system_prompt=request.system_prompt or None,
+            system_prompt=request.system_prompt or "",   # never None
             force_provider=request.provider or None,
         )
         return {
@@ -450,11 +457,14 @@ async def ai_query(request: AIQueryRequest, engine=Depends(get_engine)):
             "cached": response.cached,
         }
     except Exception as e:
-        # Return fallback response
+        logger.error(f"AI query error: {e}", exc_info=True)
         return {
-            "content": f"AI service error: {e}. Set GROQ_API_KEY or other provider keys.",
+            "content": f"AI error: {e}",
             "provider": "error",
             "model": "none",
+            "tokens_used": 0,
+            "latency_ms": 0,
+            "cached": False,
             "error": str(e),
         }
 
