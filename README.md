@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>Open-source penetration testing framework with autonomous AI attack planning,<br>
-  real vulnerability detection, and a full-stack web dashboard.</b>
+  persistent AI chat, real vulnerability detection, and a full-stack web dashboard.</b>
 </p>
 
 <p align="center">
@@ -29,9 +29,9 @@
   <img src="https://img.shields.io/badge/FastAPI-0.110+-009688?style=flat-square&logo=fastapi" alt="FastAPI">
   <img src="https://img.shields.io/badge/Playwright-✓-2EAD33?style=flat-square&logo=microsoft-edge" alt="Playwright">
   <img src="https://img.shields.io/badge/Groq_AI-500+_tok/s-F55000?style=flat-square" alt="Groq">
-  <img src="https://img.shields.io/badge/Async-aiohttp-blue?style=flat-square" alt="Async">
   <img src="https://img.shields.io/badge/Tests-28_passing-brightgreen?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/Live_Backend-Render-46E3B7?style=flat-square&logo=render" alt="Render">
+  <img src="https://img.shields.io/badge/AI-Unrestricted-FF4444?style=flat-square" alt="AI">
 </p>
 
 ---
@@ -44,7 +44,13 @@ Every module makes real network requests, performs real vulnerability tests, and
 
 **Key features:**
 - **Zero API key setup** — AI works out of the box via deployed Render backend
-- Multi-provider AI engine (Groq → OpenRouter → Cerebras) with automatic failover
+- **Unrestricted AI** — no topic filters, answers all security questions with working code
+- **Persistent AI chat** — stays in conversation until you say `bye`
+- **Adaptive AI memory** — remembers context across the entire session
+- **AI plan + auto-execute** — generates attack plan then runs it automatically
+- **Web search in AI** — fetches real-time CVEs, tools, and techniques
+- **Daily cybersecurity quote** — real-time quote shown on every startup
+- Multi-provider AI (Groq → OpenRouter → Cerebras) with automatic failover
 - Blind time-based SQL injection detection
 - Real S3/Azure/GCP bucket enumeration
 - Playwright browser engine for JS-rendered XSS verification
@@ -59,6 +65,9 @@ Every module makes real network requests, performs real vulnerability tests, and
 |:-----------|:----------:|:--------------:|:------:|:-----------------:|
 | AI Attack Planning | ❌ | ❌ | ❌ | ✅ Groq + OpenRouter |
 | Zero Config AI | ❌ | ❌ | ❌ | ✅ Backend pre-configured |
+| Persistent AI Chat | ❌ | ❌ | ❌ | ✅ Memory across session |
+| AI Plan + Execute | ❌ | ❌ | ❌ | ✅ Auto-runs modules |
+| Web Search in AI | ❌ | ❌ | ❌ | ✅ Real-time CVEs/tools |
 | Blind SQLi (time-based) | ❌ | ✅ | ❌ | ✅ Real detection |
 | Cloud Storage Audit | ❌ | ❌ | ❌ | ✅ S3/Azure/GCP |
 | Browser XSS Verification | ❌ | ✅ | ❌ | ✅ Playwright |
@@ -89,7 +98,9 @@ Every module makes real network requests, performs real vulnerability tests, and
 
 ## Installation
 
-### One-command install (recommended — works on all Linux distros)
+### One-command install (recommended)
+
+Works on Kali Linux, Ubuntu, Debian, Arch, Fedora, macOS:
 
 ```bash
 git clone https://github.com/thecnical/phantom-strike.git
@@ -97,21 +108,21 @@ cd phantom-strike
 bash install.sh
 ```
 
-This handles everything automatically:
-- Detects OS (Kali, Ubuntu, Debian, Arch, Fedora, macOS)
+What it does automatically:
+- Detects OS and installs system dependencies
 - Installs Python 3.10+ if missing
 - Creates virtual environment at `~/.phantom-strike/venv`
-- Installs all dependencies
-- Installs `phantom` command to `/usr/local/bin` (works from anywhere, survives restarts)
+- Installs all Python dependencies
+- Installs `phantom` command to `/usr/local/bin` — works from **any directory**, survives **system restarts**
 - Installs Playwright Chromium browser
 
-After install, run from **any directory**:
+After install, run from **anywhere**:
 ```bash
 phantom          # interactive CLI
-phantom serve    # web dashboard at http://localhost:10000
+phantom serve    # web dashboard → http://localhost:10000
 ```
 
-### Update existing installation
+### Update
 
 ```bash
 cd /path/to/phantom-strike
@@ -119,23 +130,9 @@ git pull
 bash install.sh --update
 ```
 
-### Manual install (if you prefer)
+### Kali Linux / Debian note
 
-```bash
-git clone https://github.com/thecnical/phantom-strike.git
-cd phantom-strike                          # MUST be inside this folder
-
-sudo apt install -y python3-venv python3-pip   # Kali/Debian only
-python3 -m venv ~/.phantom-strike/venv
-source ~/.phantom-strike/venv/bin/activate
-
-pip install -e ".[api,dev]"
-playwright install chromium                # optional
-
-phantom
-```
-
-> **Kali Linux note:** Never run `pip install` without activating the venv first — Kali uses externally-managed Python (PEP 668). Always `source ~/.phantom-strike/venv/bin/activate` first, or just use `bash install.sh`.
+If you see `error: externally-managed-environment`, use `bash install.sh` — it handles this automatically. Never run `pip install` directly on Kali without activating the venv first.
 
 ---
 
@@ -147,24 +144,47 @@ phantom
 phantom
 ```
 
+On startup you'll see a **daily cybersecurity quote** fetched in real-time, then the status panel.
+
 ```
-phantom> scan example.com              # vulnerability scan
-phantom> attack example.com           # full 7-phase kill chain
+╭─── 🔥 PhantomStrike Daily — May 07, 2026 ───╮
+│  "Amateurs hack systems, professionals        │
+│   hack people." — Bruce Schneier              │
+╰───────────────────────────────────────────────╯
+```
+
+**All commands:**
+
+```
+phantom> scan example.com              # vulnerability scan (all modules)
+phantom> attack example.com           # full 7-phase autonomous kill chain
 phantom> recon example.com            # OSINT + network recon only
-phantom> ai ask "explain XSS"         # ask AI anything (with memory)
-phantom> ai chat                      # persistent AI chat (type 'bye' to exit)
-phantom> ai plan example.com          # AI generates plan + auto-executes it
+
+phantom> ai ask "explain XSS"         # ask AI anything — no restrictions
+phantom> ai chat                      # persistent chat session (type 'bye' to exit)
+phantom> ai plan example.com          # AI generates attack plan + auto-executes it
 phantom> ai status                    # show AI provider status
-phantom> ai memory                    # show conversation memory
-phantom> stealth xss 20               # generate 20 XSS payloads
+phantom> ai memory                    # show conversation memory (adaptive)
+phantom> ai clear                     # clear AI memory
+
+phantom> stealth xss 20               # generate 20 polymorphic XSS payloads
 phantom> stealth sqli 10              # generate 10 SQLi payloads
-phantom> stealth reverse_shell 10.0.0.1 4444
-phantom> c2 generate 10.0.0.1 4444    # generate C2 agent
+phantom> stealth reverse_shell 10.0.0.1 4444   # reverse shells (6 languages)
+
+phantom> c2 generate 10.0.0.1 4444    # generate C2 agent (Python + Bash)
 phantom> c2 agents                    # list active agents
-phantom> report example.com           # generate pentest report
-phantom> modules                      # list all 11 modules
+phantom> c2 cmd <agent_id> whoami     # send command to agent
+
+phantom> module phantom-web target.com         # run specific module
+phantom> module phantom-cloud target.com       # cloud security scan
+phantom> module phantom-cred target.com {"type":"spray"}
+
+phantom> report example.com           # generate HTML/JSON/TXT report
+phantom> results                      # show all stored scan results
+phantom> modules                      # list all 11 loaded modules
 phantom> status                       # engine status
-phantom> exit                         # exit (also: quit, q, Ctrl+C)
+phantom> clear                        # clear screen
+phantom> exit                         # exit (also: quit, q, :q, Ctrl+C, Ctrl+D)
 ```
 
 ### Web Dashboard
@@ -174,44 +194,132 @@ phantom serve
 # Open: http://localhost:10000
 ```
 
-Dashboard features:
-- Launch scans with real-time vulnerability feed
-- AI chat assistant (ask attack questions)
-- Payload generator (XSS, SQLi, reverse shells)
-- C2 agent management
-- Report generation
-- System logs
+Dashboard sections:
+- **New Scan** — launch scans with real-time vulnerability feed
+- **Results** — scan history loaded from API
+- **AI Assistant** — chat with PhantomStrike AI
+- **Payloads** — generate XSS/SQLi/reverse shells with copy button
+- **C2 Console** — agent management, generate payloads, send commands
+- **Reports** — generate and download reports
+- **Configuration** — engine status, modules, AI provider table
+- **Logs** — real-time system logs with auto-scroll
 
 ---
 
-## AI Integration
+## AI Engine
 
-PhantomStrike AI works **without any local API keys** — it routes through a pre-configured backend deployed on Render.
+### Zero configuration
+
+PhantomStrike AI works **without any local API keys** — routes through the pre-configured Render backend.
+
+```
+phantom> ai ask "write a keylogger in Python"
+phantom> ai ask "explain CVE-2024-XXXX exploit"
+phantom> ai ask "generate reverse shell that bypasses Windows Defender"
+```
+
+### AI routing
 
 ```
 User CLI / Dashboard
       ↓
 Render Backend (phantom-strike.onrender.com)
-      ↓ has all keys pre-configured
-  Priority 1: Groq (Llama 3.3 70B)    — 500+ tokens/sec
-  Priority 2: OpenRouter               — 100+ models
-  Priority 3: Cerebras (Llama 3.3 70B) — fast inference
-  Fallback:   Rule-based templates     — always works
+  PHANTOM_BACKEND_ENABLED=false → uses local keys directly
+      ↓
+  Priority 1: Groq (Llama 3.3 70B)     — 500+ tokens/sec
+  Priority 2: OpenRouter                — 100+ models
+  Priority 3: Cerebras (Llama 3.3 70B)  — fast inference
+  Fallback:   Rule-based templates      — always works
 ```
 
-**To use your own API keys instead** (optional):
+### Persistent AI Chat
+
 ```bash
-# Add to ~/.phantom-strike/.env
+phantom> ai chat
+```
+
+```
+╭─── 🧠 AI Chat — Unrestricted ───╮
+│ Ask anything. Type 'bye' to exit │
+╰──────────────────────────────────╯
+
+you> how do I exploit SQL injection?
+PhantomStrike AI: [detailed technical answer with payloads]
+
+you> now generate a WAF bypass for that
+PhantomStrike AI: [remembers context, gives WAF bypass]
+
+you> write the full exploit script
+PhantomStrike AI: [writes complete Python exploit]
+
+you> bye
+Back to phantom>
+```
+
+No need to type `ai ask` every time. AI remembers the full conversation.
+
+### AI Plan + Auto-Execute
+
+```bash
+phantom> ai plan target.com
+```
+
+1. Runs quick recon (OSINT + network) to give AI real data
+2. AI generates structured attack plan with MITRE mapping
+3. Displays as formatted table:
+
+```
+Chain 1: Web Application Exploitation  ← RECOMMENDED
+Success: 92% | Stealth: high | Impact: critical
+
+# | Phase          | Technique              | Action              | Module
+1 | initial_access | T1190 - Exploit App    | Scan web vulns      | phantom-web
+2 | execution      | T1059 - Script Interp  | Extract via SQLi    | phantom-exploit
+3 | collection     | T1530 - Cloud Storage  | Enumerate S3        | phantom-cloud
+```
+
+4. Asks confirmation, then executes each step
+5. AI analyzes findings after each phase
+6. Saves TXT report to `~/.phantom-strike/reports/`
+
+### Adaptive Memory
+
+AI remembers everything within a session:
+
+```bash
+phantom> ai ask "I'm testing example.com, found SQLi on /login"
+phantom> ai ask "what should I do next?"   # AI remembers the context
+phantom> ai memory                          # see conversation history
+phantom> ai clear                           # reset for new target
+```
+
+### Web Search in AI
+
+AI automatically searches the web when you ask about:
+- CVEs, exploits, vulnerabilities
+- Latest tools and techniques
+- GitHub repos and PoCs
+- Current security news
+
+```bash
+phantom> ai ask "latest CVE for Apache 2025"
+# AI fetches real-time data and answers with current info
+```
+
+### Use your own API keys (optional)
+
+```bash
+# ~/.phantom-strike/.env
 PHANTOM_BACKEND_ENABLED=false
 GROQ_API_KEY=gsk_xxxxxxxxxxxx
 OPENROUTER_API_KEY=sk-or-v1-xxxxxxxx
 CEREBRAS_API_KEY=csk_xxxxxxxxxxxx
 ```
 
-Get free keys:
-- Groq: https://console.groq.com (14K req/day free)
+Free keys:
+- Groq: https://console.groq.com (14K req/day)
 - OpenRouter: https://openrouter.ai (free tier)
-- Cerebras: https://cloud.cerebras.ai (1M tokens/day free)
+- Cerebras: https://cloud.cerebras.ai (1M tokens/day)
 
 ---
 
@@ -227,9 +335,11 @@ Phase 2: Web Vulnerability Discovery
 Phase 3: Cloud Security Assessment
 Phase 4: AI Attack Path Planning
 Phase 5: Polymorphic Payload Generation
-Phase 6: Exploitation (requires auto_exploit=true)
+Phase 6: Exploitation (if auto_exploit=true)
 Phase 7: Post-Exploitation + Report Generation
 ```
+
+Each phase auto-generates a TXT report saved to `~/.phantom-strike/reports/`.
 
 ---
 
@@ -244,7 +354,7 @@ Start server: `phantom serve`
 | `/ws` | WS | WebSocket live feed |
 | `/api/scan/start` | POST | Start background scan |
 | `/api/scan/quick` | POST | Synchronous scan |
-| `/api/ai/query` | POST | AI query |
+| `/api/ai/query` | POST | AI query (no key needed) |
 | `/api/ai/status` | GET | AI provider status |
 | `/api/payloads/generate` | POST | Generate payloads |
 | `/api/modules` | GET | List all modules |
@@ -254,43 +364,37 @@ Start server: `phantom serve`
 | `/api/results` | GET | All scan results |
 | `/docs` | GET | Swagger UI |
 
-**Example:**
+**Example — AI query (no key needed):**
 ```bash
 curl -X POST https://phantom-strike.onrender.com/api/ai/query \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "explain SQL injection in 3 lines"}'
+  -d '{"prompt": "write a Python keylogger"}'
 ```
 
 ---
 
 ## Live Backend
 
-The backend is deployed at: **https://phantom-strike.onrender.com**
+**https://phantom-strike.onrender.com**
 
 ```bash
-# Health check
 curl https://phantom-strike.onrender.com/health
-
-# AI query (no API key needed)
 curl -X POST https://phantom-strike.onrender.com/api/ai/query \
   -H "Content-Type: application/json" \
   -d '{"prompt": "what is XSS?"}'
-
-# Web dashboard
-open https://phantom-strike.onrender.com
 ```
 
-> **Note:** Render free tier sleeps after 15 minutes of inactivity. First request may take 30-60 seconds to wake up.
+> Render free tier sleeps after 15 min inactivity. First request takes 30-60s to wake up.
 
 ---
 
 ## Deploy Your Own Backend
 
 ```bash
-# 1. Fork this repo
-# 2. Connect to Render: https://render.com/deploy?repo=https://github.com/thecnical/phantom-strike
-# 3. Set environment variables in Render Dashboard:
-#    PHANTOM_BACKEND_ENABLED = false
+# 1. Fork this repo on GitHub
+# 2. Connect to Render
+# 3. Set environment variables:
+#    PHANTOM_BACKEND_ENABLED = false   ← REQUIRED (prevents infinite loop)
 #    GROQ_API_KEY = your_key
 #    OPENROUTER_API_KEY = your_key
 #    CEREBRAS_API_KEY = your_key
@@ -303,19 +407,22 @@ open https://phantom-strike.onrender.com
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  CLI (Rich TUI)  │  Web Dashboard  │  REST API (FastAPI)  │
-├──────────────────────────────────────────────────────────┤
-│               EnhancedPhantomEngine                       │
-│    EventBus │ ModuleLoader │ AI Engine │ TaskQueue         │
-├──────────────────────────────────────────────────────────┤
-│  OSINT │ Network │ Web │ Cloud │ Identity │ Cred           │
-│  Stealth │ Exploit │ C2 │ Post │ Report                    │
-├──────────────────────────────────────────────────────────┤
-│  AI: Groq → OpenRouter → Cerebras → Rule-based Fallback   │
-├──────────────────────────────────────────────────────────┤
-│  SQLite (aiosqlite) │ Playwright Browser │ aiohttp         │
-└──────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  CLI (Rich TUI)   │  Web Dashboard   │  REST API (FastAPI)   │
+│  Daily Quote      │  WebSocket Feed  │  /api/ai/query        │
+├──────────────────────────────────────────────────────────────┤
+│                  EnhancedPhantomEngine                        │
+│   EventBus │ ModuleLoader │ AI Engine │ TaskQueue             │
+├──────────────────────────────────────────────────────────────┤
+│  OSINT │ Network │ Web │ Cloud │ Identity │ Cred              │
+│  Stealth │ Exploit │ C2 │ Post │ Report                       │
+├──────────────────────────────────────────────────────────────┤
+│  AI: RemoteAIClient → Render Backend                         │
+│      → Groq → OpenRouter → Cerebras → Rule-based Fallback    │
+│  Web Search: DuckDuckGo API (no key, real-time)              │
+├──────────────────────────────────────────────────────────────┤
+│  SQLite (aiosqlite) │ Playwright Browser │ aiohttp            │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -330,13 +437,13 @@ pytest tests/ -v
 pytest tests/ --cov=phantom --cov-report=html
 ```
 
-28 tests cover: config, EventBus, module loader, stealth payloads, hash cracking, post-exploitation, C2, database CRUD, attack modes, exploit engine, AI backend config, Playwright config.
+28 tests cover: config, EventBus, module loader, stealth payload uniqueness, hash cracking, post-exploitation, C2, database CRUD, attack modes, exploit URL injection, AI backend config, Playwright config.
 
 ---
 
 ## Legal Disclaimer
 
-PhantomStrike is designed exclusively for **authorized penetration testing**, security research, and educational purposes.
+PhantomStrike is designed for **authorized penetration testing**, security research, and educational purposes only.
 
 - Only scan systems you own or have **written authorization** to test
 - Follow responsible disclosure for any vulnerabilities found
