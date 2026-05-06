@@ -463,16 +463,22 @@ setup_commands() {
 
     cat > "$PHANTOM_WRAPPER" << EOF
 #!/bin/bash
-# PhantomStrike CLI wrapper
-source "$VENV_BIN/activate" 2>/dev/null || true
-exec "$VENV_BIN/phantom" "\$@"
+# PhantomStrike CLI wrapper — auto-activates venv
+VENV="$VENV_DIR"
+if [ -f "\$VENV/bin/activate" ] && [ -z "\$VIRTUAL_ENV" ]; then
+    source "\$VENV/bin/activate"
+fi
+exec "\$VENV/bin/python" -m phantom "\$@"
 EOF
 
     cat > "$PHANTOM_STRIKE_WRAPPER" << EOF
 #!/bin/bash
-# PhantomStrike CLI wrapper
-source "$VENV_BIN/activate" 2>/dev/null || true
-exec "$VENV_BIN/phantom-strike" "\$@"
+# PhantomStrike CLI wrapper — auto-activates venv
+VENV="$VENV_DIR"
+if [ -f "\$VENV/bin/activate" ] && [ -z "\$VIRTUAL_ENV" ]; then
+    source "\$VENV/bin/activate"
+fi
+exec "\$VENV/bin/python" -m phantom "\$@"
 EOF
 
     chmod +x "$PHANTOM_WRAPPER" "$PHANTOM_STRIKE_WRAPPER"

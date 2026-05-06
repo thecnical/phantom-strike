@@ -189,11 +189,12 @@ class PhantomStrikeConfig(BaseSettings):
     data_dir: Path = Path.home() / ".phantom-strike"
     log_level: str = "INFO"
 
-    # ── Backend Connection (opt-in remote AI proxy) ──
-    # Set backend_enabled=True in .env or phantom.yaml to route AI through remote backend.
-    # When False (default), AI uses local provider keys (GROQ_API_KEY etc.)
+    # ── Backend Connection ──
+    # backend_enabled=True routes ALL AI calls through the deployed Render backend.
+    # The backend has all API keys configured — users need ZERO local keys.
+    # Set PHANTOM_BACKEND_ENABLED=false in .env to use local keys instead.
     backend_url: str = "https://phantom-strike.onrender.com"
-    backend_enabled: bool = False  # False = use local API keys by default
+    backend_enabled: bool = True  # True = use Render backend (has all keys, zero config)
 
     # ── AI Providers (Only needed on backend/creator side) ──
     ai_providers: dict[str, AIProviderConfig] = {}

@@ -456,31 +456,45 @@ class EnhancedPhantomEngine:
         return self._results_store
 
     def _setup_logging(self):
-        """Configure logging."""
-        log_level = getattr(logging, self.config.log_level.upper(), logging.INFO)
+        """Configure logging — WARNING level only to suppress module spam."""
+        # Always use WARNING in CLI mode to avoid INFO spam on startup
+        # Users can set PHANTOM_LOG_LEVEL=DEBUG for verbose output
+        log_level_name = self.config.log_level.upper()
+        # Default to WARNING to keep startup clean
+        if log_level_name == "INFO":
+            log_level = logging.WARNING
+        else:
+            log_level = getattr(logging, log_level_name, logging.WARNING)
+
         logging.basicConfig(
             level=log_level,
             format="%(message)s",
             datefmt="[%X]",
-            handlers=[RichHandler(console=console, rich_tracebacks=True)],
+            handlers=[RichHandler(
+                console=console,
+                rich_tracebacks=False,
+                show_path=False,
+                show_time=False,
+            )],
         )
+        # Silence noisy third-party loggers
+        for noisy in ("httpx", "httpcore", "aiohttp", "asyncio", "urllib3"):
+            logging.getLogger(noisy).setLevel(logging.ERROR)
 
     def _print_banner(self):
-        """Print banner."""
-        banner = """
-[bold red]
-  ██████╗ ██╗  ██╗ █████╗ ███╗   ██╗████████╗ ██████╗ ███╗   ███╗
-  ██╔══██╗██║  ██║██╔══██╗████╗  ██║╚══██╔══╝██╔═══██╗████╗ ████║
-  ██████╔╝███████║███████║██╔██╗ ██║   ██║   ██║   ██║██╔████╔██║
-  ██╔═══╝ ██╔══██║██╔══██║██║╚██╗██║   ██║   ██║   ██║██║╚██╔╝██║
-  ██║     ██║  ██║██║  ██║██║ ╚████║   ██║   ╚██████╔╝██║ ╚═╝ ██║
-  ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝     ╚═╝
-[/bold red][bold cyan]                    S T R I K E[/bold cyan]
-[dim]         "See Everything. Strike Anywhere. Leave Nothing."[/dim]
-[dim]         Enhanced Engine v2.0 | Python {pyver} | {os}[/dim]
-""".format(
-            pyver=platform.python_version(),
-            os=platform.system(),
+        """Print banner — only once per session, not on every restart."""
+        banner = (
+            "\n[bold red]"
+            "  ██████╗ ██╗  ██╗ █████╗ ███╗   ██╗████████╗ ██████╗ ███╗   ███╗\n"
+            "  ██╔══██╗██║  ██║██╔══██╗████╗  ██║╚══██╔══╝██╔═══██╗████╗ ████║\n"
+            "  ██████╔╝███████║███████║██╔██╗ ██║   ██║   ██║   ██║██╔████╔██║\n"
+            "  ██╔═══╝ ██╔══██║██╔══██║██║╚██╗██║   ██║   ██║   ██║██║╚██╔╝██║\n"
+            "  ██║     ██║  ██║██║  ██║██║ ╚████║   ██║   ╚██████╔╝██║ ╚═╝ ██║\n"
+            "  ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝     ╚═╝\n"
+            "[/bold red]"
+            "[bold cyan]                    S T R I K E[/bold cyan]\n"
+            '[dim]         "See Everything. Strike Anywhere. Leave Nothing."[/dim]\n'
+            f"[dim]         v2.0 | Python {platform.python_version()} | {platform.system()}[/dim]\n"
         )
         console.print(banner)
-        console.print("[bold green]  ⚡ Initializing Enhanced PhantomStrike Engine...[/]")
+        console.print("[bold green]  ⚡ Initializing PhantomStrike...[/]")

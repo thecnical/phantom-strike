@@ -1,13 +1,54 @@
 """
 PhantomStrike — Main Entry Point.
 Run as CLI or API server.
+
+Auto-activates venv if not already active, so 'phantom' command
+works after system restart without manually sourcing the venv.
 """
 import sys
+import os
 import asyncio
+
+
+def _ensure_venv():
+    """
+    Auto-activate the PhantomStrike venv if not already inside one.
+    This makes 'phantom' work after system restart without manual venv activation.
+    """
+    # Already inside a venv — nothing to do
+    if os.environ.get("VIRTUAL_ENV"):
+        return
+
+    # Find the venv
+    venv_dir = os.path.join(os.path.expanduser("~"), ".phantom-strike", "venv")
+    if not os.path.isdir(venv_dir):
+        return  # No venv found — proceed anyway (pipx install or system-wide)
+
+    # Re-exec with the venv's Python if we're not already using it
+    venv_python = os.path.join(venv_dir, "bin", "python")
+    if not os.path.isfile(venv_python):
+        venv_python = os.path.join(venv_dir, "bin", "python3")
+    if not os.path.isfile(venv_python):
+        return  # No venv python found
+
+    # If current interpreter is not the venv python, re-exec with it
+    if os.path.realpath(sys.executable) != os.path.realpath(venv_python):
+        # Set VIRTUAL_ENV so the re-exec doesn't loop
+        env = os.environ.copy()
+        env["VIRTUAL_ENV"] = venv_dir
+        env["PATH"] = os.path.join(venv_dir, "bin") + os.pathsep + env.get("PATH", "")
+        env.pop("PYTHONHOME", None)
+        try:
+            os.execve(venv_python, [venv_python, "-m", "phantom"] + sys.argv[1:], env)
+        except OSError:
+            pass  # execve failed — continue with current interpreter
 
 
 def main():
     """Entry point for PhantomStrike."""
+    # Auto-activate venv so 'phantom' works after system restart
+    _ensure_venv()
+
     # Check Python version
     if sys.version_info < (3, 10):
         print(f"ERROR: Python 3.10+ required. You have {sys.version}")
@@ -24,36 +65,33 @@ def _auto_update():
     """Silently check and pull updates from GitHub before starting."""
     import subprocess
     try:
-        # Check if we are inside a git repository
         result = subprocess.run(
-            ["git", "pull", "--rebase", "--autostash"], 
-            capture_output=True, 
+            ["git", "pull", "--rebase", "--autostash"],
+            capture_output=True,
             text=True,
-            timeout=5
+            timeout=5,
+            cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         )
         if "Updating" in result.stdout:
-            print("\n[+] PhantomStrike Auto-Updated to the latest version! 🔥\n")
+            print("\n[+] PhantomStrike auto-updated to latest version! 🔥\n")
     except Exception:
-        pass  # Fail silently, don't interrupt the user experience
+        pass
 
 
 def _run_cli():
     """Run the interactive CLI."""
     _auto_update()
-    
+
     from phantom.cli.app import PhantomStrikeCLI
-    
-    # Extract backend URL from args if present
-    import sys
+
+    # Extract --backend URL from args if present
     args = sys.argv[1:]
     backend_url = None
-    i = 0
-    while i < len(args):
-        if args[i] == "--backend" and i + 1 < len(args):
+    for i, arg in enumerate(args):
+        if arg == "--backend" and i + 1 < len(args):
             backend_url = args[i + 1]
             break
-        i += 1
-        
+
     cli = PhantomStrikeCLI()
 
     try:
@@ -66,7 +104,6 @@ def _run_cli():
 
         asyncio.run(cli.run(backend_url))
     except (KeyboardInterrupt, SystemExit):
-        # Clean exit — sys.exit(0) from _do_exit() or Ctrl+C at top level
         print("\nPhantomStrike terminated.")
         sys.exit(0)
     except Exception as e:
@@ -77,33 +114,27 @@ def _run_cli():
 def _run_api_server():
     """Run the enhanced FastAPI backend server with dashboard."""
     import uvicorn
-    
-    # Try to use enhanced server with dashboard
+
     try:
         from phantom.api.enhanced_server import app
         enhanced = True
-        print("\n🚀 Using ENHANCED server with Web Dashboard")
     except Exception as e:
         print(f"⚠ Could not load enhanced server: {e}")
-        from phantom.api.server import app
+        try:
+            from phantom.api.server import app
+        except Exception:
+            print("ERROR: No API server available.")
+            sys.exit(1)
         enhanced = False
 
     host = "0.0.0.0"
     port = int(sys.argv[2]) if len(sys.argv) > 2 else 10000
 
-    print(f"\n🔥 PhantomStrike API Server starting on {host}:{port}")
-    print(f"   Dashboard: http://localhost:{port}/")
-    print(f"   API Docs: http://localhost:{port}/docs")
-    print(f"   Health: http://localhost:{port}/health")
-    print(f"   WebSocket: ws://localhost:{port}/ws")
-    
-    if enhanced:
-        print(f"\n   Features enabled:")
-        print(f"   ✓ Real-time vulnerability alerts")
-        print(f"   ✓ Web dashboard UI")
-        print(f"   ✓ Blind SQLi detection")
-        print(f"   ✓ Cloud storage scanning (S3/Azure/GCP)")
-        print(f"   ✓ AI-powered analysis")
+    print(f"\n🔥 PhantomStrike {'Enhanced ' if enhanced else ''}API Server")
+    print(f"   Dashboard : http://localhost:{port}/")
+    print(f"   API Docs  : http://localhost:{port}/docs")
+    print(f"   Health    : http://localhost:{port}/health")
+    print(f"   WebSocket : ws://localhost:{port}/ws")
     print()
 
     uvicorn.run(
@@ -112,7 +143,7 @@ def _run_api_server():
         port=port,
         reload=False,
         workers=1,
-        log_level="info",
+        log_level="warning",  # Suppress uvicorn INFO spam
     )
 
 

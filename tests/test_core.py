@@ -424,13 +424,15 @@ async def test_exploit_engine_inject_param():
 
 # ─── Config Tests ────────────────────────────────────────────
 
-def test_backend_disabled_by_default():
-    """Backend should be opt-in, not forced on."""
+def test_backend_enabled_by_default():
+    """Backend should be enabled by default — Render has all API keys."""
     from phantom.core.config import load_config
     config = load_config()
-    assert config.backend_enabled is False, (
-        "backend_enabled must default to False — users should opt-in, not be forced through remote backend"
+    assert config.backend_enabled is True, (
+        "backend_enabled must default to True — Render backend has all keys, "
+        "users need zero local configuration"
     )
+    assert config.backend_url == "https://phantom-strike.onrender.com"
 
 
 def test_playwright_config_exists():
