@@ -2,7 +2,7 @@ name: 🔥 CI Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, "feature/**"]
   pull_request:
     branches: [main, develop]
 
@@ -41,9 +41,13 @@ jobs:
         run: |
           mypy phantom/ --ignore-missing-imports || true
 
-      - name: 🧪 Run tests
+      - name: 🧪 Run tests (v2.0 core — must all pass)
         run: |
-          pytest tests/ -v --cov=phantom --cov-report=xml --cov-report=term
+          pytest tests/test_core.py -v --tb=short
+
+      - name: 🧪 Run tests (v3.0 full suite)
+        run: |
+          pytest tests/ -v --tb=short --cov=phantom --cov-report=xml --cov-report=term
 
       - name: 📊 Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -57,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: � Set up Python
+      - name: 🐍 Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'

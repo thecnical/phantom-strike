@@ -102,6 +102,7 @@ dev = [
     "black>=24.0.0",
     "ruff>=0.2.0",
     "mypy>=1.8.0",
+    "hypothesis>=6.0.0",
 ]
 # API server (for Render deployment)
 api = [
@@ -115,33 +116,23 @@ local-ai = [
 gpu = [
     "hashcat-python>=0.1.0",
 ]
-
-# v3.0 optional dependency groups
-[project.optional-dependencies.ad]
-dependencies = [
+# v3.0 optional dependency groups — flat arrays, no nested tables
+ad = [
     "impacket>=0.11.0",
     "ldap3>=2.9.0",
 ]
-
-[project.optional-dependencies.sandbox]
-dependencies = [
+sandbox = [
     "docker>=7.0.0",
 ]
-
-[project.optional-dependencies.c2]
-dependencies = [
-    # sliver-client is a binary, not a Python package
-    # Install from: https://github.com/BishopFox/sliver
+# c2: sliver-client is a binary (https://github.com/BishopFox/sliver), not a Python package
+# No Python packages needed for Sliver integration
+c2 = [
+    "requests>=2.31.0",
 ]
-
-[project.optional-dependencies.reverser]
-dependencies = [
+reverser = [
     "r2pipe>=1.8.0",
-    # ROPgadget: pip install ROPgadget
 ]
-
-[project.optional-dependencies.v3]
-dependencies = [
+v3 = [
     "ldap3>=2.9.0",
     "networkx>=3.0",
     "docker>=7.0.0",
