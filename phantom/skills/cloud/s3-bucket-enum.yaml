@@ -1,0 +1,48 @@
+---
+name: s3-bucket-enum
+phase: cloud
+mitre_ids: [T1530, T1619]
+opsec_level: 2
+description: Enumerate publicly accessible S3 buckets and list their contents for sensitive data
+module: phantom-cloud
+tools: [aws-cli, s3scanner, curl]
+prerequisites: []
+---
+# S3 Bucket Enumeration
+
+## Technique
+Discover publicly accessible Amazon S3 buckets associated with a target
+organisation and enumerate their contents for sensitive files, credentials,
+and configuration data.
+
+## Commands
+```bash
+# Check if a specific bucket is publicly accessible
+aws s3 ls s3://target-bucket-name --no-sign-request
+
+# List all objects in a public bucket
+aws s3 ls s3://target-bucket-name --recursive --no-sign-request
+
+# Download interesting files
+aws s3 cp s3://target-bucket-name/config.json . --no-sign-request
+
+# Brute-force bucket names based on target domain
+s3scanner scan --buckets-file wordlist.txt
+
+# Check bucket ACL (requires credentials)
+aws s3api get-bucket-acl --bucket target-bucket-name
+```
+
+## Usage
+1. Generate a wordlist of likely bucket names (company name + common suffixes).
+2. Check each bucket for public read access.
+3. Download and review files for credentials, API keys, and PII.
+
+## Detection Evasion
+- Use `--no-sign-request` to avoid leaving authenticated API traces.
+- Spread enumeration requests over time.
+- Access only files relevant to the engagement scope.
+
+## MITRE ATT&CK
+- T1530 — Data from Cloud Storage
+- T1619 — Cloud Storage Object Discovery

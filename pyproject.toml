@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phantom-strike"
-version = "1.0.0-alpha"
+version = "3.0.0-alpha"
 description = "The World's Most Powerful Open-Source Offensive Security Framework — AI-Powered, Multi-Threaded, Zero-Cost"
 readme = "README.md"
 license = {text = "MIT"}
@@ -87,6 +87,11 @@ dependencies = [
     # === OSINT ===
     "shodan>=1.31.0",
     "whois>=0.9.27",
+
+    # === v3.0 CORE ADDITIONS ===
+    "ldap3>=2.9.0",                  # LDAP enumeration (ADModule)
+    "networkx>=3.0",                 # Graph algorithms for attack path analysis
+    "hypothesis>=6.0.0",             # Property-based testing
 ]
 
 [project.optional-dependencies]
@@ -109,6 +114,38 @@ local-ai = [
 ]
 gpu = [
     "hashcat-python>=0.1.0",
+]
+
+# v3.0 optional dependency groups
+[project.optional-dependencies.ad]
+dependencies = [
+    "impacket>=0.11.0",
+    "ldap3>=2.9.0",
+]
+
+[project.optional-dependencies.sandbox]
+dependencies = [
+    "docker>=7.0.0",
+]
+
+[project.optional-dependencies.c2]
+dependencies = [
+    # sliver-client is a binary, not a Python package
+    # Install from: https://github.com/BishopFox/sliver
+]
+
+[project.optional-dependencies.reverser]
+dependencies = [
+    "r2pipe>=1.8.0",
+    # ROPgadget: pip install ROPgadget
+]
+
+[project.optional-dependencies.v3]
+dependencies = [
+    "ldap3>=2.9.0",
+    "networkx>=3.0",
+    "docker>=7.0.0",
+    "r2pipe>=1.8.0",
 ]
 
 [project.scripts]

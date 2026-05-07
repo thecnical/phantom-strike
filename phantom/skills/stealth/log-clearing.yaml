@@ -1,0 +1,57 @@
+---
+name: log-clearing
+phase: stealth
+mitre_ids: [T1070.001, T1070.002]
+opsec_level: 4
+description: Clear Windows Event Logs and Linux syslog entries to reduce forensic evidence
+module: phantom-stealth
+tools: [wevtutil, bash, powershell]
+prerequisites: [admin_or_root_access]
+---
+# Log Clearing
+
+## Technique
+Remove or truncate system and application logs to reduce the forensic
+footprint of an engagement.  Should only be performed when explicitly
+authorised in the Rules of Engagement.
+
+## Commands
+```powershell
+# Windows: clear all event logs via wevtutil
+wevtutil el | ForEach-Object { wevtutil cl "$_" }
+
+# Windows: clear specific logs
+wevtutil cl Security
+wevtutil cl System
+wevtutil cl Application
+
+# Windows: via PowerShell
+Get-EventLog -List | ForEach-Object { Clear-EventLog -LogName $_.Log }
+```
+
+```bash
+# Linux: truncate syslog and auth log
+truncate -s 0 /var/log/syslog
+truncate -s 0 /var/log/auth.log
+
+# Linux: clear bash history for current session
+history -c && history -w
+unset HISTFILE
+
+# Linux: remove specific log entries (requires root)
+sed -i '/ATTACKER_IP/d' /var/log/auth.log
+```
+
+## Usage
+1. Confirm log clearing is within the authorised scope of the engagement.
+2. Clear logs immediately before ending the session.
+3. Document which logs were cleared in the engagement report.
+
+## Detection Evasion
+- Log clearing itself generates a Security Event 1102 on Windows — unavoidable.
+- Consider selective deletion rather than full clearing to appear less suspicious.
+- Disable logging temporarily rather than clearing if the goal is ongoing stealth.
+
+## MITRE ATT&CK
+- T1070.001 — Indicator Removal: Clear Windows Event Logs
+- T1070.002 — Indicator Removal: Clear Linux or Mac System Logs

