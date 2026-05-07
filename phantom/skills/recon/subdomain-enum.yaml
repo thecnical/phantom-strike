@@ -1,0 +1,42 @@
+---
+name: subdomain-enum
+phase: recon
+mitre_ids: [T1595.003, T1590.001]
+opsec_level: 2
+description: Enumerate subdomains of a target domain using passive and active techniques
+module: phantom-osint
+tools: [subfinder, amass, dnsx]
+prerequisites: []
+---
+# Subdomain Enumeration
+
+## Technique
+Discover subdomains of a target domain by combining passive DNS data sources
+(certificate transparency logs, DNS datasets) with active brute-force using
+curated wordlists.
+
+## Commands
+```bash
+# Passive enumeration via subfinder
+subfinder -d target.com -silent -o subdomains.txt
+
+# Active brute-force via amass
+amass enum -d target.com -brute -w /usr/share/wordlists/subdomains-top1million.txt
+
+# Resolve and filter live hosts
+cat subdomains.txt | dnsx -silent -a -resp -o live.txt
+```
+
+## Usage
+1. Start with passive sources to avoid generating DNS noise.
+2. Validate live hosts before proceeding to port scanning.
+3. Feed results into the Knowledge Graph as HOST nodes.
+
+## Detection Evasion
+- Use passive-only mode (`subfinder -passive`) for opsec_level 4+.
+- Spread active brute-force over time with `-rate-limit` flags.
+- Avoid AXFR zone transfer attempts unless explicitly authorised.
+
+## MITRE ATT&CK
+- T1595.003 — Active Scanning: Wordlist Scanning
+- T1590.001 — Gather Victim Network Information: Domain Properties

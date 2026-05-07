@@ -16,7 +16,7 @@ PhantomStrike - The World's Most Powerful Open-Source Offensive Security Framewo
     authorization before testing any system you do not own.
 """
 
-__version__ = "1.0.0-alpha"
+__version__ = "3.0.0-alpha"
 __codename__ = "PhantomStrike"
 __tagline__ = "See Everything. Strike Anywhere. Leave Nothing."
 __author__ = "PhantomStrike Team"

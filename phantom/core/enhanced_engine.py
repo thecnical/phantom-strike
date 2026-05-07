@@ -57,6 +57,13 @@ class EnhancedPhantomEngine:
         self._results_store: Dict[str, Dict] = {}
         self._dashboard = None
 
+        # ── v3.0 components (initialized lazily in start()) ─────────────
+        self.knowledge_graph = None
+        self.roe_middleware = None
+        self.skill_library = None
+        self.orchestrator = None
+        self.docker_sandbox = None
+
     async def start(self):
         """Initialize and start the engine."""
         self._start_time = datetime.now()
@@ -92,6 +99,44 @@ class EnhancedPhantomEngine:
             console.print(f"  [yellow]⚠ Module loader: {e}[/]")
             import traceback
             traceback.print_exc()
+
+        # ── v3.0 components ──────────────────────────────────────────────
+        # KnowledgeGraph
+        try:
+            from phantom.db.knowledge_graph import KnowledgeGraph
+            self.knowledge_graph = KnowledgeGraph()
+            self.knowledge_graph.connect()
+            console.print("  [bold green]✓[/] KnowledgeGraph: connected (SQLite)")
+        except Exception as e:
+            console.print(f"  [yellow]⚠ KnowledgeGraph: {e}[/]")
+
+        # RoEMiddleware (default permissive config)
+        try:
+            from phantom.core.roe import RoEConfig, RoEMiddleware
+            self.roe_middleware = RoEMiddleware(RoEConfig())
+            console.print("  [bold green]✓[/] RoEMiddleware: initialized (permissive defaults)")
+        except Exception as e:
+            console.print(f"  [yellow]⚠ RoEMiddleware: {e}[/]")
+
+        # SkillLibrary
+        try:
+            from phantom.skills import SkillLibrary
+            self.skill_library = SkillLibrary()
+            skills = self.skill_library.load_all_frontmatter()
+            console.print(f"  [bold green]✓[/] SkillLibrary: {len(skills)} skills loaded")
+        except Exception as e:
+            console.print(f"  [yellow]⚠ SkillLibrary: {e}[/]")
+
+        # DockerSandbox
+        try:
+            from phantom.sandbox.docker_sandbox import DockerSandbox
+            self.docker_sandbox = DockerSandbox()
+            console.print("  [bold green]✓[/] DockerSandbox: initialized (Docker availability checked on demand)")
+        except Exception as e:
+            console.print(f"  [yellow]⚠ DockerSandbox: {e}[/]")
+
+        # PhantomOrchestrator (lazy — instantiated on first autonomous command)
+        # self.orchestrator is set to None here; _cmd_autonomous() creates it on demand
 
         # Emit start event
         await self.event_bus.emit(Event(
@@ -508,7 +553,7 @@ class EnhancedPhantomEngine:
             "[/bold red]"
             "[bold cyan]                    S T R I K E[/bold cyan]\n"
             '[dim]         "See Everything. Strike Anywhere. Leave Nothing."[/dim]\n'
-            f"[dim]         v2.0 | Python {platform.python_version()} | {platform.system()}[/dim]\n"
+            f"[dim]         v3.0 | Python {platform.python_version()} | {platform.system()}[/dim]\n"
         )
         console.print(banner)
         console.print("[bold green]  ⚡ Initializing PhantomStrike...[/]")

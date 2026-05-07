@@ -13,7 +13,7 @@ def test_config_loads():
     from phantom.core.config import load_config
     config = load_config()
     assert config.project_name == "PhantomStrike"
-    assert config.version == "1.0.0-alpha"
+    assert config.version == "3.0.0-alpha"
 
 def test_config_has_ai_providers():
     """Config loads default AI providers."""

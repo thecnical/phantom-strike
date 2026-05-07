@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/🔥_PHANTOM_STRIKE-v2.0-FF4444?style=for-the-badge&logo=ghost&logoColor=white" alt="PhantomStrike" width="420">
+  <img src="https://img.shields.io/badge/🔥_PHANTOM_STRIKE-v3.0-FF4444?style=for-the-badge&logo=ghost&logoColor=white" alt="PhantomStrike" width="420">
 </p>
 
 <h1 align="center">PhantomStrike — AI-Powered Offensive Security Framework</h1>
 
 <p align="center">
-  <b>Open-source penetration testing framework with autonomous AI attack planning,<br>
-  persistent AI chat, real vulnerability detection, and a full-stack web dashboard.</b>
+  <b>Fully autonomous, multi-agent penetration testing framework with AI attack planning,<br>
+  Knowledge Graph, 13 specialist agents, and a complete offensive toolkit.</b>
 </p>
 
 <p align="center">
@@ -26,78 +26,54 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python" alt="Python">
-  <img src="https://img.shields.io/badge/FastAPI-0.110+-009688?style=flat-square&logo=fastapi" alt="FastAPI">
-  <img src="https://img.shields.io/badge/Playwright-✓-2EAD33?style=flat-square&logo=microsoft-edge" alt="Playwright">
-  <img src="https://img.shields.io/badge/Groq_AI-500+_tok/s-F55000?style=flat-square" alt="Groq">
-  <img src="https://img.shields.io/badge/Tests-28_passing-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/Version-3.0.0--alpha-FF4444?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/Tests-411_passing-brightgreen?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/Agents-13_specialist-blueviolet?style=flat-square" alt="Agents">
   <img src="https://img.shields.io/badge/AI-Unrestricted-FF4444?style=flat-square" alt="AI">
 </p>
 
 ---
 
+## What's New in v3.0
+
+PhantomStrike v3.0 is a complete upgrade from v2.0 — same familiar CLI, massively expanded capabilities:
+
+| Feature | v2.0 | v3.0 |
+|:--------|:----:|:----:|
+| Modules | 11 | **15** (+ AD, Sliver C2, ExploitDB, Reverser) |
+| Agents | ❌ | **13 specialist agents** |
+| Autonomous attack | ❌ | ✅ `autonomous <target>` |
+| Knowledge Graph | ❌ | ✅ SQLite-backed attack graph |
+| OPPLAN system | ❌ | ✅ Dependency-aware objective planning |
+| Rules of Engagement | ❌ | ✅ CIDR/glob/time-window enforcement |
+| Docker sandbox | ❌ | ✅ Kali Linux container for tool execution |
+| Skill library | ❌ | ✅ 16 YAML technique files |
+| Active Directory | ❌ | ✅ Kerberoast, AS-REP, LDAP enum |
+| Sliver C2 | ❌ | ✅ gRPC implant generation |
+| Binary analysis | ❌ | ✅ ROP gadgets, disassembly, strings |
+| Tests | 28 | **411** (property-based + integration) |
+
+---
+
 ## What is PhantomStrike?
 
-**PhantomStrike** is a fully open-source, AI-powered penetration testing framework written in Python. It automates the complete offensive security lifecycle — from OSINT and network reconnaissance through vulnerability discovery, exploitation, post-exploitation, and professional report generation.
+**PhantomStrike** is a fully open-source, AI-powered penetration testing framework. v3.0 adds a **multi-agent autonomous attack engine** — 13 specialist agents coordinated by an AI orchestrator, all sharing a live Knowledge Graph of findings.
 
-Every module makes real network requests, performs real vulnerability tests, and produces real findings. No simulations, no stubs.
-
-**Key features:**
-- **AI works instantly** — no setup, no API keys, just run `phantom` and start
-- **Unrestricted AI** — no topic filters, answers all security questions with working code
-- **Persistent AI chat** — stays in conversation until you say `bye`
-- **Adaptive AI memory** — remembers context across the entire session
-- **AI plan + auto-execute** — generates attack plan then runs it automatically
-- **Web search in AI** — fetches real-time CVEs, tools, and techniques
-- **Daily cybersecurity quote** — real-time quote shown on every startup
-- Blind time-based SQL injection detection
-- Real S3/Azure/GCP bucket enumeration
-- Playwright browser engine for JS-rendered XSS verification
-- Full-stack web dashboard with WebSocket live updates
-- 28 passing tests, zero stubs in critical paths
-
----
-
-## Feature Comparison
-
-| Capability | Metasploit | Burp Suite Pro | Nuclei | **PhantomStrike** |
-|:-----------|:----------:|:--------------:|:------:|:-----------------:|
-| AI Attack Planning | ❌ | ❌ | ❌ | ✅ Instant, no setup |
-| Persistent AI Chat | ❌ | ❌ | ❌ | ✅ Memory across session |
-| AI Plan + Execute | ❌ | ❌ | ❌ | ✅ Auto-runs modules |
-| Web Search in AI | ❌ | ❌ | ❌ | ✅ Real-time CVEs/tools |
-| Blind SQLi (time-based) | ❌ | ✅ | ❌ | ✅ Real detection |
-| Cloud Storage Audit | ❌ | ❌ | ❌ | ✅ S3/Azure/GCP |
-| Browser XSS Verification | ❌ | ✅ | ❌ | ✅ Playwright |
-| Real-Time Dashboard | ❌ | ✅ $449/yr | ❌ | ✅ WebSocket |
-| C2 Framework | ✅ | ❌ | ❌ | ✅ Agent management |
-| MITRE ATT&CK Mapping | ❌ | ❌ | ❌ | ✅ Auto-mapped |
-| Cost | Free | **$449/yr** | Free | **100% Free** |
-
----
-
-## Modules (11 total)
-
-| Module | Category | What it does |
-|:-------|:---------|:-------------|
-| `phantom-osint` | Reconnaissance | Subdomain enumeration (DNS brute + crt.sh), email harvest, tech detection |
-| `phantom-network` | Reconnaissance | Async port scan (65535 ports), banner grabbing, OS fingerprinting |
-| `phantom-web` | Vulnerability | SQLi (error/blind/union), XSS (reflected/stored), XXE, CSRF, LFI, SSRF, IDOR, JWT |
-| `phantom-cloud` | Vulnerability | S3/Azure Blob/GCP bucket enumeration, metadata SSRF, IAM misconfiguration |
-| `phantom-identity` | Vulnerability | JWT none-algorithm attack, weak secret brute force, auth bypass |
-| `phantom-cred` | Credential | Password spraying, brute force, hash cracking (MD5/SHA1/SHA256/SHA512) |
-| `phantom-stealth` | Evasion | Polymorphic XSS/SQLi payloads, WAF bypass, reverse shells (6 languages) |
-| `phantom-exploit` | Exploitation | Union-based SQLi extraction, LFI file read, SSRF internal access, RCE |
-| `phantom-c2` | C2 | Agent registration, command queuing, Python/Bash agent generation |
-| `phantom-post` | Post-Exploitation | Privesc checks, lateral movement discovery, persistence techniques |
-| `phantom-report` | Reporting | HTML + JSON + TXT reports with MITRE ATT&CK mapping |
+**Core capabilities:**
+- **Autonomous attack** — one command launches a full AI-planned engagement
+- **13 specialist agents** — Recon, Scanner, WebExploit, Cloud, Cred, AD, Exploit, PostExploit, C2, Stealth, Reverser, Analyst, Report
+- **Knowledge Graph** — SQLite graph tracks hosts, vulns, creds, attack paths across the engagement
+- **Rules of Engagement** — CIDR/glob target filtering, MITRE technique allow/deny lists, rate limiting, engagement windows
+- **OPPLAN system** — dependency-aware objective graph with cycle detection and YAML serialization
+- **Docker sandbox** — run nmap, sqlmap, hydra, hashcat, metasploit, impacket in an isolated Kali container
+- **Unrestricted AI** — no topic filters, persistent chat, adaptive memory, web search
+- **411 tests** — property-based (Hypothesis) + unit + integration
 
 ---
 
 ## Installation
 
-### One-command install (recommended)
-
-Works on Kali Linux, Ubuntu, Debian, Arch, Fedora, macOS:
+### Fresh install (recommended)
 
 ```bash
 git clone https://github.com/thecnical/phantom-strike.git
@@ -105,13 +81,7 @@ cd phantom-strike
 bash install.sh
 ```
 
-What it does automatically:
-- Detects OS and installs system dependencies
-- Installs Python 3.10+ if missing
-- Creates virtual environment at `~/.phantom-strike/venv`
-- Installs all Python dependencies
-- Installs `phantom` command to `/usr/local/bin` — works from **any directory**, survives **system restarts**
-- Installs Playwright Chromium browser
+Works on: **Kali Linux, Ubuntu 20.04+, Debian 11+, Parrot OS, Arch, Fedora, macOS**
 
 After install, run from **anywhere**:
 ```bash
@@ -119,7 +89,20 @@ phantom          # interactive CLI
 phantom serve    # web dashboard → http://localhost:10000
 ```
 
-### Update
+### Install with optional v3.0 components
+
+```bash
+# Full v3.0 stack (Docker sandbox, AD attacks, binary analysis)
+bash install.sh --v3
+
+# Development install (includes pytest, ruff, mypy)
+bash install.sh --dev
+
+# Skip Playwright browser download
+bash install.sh --no-browser
+```
+
+### Updating from v2.0
 
 ```bash
 cd /path/to/phantom-strike
@@ -127,9 +110,13 @@ git pull
 bash install.sh --update
 ```
 
-### Kali Linux / Debian note
+The update preserves your `.env` API keys and `~/.phantom-strike/` data directory.
 
-If you see `error: externally-managed-environment`, use `bash install.sh` — it handles this automatically. Never run `pip install` directly on Kali without activating the venv first.
+**What changes from v2.0 → v3.0:**
+- All 11 v2.0 modules still work unchanged
+- 4 new modules added (phantom-ad, phantom-sliver, phantom-exploitdb, phantom-reverser)
+- New CLI commands: `autonomous`, `opplan`, `graph`, `agents`, `sandbox`, `roe`, `skills`
+- Engine now initializes KnowledgeGraph, RoEMiddleware, SkillLibrary, DockerSandbox on startup
 
 ---
 
@@ -141,165 +128,200 @@ If you see `error: externally-managed-environment`, use `bash install.sh` — it
 phantom
 ```
 
-On startup you'll see a **daily cybersecurity quote** fetched in real-time, then the status panel:
-
+**v2.0 commands (unchanged):**
 ```
-╭─── 🔥 PhantomStrike Daily — May 07, 2026 ───╮
-│  "Amateurs hack systems, professionals        │
-│   hack people." — Bruce Schneier              │
-╰───────────────────────────────────────────────╯
-```
-
-**All commands:**
-
-```
-phantom> scan example.com              # vulnerability scan (all modules)
-phantom> attack example.com           # full 7-phase autonomous kill chain
-phantom> recon example.com            # OSINT + network recon only
-
-phantom> ai ask "explain XSS"         # ask AI anything — no restrictions
-phantom> ai chat                      # persistent chat session (type 'bye' to exit)
-phantom> ai plan example.com          # AI generates attack plan + auto-executes it
-phantom> ai status                    # show AI provider status
-phantom> ai memory                    # show conversation memory (adaptive)
-phantom> ai clear                     # clear AI memory
-
-phantom> stealth xss 20               # generate 20 polymorphic XSS payloads
-phantom> stealth sqli 10              # generate 10 SQLi payloads
-phantom> stealth reverse_shell 10.0.0.1 4444   # reverse shells (6 languages)
-
-phantom> c2 generate 10.0.0.1 4444    # generate C2 agent (Python + Bash)
-phantom> c2 agents                    # list active agents
-phantom> c2 cmd <agent_id> whoami     # send command to agent
-
-phantom> module phantom-web target.com         # run specific module
-phantom> module phantom-cloud target.com       # cloud security scan
-phantom> module phantom-cred target.com {"type":"spray"}
-
-phantom> report example.com           # generate HTML/JSON/TXT report
-phantom> results                      # show all stored scan results
-phantom> modules                      # list all 11 loaded modules
-phantom> status                       # engine status
-phantom> clear                        # clear screen
-phantom> exit                         # exit (also: quit, q, :q, Ctrl+C, Ctrl+D)
+phantom> scan example.com              # vulnerability scan
+phantom> attack example.com           # full 7-phase kill chain
+phantom> recon example.com            # OSINT + network recon
+phantom> ai ask "explain XSS"         # ask AI anything
+phantom> ai chat                      # persistent AI chat (type 'bye' to exit)
+phantom> ai plan example.com          # AI generates + executes attack plan
+phantom> stealth xss 20               # polymorphic XSS payloads
+phantom> c2 generate 10.0.0.1 4444    # generate C2 agent
+phantom> module phantom-web target.com
+phantom> report example.com
+phantom> results
+phantom> exit
 ```
 
-### Web Dashboard
+**New v3.0 commands:**
+```
+phantom> autonomous example.com       # fully autonomous AI-driven attack 🤖
+phantom> opplan list                  # show all OPPLAN objectives
+phantom> opplan load /path/plan.yaml  # load saved OPPLAN
+phantom> graph                        # ASCII knowledge graph visualization
+phantom> agents                       # show all 13 specialist agents + status
+phantom> sandbox status               # Docker sandbox availability
+phantom> roe violations               # show Rules of Engagement violation log
+phantom> skills list                  # list all 16 offensive skills
+```
+
+### Autonomous Attack
 
 ```bash
-phantom serve
-# Open: http://localhost:10000
+phantom> autonomous 192.168.1.0/24
 ```
 
-Dashboard sections:
-- **New Scan** — launch scans with real-time vulnerability feed
-- **Results** — scan history loaded from API
-- **AI Assistant** — chat with PhantomStrike AI
-- **Payloads** — generate XSS/SQLi/reverse shells with copy button
-- **C2 Console** — agent management, generate payloads, send commands
-- **Reports** — generate and download reports
-- **Configuration** — engine status, modules, AI provider table
-- **Logs** — real-time system logs with auto-scroll
+1. AI generates a full OPPLAN (Recon → Scan → Exploit → Post → Report)
+2. Displays the plan for operator approval
+3. Dispatches objectives to specialist agents in dependency order
+4. Agents update the Knowledge Graph with findings in real time
+5. AI decides next objectives based on KG state
+6. ReportAgent generates final report from full KG
+
+### Knowledge Graph
+
+```bash
+phantom> graph
+```
+
+```
+[HOST] 192.168.1.1
+  └─ [VULN] SQL Injection@1:http://192.168.1.1/login
+  └─ [VULN] Outdated Apache@1
+  └─ [CRED] admin
+[HOST] 192.168.1.50
+  └─ [VULN] Kerberoastable SPN@2
+  └─ [SERVICE] smb/445@192.168.1.50
+```
+
+### Rules of Engagement
+
+```bash
+phantom> roe violations
+```
+
+Shows every blocked action with timestamp, target, technique, and reason.
 
 ---
 
-## AI Engine
+## Modules (15 total)
 
-### Just run it — AI works instantly
+### v2.0 Modules (unchanged)
 
-No API keys. No configuration. No accounts. Just install and run:
+| Module | Category | What it does |
+|:-------|:---------|:-------------|
+| `phantom-osint` | Recon | Subdomain enum, email harvest, tech detection |
+| `phantom-network` | Recon | Async port scan, banner grabbing, OS fingerprint |
+| `phantom-web` | Vuln | SQLi, XSS, XXE, CSRF, LFI, SSRF, IDOR, JWT |
+| `phantom-cloud` | Vuln | S3/Azure/GCP bucket enum, metadata SSRF, IAM |
+| `phantom-identity` | Vuln | JWT none-algorithm, weak secret brute force |
+| `phantom-cred` | Cred | Password spraying, brute force, hash cracking |
+| `phantom-stealth` | Evasion | Polymorphic payloads, WAF bypass, reverse shells |
+| `phantom-exploit` | Exploit | SQLi extraction, LFI read, SSRF, RCE |
+| `phantom-c2` | C2 | Agent registration, command queuing, payload gen |
+| `phantom-post` | Post | Privesc, lateral movement, persistence, LSASS dump |
+| `phantom-report` | Report | HTML + JSON + TXT reports with MITRE mapping |
 
-```bash
-phantom
-phantom> ai ask "write a Python keylogger"
-phantom> ai ask "generate reverse shell that bypasses Windows Defender"
-phantom> ai ask "explain CVE-2024-XXXX and how to exploit it"
-```
+### v3.0 New Modules
 
-### Persistent AI Chat
+| Module | Category | What it does |
+|:-------|:---------|:-------------|
+| `phantom-ad` | Active Directory | Kerberoasting, AS-REP roasting, BloodHound, LDAP enum |
+| `phantom-sliver` | C2 | Sliver gRPC implant generation (fallback to phantom-c2) |
+| `phantom-exploitdb` | Exploit | CVE/keyword search via searchsploit or exploit-db.com API |
+| `phantom-reverser` | Reverse Eng | Binary analysis, ROP gadgets, r2pipe/objdump disassembly |
 
-```bash
-phantom> ai chat
-```
-
-```
-╭─── 🧠 AI Chat — Unrestricted ───╮
-│ Ask anything. Type 'bye' to exit │
-╰──────────────────────────────────╯
-
-you> how do I exploit SQL injection?
-PhantomStrike AI: [detailed technical answer with payloads]
-
-you> now generate a WAF bypass for that
-PhantomStrike AI: [remembers context, gives WAF bypass]
-
-you> write the full exploit script
-PhantomStrike AI: [writes complete Python exploit]
-
-you> bye
-Back to phantom>
-```
-
-No need to type `ai ask` every time. AI remembers the full conversation.
-
-### AI Plan + Auto-Execute
-
-```bash
-phantom> ai plan target.com
-```
-
-1. Runs quick recon (OSINT + network) to give AI real data
-2. AI generates structured attack plan with MITRE mapping
-3. Displays as formatted table:
-
-```
-Chain 1: Web Application Exploitation  ← RECOMMENDED
-Success: 92% | Stealth: high | Impact: critical
-
-# | Phase          | Technique              | Action              | Module
-1 | initial_access | T1190 - Exploit App    | Scan web vulns      | phantom-web
-2 | execution      | T1059 - Script Interp  | Extract via SQLi    | phantom-exploit
-3 | collection     | T1530 - Cloud Storage  | Enumerate S3        | phantom-cloud
-```
-
-4. Asks confirmation, then executes each step
-5. AI analyzes findings after each phase
-6. Saves TXT report to `~/.phantom-strike/reports/`
-
-### Adaptive Memory
-
-AI remembers everything within a session:
-
-```bash
-phantom> ai ask "I'm testing example.com, found SQLi on /login"
-phantom> ai ask "what should I do next?"   # AI remembers the context
-phantom> ai memory                          # see conversation history
-phantom> ai clear                           # reset for new target
-```
-
-### Web Search in AI
-
-AI automatically searches the web when you ask about CVEs, exploits, tools, or latest techniques — giving you current, real-time information.
+All v3.0 modules **degrade gracefully** — if impacket, Sliver, searchsploit, or radare2 are not installed, the module returns a clean error and the rest of the framework continues normally.
 
 ---
 
-## Kill Chain (7 phases)
+## 13 Specialist Agents
+
+| Agent | Phase | What it does |
+|:------|:------|:-------------|
+| `ReconAgent` | Recon | OSINT + network discovery → adds hosts to KG |
+| `ScannerAgent` | Scan | Port/service scanning → adds services + vulns to KG |
+| `WebExploitAgent` | Exploit | Web vuln discovery → adds web vulns to KG |
+| `CloudAgent` | Exploit | Cloud misconfiguration → adds findings to KG |
+| `CredAgent` | Cred | Credential harvesting → adds creds to KG |
+| `ADAgent` | AD | Kerberoast/AS-REP/LDAP → adds AD findings to KG |
+| `ExploitAgent` | Exploit | CVE exploitation → marks vulns as exploited in KG |
+| `PostExploitAgent` | Post | Persistence, lateral move, LSASS dump → updates KG |
+| `C2Agent` | C2 | Sliver/phantom-c2 implant generation → adds to KG |
+| `StealthAgent` | Evasion | AV/EDR bypass payloads, log clearing |
+| `ReverserAgent` | Reverser | Binary analysis → adds findings to KG |
+| `AnalystAgent` | Analysis | Synthesizes KG → suggests next objectives |
+| `ReportAgent` | Report | Full KG → professional engagement report |
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  CLI (Rich TUI)   │  Web Dashboard   │  REST API (FastAPI)          │
+├─────────────────────────────────────────────────────────────────────┤
+│                    EnhancedPhantomEngine v3.0                        │
+│  EventBus │ ModuleLoader │ AI Engine │ KnowledgeGraph │ RoEMiddleware│
+│  SkillLibrary │ DockerSandbox │ PhantomOrchestrator                  │
+├─────────────────────────────────────────────────────────────────────┤
+│  PhantomOrchestrator                                                 │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │  OPPLAN (dependency graph) → asyncio.gather() dispatch      │    │
+│  │  ai_decide_next() → dynamic objective expansion             │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+├─────────────────────────────────────────────────────────────────────┤
+│  13 Specialist Agents (BaseAgent → RoE check → KG update)           │
+├─────────────────────────────────────────────────────────────────────┤
+│  15 Modules │ KnowledgeGraph (SQLite) │ SkillLibrary (YAML)         │
+│  DockerSandbox (kalilinux/kali-rolling) │ ConversationSummarizer     │
+├─────────────────────────────────────────────────────────────────────┤
+│  AI Engine (multi-provider, adaptive memory, web search)            │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Optional v3.0 Dependencies
+
+These are **optional** — the framework works without them, modules just degrade gracefully:
+
+| Dependency | What it enables | Install |
+|:-----------|:----------------|:--------|
+| `impacket` | Kerberoasting, AS-REP roasting | `pip install impacket` |
+| `ldap3` | LDAP enumeration | `pip install ldap3` |
+| `docker` (Python SDK) | Docker sandbox | `pip install docker` |
+| `r2pipe` | Radare2 disassembly | `pip install r2pipe` |
+| `sliver-client` (binary) | Sliver C2 implants | [sliver.sh/install](https://sliver.sh/install) |
+| `searchsploit` (binary) | Local ExploitDB search | `apt install exploitdb` |
+| `bloodhound-python` | BloodHound collection | `pip install bloodhound` |
+| `ROPgadget` | ROP gadget finding | `pip install ROPgadget` |
+| `pypykatz` | LSASS hash extraction | `pip install pypykatz` |
+
+Install all at once:
+```bash
+pip install "phantom-strike[v3]"
+# or
+bash install.sh --v3
+```
+
+---
+
+## Testing
 
 ```bash
-phantom> attack target.com
+# Run all 411 tests
+pytest tests/ -v
+
+# Run only original 28 v2.0 tests
+pytest tests/test_core.py -v
+
+# Run v3.0 tests by category
+pytest tests/test_v3_roe.py -v          # RoE middleware
+pytest tests/test_v3_knowledge_graph.py -v  # Knowledge Graph
+pytest tests/test_v3_opplan.py -v       # OPPLAN system
+pytest tests/test_v3_agents.py -v       # BaseAgent
+pytest tests/test_v3_integration.py -v  # End-to-end pipeline
+
+# With coverage
+pytest tests/ --cov=phantom --cov-report=html
 ```
 
-```
-Phase 1: OSINT + Network Reconnaissance
-Phase 2: Web Vulnerability Discovery
-Phase 3: Cloud Security Assessment
-Phase 4: AI Attack Path Planning
-Phase 5: Polymorphic Payload Generation
-Phase 6: Exploitation (if auto_exploit=true)
-Phase 7: Post-Exploitation + Report Generation
-```
-
-Each phase auto-generates a TXT report saved to `~/.phantom-strike/reports/`.
+**Test breakdown:**
+- 28 original v2.0 tests (all still pass)
+- 383 new v3.0 tests: property-based (Hypothesis), unit, integration
+- 10 property-based tests covering: RoE forbidden precedence, KG deduplication, OPPLAN serialization, dependency soundness, cycle rejection, summarizer verbatim preservation, agent context isolation, graceful degradation, rate limit enforcement, existing test preservation
 
 ---
 
@@ -319,45 +341,9 @@ Start server: `phantom serve`
 | `/api/payloads/generate` | POST | Generate payloads |
 | `/api/modules` | GET | List all modules |
 | `/api/c2/agents` | GET | List C2 agents |
-| `/api/c2/agents/{id}/command` | POST | Send command to agent |
 | `/api/attack/start` | POST | Start attack mode |
 | `/api/results` | GET | All scan results |
 | `/docs` | GET | Swagger UI |
-
----
-
-## Architecture
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│  CLI (Rich TUI)   │  Web Dashboard   │  REST API (FastAPI)   │
-│  Daily Quote      │  WebSocket Feed  │  /api/ai/query        │
-├──────────────────────────────────────────────────────────────┤
-│                  EnhancedPhantomEngine                        │
-│   EventBus │ ModuleLoader │ AI Engine │ TaskQueue             │
-├──────────────────────────────────────────────────────────────┤
-│  OSINT │ Network │ Web │ Cloud │ Identity │ Cred              │
-│  Stealth │ Exploit │ C2 │ Post │ Report                       │
-├──────────────────────────────────────────────────────────────┤
-│  AI Engine (multi-provider, adaptive memory, web search)     │
-├──────────────────────────────────────────────────────────────┤
-│  SQLite (aiosqlite) │ Playwright Browser │ aiohttp            │
-└──────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Testing
-
-```bash
-# Run all 28 tests
-pytest tests/ -v
-
-# With coverage
-pytest tests/ --cov=phantom --cov-report=html
-```
-
-28 tests cover: config, EventBus, module loader, stealth payload uniqueness, hash cracking, post-exploitation, C2, database CRUD, attack modes, exploit URL injection, AI backend config, Playwright config.
 
 ---
 
@@ -367,9 +353,9 @@ PhantomStrike is designed for **authorized penetration testing**, security resea
 
 - Only scan systems you own or have **written authorization** to test
 - Follow responsible disclosure for any vulnerabilities found
-- Comply with all applicable laws
+- Comply with all applicable laws in your jurisdiction
 
-The developers assume no liability for misuse.
+The developers assume no liability for misuse. See [DISCLAIMER.md](DISCLAIMER.md).
 
 ---
 

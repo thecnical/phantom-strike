@@ -188,7 +188,7 @@ class PhantomStrikeCLI:
                 if not cmd:
                     continue
                 # Handle exit/quit directly here so SystemExit is never swallowed
-                if cmd.lower() in ("exit", "quit", "q", ":q", "bye"):
+                if cmd.lower() in ("exit", "quit", "q", ":q"):
                     await self._do_exit()
                 await self._handle_command(cmd)
             except KeyboardInterrupt:
@@ -226,6 +226,14 @@ class PhantomStrikeCLI:
             "config": self._cmd_config,
             "modules": self._cmd_modules,
             "clear": self._cmd_clear,
+            # v3.0 commands
+            "autonomous": self._cmd_autonomous,
+            "opplan": self._cmd_opplan,
+            "graph": self._cmd_graph,
+            "agents": self._cmd_agents,
+            "sandbox": self._cmd_sandbox,
+            "roe": self._cmd_roe,
+            "skills": self._cmd_skills,
             "exit": self._cmd_exit,
             "quit": self._cmd_exit,
             "q":    self._cmd_exit,
@@ -276,6 +284,7 @@ class PhantomStrikeCLI:
             ("scan <target>", "Quick vulnerability scan", "scan example.com"),
             ("recon <target>", "Full OSINT + network reconnaissance", "recon example.com"),
             ("attack <target>", "Full 7-phase kill chain 🔥", "attack example.com"),
+            ("autonomous <target>", "AI-driven fully autonomous attack 🤖", "autonomous example.com"),
             ("module <name> <target>", "Run a specific module", "module phantom-web target.com"),
             ("ai status", "Show AI provider status", "ai status"),
             ("ai ask <query>", "Ask AI anything (with memory)", "ai ask explain XSS"),
@@ -288,6 +297,13 @@ class PhantomStrikeCLI:
             ("c2 cmd <agent_id> <command>", "Send command to agent", "c2 cmd agent_abc whoami"),
             ("stealth xss|sqli [count]", "Generate polymorphic payloads", "stealth xss 20"),
             ("stealth reverse_shell <ip> <port>", "Generate reverse shells", "stealth reverse_shell 10.0.0.1 4444"),
+            ("opplan list", "List all OPPLAN objectives", "opplan list"),
+            ("opplan load <path>", "Load an OPPLAN from file", "opplan load /path/to/plan.yaml"),
+            ("graph", "Visualise knowledge graph (ASCII)", "graph"),
+            ("agents", "Show all 13 specialist agents", "agents"),
+            ("sandbox status", "Docker sandbox availability", "sandbox status"),
+            ("roe violations", "Show RoE violation log", "roe violations"),
+            ("skills list", "List all offensive skills", "skills list"),
             ("report <target>", "Generate pentest report", "report example.com"),
             ("results [target]", "Show stored results", "results"),
             ("modules", "List all loaded modules", "modules"),
@@ -564,24 +580,27 @@ class PhantomStrikeCLI:
             title="🧠 AI Chat — Unrestricted",
         ))
         self._ai_chat_active = True
-        while self._ai_chat_active:
-            try:
-                user_input = Prompt.ask("[bold cyan]you[/bold cyan][dim]>[/dim]")
-                user_input = user_input.strip()
-                if not user_input:
-                    continue
-                if user_input.lower() in ("bye", "exit", "quit", "stop", "end"):
-                    console.print("[dim]🧠 AI Chat ended. Back to phantom>[/dim]")
+        try:
+            while self._ai_chat_active:
+                try:
+                    user_input = Prompt.ask("[bold cyan]you[/bold cyan][dim]>[/dim]")
+                    user_input = user_input.strip()
+                    if not user_input:
+                        continue
+                    if user_input.lower() in ("bye", "exit", "quit", "stop", "end"):
+                        console.print("[dim]🧠 AI Chat ended. Back to phantom>[/dim]")
+                        self._ai_chat_active = False
+                        break
+                    await self._ai_query_with_memory(user_input)
+                except KeyboardInterrupt:
+                    console.print("\n[dim]Chat interrupted. Back to phantom>[/dim]")
                     self._ai_chat_active = False
                     break
-                await self._ai_query_with_memory(user_input)
-            except KeyboardInterrupt:
-                console.print("\n[dim]Chat interrupted. Back to phantom>[/dim]")
-                self._ai_chat_active = False
-                break
-            except EOFError:
-                self._ai_chat_active = False
-                break
+                except EOFError:
+                    self._ai_chat_active = False
+                    break
+        finally:
+            self._ai_chat_active = False
 
     async def _ai_plan_and_execute(self, target: str):
         """AI generates attack plan, displays as table, then executes."""
@@ -741,6 +760,446 @@ class PhantomStrikeCLI:
         report_path.write_text("\n".join(report_lines), encoding="utf-8")
         console.print(f"\n[bold green]✅ Plan executed! Report: {report_path}[/bold green]")
         self._session_reports.append(str(report_path))
+
+    # ─── v3.0 Commands ────────────────────────────────────────
+
+    async def _cmd_autonomous(self, args: list):
+        """
+        Fully autonomous AI-driven attack.
+
+        Usage: autonomous <target>
+
+        Requirements: 17.1
+        """
+        if not args:
+            console.print("[red]Usage: autonomous <target>[/red]")
+            return
+
+        target = args[0]
+
+        # Build RoEConfig — use engine's roe_middleware config if available,
+        # otherwise fall back to a permissive default.
+        try:
+            from phantom.core.roe import RoEConfig, RoEMiddleware
+            existing_roe = getattr(self.engine, "roe_middleware", None)
+            if existing_roe is not None and hasattr(existing_roe, "config"):
+                roe_config = existing_roe.config
+            else:
+                roe_config = RoEConfig()  # permissive defaults
+        except Exception as e:
+            console.print(f"[yellow]⚠ Could not load RoEConfig: {e} — using permissive defaults[/yellow]")
+            try:
+                from phantom.core.roe import RoEConfig
+                roe_config = RoEConfig()
+            except Exception:
+                roe_config = None
+
+        # Instantiate PhantomOrchestrator with all available dependencies.
+        try:
+            from phantom.agents.orchestrator import PhantomOrchestrator
+            orchestrator = getattr(self.engine, "orchestrator", None)
+            if orchestrator is None:
+                orchestrator = PhantomOrchestrator(
+                    ai_engine=getattr(self.engine, "ai_engine", None),
+                    knowledge_graph=getattr(self.engine, "knowledge_graph", None),
+                    roe=getattr(self.engine, "roe_middleware", None),
+                    skill_library=getattr(self.engine, "skill_library", None),
+                    sandbox=getattr(self.engine, "docker_sandbox", None),
+                )
+        except Exception as e:
+            console.print(f"[red]Failed to initialise PhantomOrchestrator: {e}[/red]")
+            return
+
+        console.print(f"[bold red]🤖 Launching autonomous attack on [cyan]{target}[/cyan]...[/bold red]")
+
+        try:
+            result = await orchestrator.autonomous_attack(target, roe_config)
+        except Exception as e:
+            console.print(f"[red]Autonomous attack error: {e}[/red]")
+            return
+
+        # Display result summary
+        status = result.get("status", "complete")
+        if status == "rejected":
+            console.print("[yellow]⚠ OPPLAN rejected by operator. Autonomous attack aborted.[/yellow]")
+            return
+
+        table = Table(title="🤖 Autonomous Attack Summary", border_style="red")
+        table.add_column("Field", style="bold cyan")
+        table.add_column("Value")
+        table.add_row("Engagement ID", str(result.get("engagement_id", "N/A")))
+        table.add_row("OPPLAN Path", str(result.get("opplan_path") or "N/A"))
+        table.add_row("KG Export", str(result.get("kg_export_path") or "N/A"))
+        table.add_row("Report", str(result.get("report_path") or "N/A"))
+        results_dict = result.get("results", {})
+        completed = sum(1 for r in results_dict.values() if isinstance(r, dict) and r.get("success"))
+        failed = len(results_dict) - completed
+        table.add_row("Objectives Completed", str(completed))
+        table.add_row("Objectives Failed", str(failed))
+        console.print(table)
+
+    async def _cmd_opplan(self, args: list):
+        """
+        OPPLAN management commands.
+
+        Usage:
+          opplan list           — display table of all objectives
+          opplan load <path>    — load OPPLAN from YAML file
+
+        Requirements: 17.2, 17.3
+        """
+        if not args:
+            console.print("[red]Usage: opplan list | opplan load <path>[/red]")
+            return
+
+        subcmd = args[0].lower()
+
+        if subcmd == "list":
+            # Retrieve active OPPLAN from orchestrator if available
+            orchestrator = getattr(self.engine, "orchestrator", None)
+            opplan = None
+            if orchestrator is not None:
+                opplan = getattr(orchestrator, "_opplan", None)
+
+            if opplan is None:
+                console.print("[dim]No active OPPLAN. Use 'opplan load <path>' to load one.[/dim]")
+                return
+
+            objectives = opplan.list_objectives()
+            if not objectives:
+                console.print("[dim]OPPLAN has no objectives.[/dim]")
+                return
+
+            table = Table(
+                title=f"📋 OPPLAN — {opplan.target} ({opplan.engagement_id})",
+                border_style="cyan",
+                show_lines=True,
+            )
+            table.add_column("ID", style="bold", width=16)
+            table.add_column("Phase", style="cyan", width=14)
+            table.add_column("Title", width=30)
+            table.add_column("Status", width=14)
+            table.add_column("Assigned Agent", width=20)
+
+            for obj in objectives:
+                status_str = str(obj.status)
+                status_color = {
+                    "completed": "green",
+                    "in_progress": "yellow",
+                    "failed": "red",
+                    "skipped": "dim",
+                }.get(status_str.lower(), "white")
+                table.add_row(
+                    obj.id,
+                    str(obj.phase),
+                    obj.title,
+                    f"[{status_color}]{status_str}[/{status_color}]",
+                    obj.assigned_agent or "—",
+                )
+            console.print(table)
+
+        elif subcmd == "load" and len(args) >= 2:
+            path = args[1]
+            try:
+                from phantom.core.opplan import OPPLAN
+                opplan = OPPLAN.load(path)
+            except Exception as e:
+                console.print(f"[red]Failed to load OPPLAN from '{path}': {e}[/red]")
+                return
+
+            # Set as active OPPLAN on the orchestrator
+            orchestrator = getattr(self.engine, "orchestrator", None)
+            if orchestrator is None:
+                try:
+                    from phantom.agents.orchestrator import PhantomOrchestrator
+                    orchestrator = PhantomOrchestrator(
+                        ai_engine=getattr(self.engine, "ai_engine", None),
+                        knowledge_graph=getattr(self.engine, "knowledge_graph", None),
+                        roe=getattr(self.engine, "roe_middleware", None),
+                        skill_library=getattr(self.engine, "skill_library", None),
+                        sandbox=getattr(self.engine, "docker_sandbox", None),
+                    )
+                    # Cache on engine for subsequent commands
+                    try:
+                        self.engine.orchestrator = orchestrator
+                    except Exception:
+                        pass
+                except Exception as e:
+                    console.print(f"[red]Could not create orchestrator: {e}[/red]")
+                    return
+
+            orchestrator._opplan = opplan
+            console.print(
+                f"[green]✓ OPPLAN loaded:[/] {opplan.engagement_id} — "
+                f"{opplan.target} ({len(opplan.list_objectives())} objectives)"
+            )
+
+        else:
+            console.print("[red]Usage: opplan list | opplan load <path>[/red]")
+
+    async def _cmd_graph(self, args: list):
+        """
+        Visualise the knowledge graph as ASCII art.
+
+        Usage: graph
+
+        Requirements: 17.4
+        """
+        kg = getattr(self.engine, "knowledge_graph", None)
+        if kg is None:
+            console.print("[yellow]⚠ Knowledge graph not available. Start the engine with v3.0 components.[/yellow]")
+            return
+
+        try:
+            ascii_art = kg.visualize_ascii()
+        except Exception as e:
+            console.print(f"[red]Graph visualisation error: {e}[/red]")
+            return
+
+        if not ascii_art or not ascii_art.strip():
+            console.print("[dim]Knowledge graph is empty — run a scan or autonomous attack first.[/dim]")
+            return
+
+        console.print(Panel(ascii_art, title="🕸 Knowledge Graph", border_style="cyan"))
+
+    async def _cmd_agents(self, args: list):
+        """
+        Display all 13 specialist agents with their current status.
+
+        Usage: agents
+
+        Requirements: 17.5
+        """
+        # The 13 specialist agent names as defined in the design
+        SPECIALIST_AGENTS = [
+            "ReconAgent",
+            "ScannerAgent",
+            "WebExploitAgent",
+            "CloudAgent",
+            "CredAgent",
+            "ADAgent",
+            "ExploitAgent",
+            "PostExploitAgent",
+            "C2Agent",
+            "StealthAgent",
+            "ReverserAgent",
+            "AnalystAgent",
+            "ReportAgent",
+        ]
+
+        orchestrator = getattr(self.engine, "orchestrator", None)
+
+        table = Table(
+            title="🤖 PhantomStrike v3.0 — Specialist Agents",
+            border_style="cyan",
+            show_lines=True,
+        )
+        table.add_column("#", width=3, style="dim")
+        table.add_column("Agent Name", style="bold green", width=22)
+        table.add_column("Status", width=14)
+        table.add_column("Last Objective", width=40)
+
+        for i, agent_name in enumerate(SPECIALIST_AGENTS, 1):
+            status = "idle"
+            last_objective = "—"
+
+            if orchestrator is not None:
+                agent = orchestrator.get_agent(agent_name)
+                if agent is not None:
+                    status = "registered"
+                    # Try to get last objective from agent if it tracks it
+                    last_obj = getattr(agent, "_last_objective", None)
+                    if last_obj is not None:
+                        last_objective = str(last_obj)[:40]
+                else:
+                    status = "not loaded"
+
+                # Check if currently in-progress
+                if agent_name in [
+                    a for oid in getattr(orchestrator, "_current_objectives", [])
+                    for a in [oid]
+                ]:
+                    status = "running"
+
+            status_color = {
+                "registered": "green",
+                "running": "bold yellow",
+                "not loaded": "dim",
+                "idle": "dim",
+            }.get(status, "white")
+
+            table.add_row(
+                str(i),
+                agent_name,
+                f"[{status_color}]{status}[/{status_color}]",
+                last_objective,
+            )
+
+        console.print(table)
+        if orchestrator is None:
+            console.print("[dim]Tip: Run 'autonomous <target>' to initialise the orchestrator and register agents.[/dim]")
+
+    async def _cmd_sandbox(self, args: list):
+        """
+        Docker sandbox management.
+
+        Usage: sandbox status
+
+        Requirements: 17.6
+        """
+        if not args:
+            console.print("[red]Usage: sandbox status[/red]")
+            return
+
+        subcmd = args[0].lower()
+
+        if subcmd == "status":
+            sandbox = getattr(self.engine, "docker_sandbox", None)
+            if sandbox is None:
+                # Try to instantiate on demand
+                try:
+                    from phantom.sandbox.docker_sandbox import DockerSandbox
+                    sandbox = DockerSandbox()
+                except Exception as e:
+                    console.print(f"[yellow]⚠ DockerSandbox not available: {e}[/yellow]")
+                    return
+
+            try:
+                available = sandbox.is_available()
+            except Exception as e:
+                console.print(f"[red]Sandbox status check failed: {e}[/red]")
+                return
+
+            if available:
+                console.print(Panel(
+                    "[green]✅ Docker daemon is running[/green]\n"
+                    f"[dim]Image: {getattr(sandbox, 'image', 'kalilinux/kali-rolling')}[/dim]",
+                    title="🐳 Docker Sandbox",
+                    border_style="green",
+                ))
+            else:
+                console.print(Panel(
+                    "[red]❌ Docker daemon is not running or not installed[/red]\n"
+                    "[dim]Install Docker and start the daemon to enable sandbox features.[/dim]",
+                    title="🐳 Docker Sandbox",
+                    border_style="red",
+                ))
+        else:
+            console.print("[red]Usage: sandbox status[/red]")
+
+    async def _cmd_roe(self, args: list):
+        """
+        Rules of Engagement management.
+
+        Usage: roe violations
+
+        Requirements: 17.7
+        """
+        if not args:
+            console.print("[red]Usage: roe violations[/red]")
+            return
+
+        subcmd = args[0].lower()
+
+        if subcmd == "violations":
+            roe_middleware = getattr(self.engine, "roe_middleware", None)
+            if roe_middleware is None:
+                console.print("[yellow]⚠ RoE middleware not initialised.[/yellow]")
+                return
+
+            try:
+                violations = roe_middleware.get_violation_log()
+            except Exception as e:
+                console.print(f"[red]Could not retrieve violation log: {e}[/red]")
+                return
+
+            if not violations:
+                console.print("[green]✅ No RoE violations recorded.[/green]")
+                return
+
+            table = Table(
+                title=f"⚠ RoE Violation Log ({len(violations)} entries)",
+                border_style="red",
+                show_lines=True,
+            )
+            table.add_column("Timestamp", style="dim", width=22)
+            table.add_column("Target", width=20)
+            table.add_column("Technique", width=16)
+            table.add_column("Reason", overflow="fold")
+
+            for v in violations:
+                table.add_row(
+                    str(v.get("timestamp", ""))[:22],
+                    str(v.get("target", ""))[:20],
+                    str(v.get("technique", ""))[:16],
+                    str(v.get("reason", "")),
+                )
+            console.print(table)
+        else:
+            console.print("[red]Usage: roe violations[/red]")
+
+    async def _cmd_skills(self, args: list):
+        """
+        Skill library management.
+
+        Usage: skills list
+
+        Requirements: 17.8
+        """
+        if not args:
+            console.print("[red]Usage: skills list[/red]")
+            return
+
+        subcmd = args[0].lower()
+
+        if subcmd == "list":
+            skill_library = getattr(self.engine, "skill_library", None)
+            if skill_library is None:
+                # Try to instantiate on demand from the default skills directory
+                try:
+                    from phantom.skills import SkillLibrary
+                    skill_library = SkillLibrary()
+                except Exception as e:
+                    console.print(f"[yellow]⚠ SkillLibrary not available: {e}[/yellow]")
+                    return
+
+            try:
+                skills = skill_library.load_all_frontmatter()
+            except Exception as e:
+                console.print(f"[red]Failed to load skills: {e}[/red]")
+                return
+
+            if not skills:
+                console.print("[dim]No skills found in the skill library.[/dim]")
+                return
+
+            table = Table(
+                title=f"📚 Skill Library ({len(skills)} skills)",
+                border_style="cyan",
+                show_lines=True,
+            )
+            table.add_column("#", width=3, style="dim")
+            table.add_column("Name", style="bold green", width=28)
+            table.add_column("Phase", style="cyan", width=14)
+            table.add_column("MITRE ATT&CK IDs", width=28)
+            table.add_column("OpSec", justify="center", width=7)
+
+            for i, skill in enumerate(skills, 1):
+                mitre_ids = ", ".join(skill.mitre_attack[:3])
+                if len(skill.mitre_attack) > 3:
+                    mitre_ids += f" +{len(skill.mitre_attack) - 3}"
+                opsec_color = "green" if skill.opsec_level <= 2 else "yellow" if skill.opsec_level <= 3 else "red"
+                table.add_row(
+                    str(i),
+                    skill.name[:28],
+                    skill.phase,
+                    mitre_ids or "—",
+                    f"[{opsec_color}]{skill.opsec_level}[/{opsec_color}]",
+                )
+            console.print(table)
+            console.print("[dim]OpSec: 1=very stealthy … 5=very noisy[/dim]")
+        else:
+            console.print("[red]Usage: skills list[/red]")
 
     # ─── C2 Commands ──────────────────────────────────────────
 

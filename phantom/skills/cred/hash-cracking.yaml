@@ -1,0 +1,52 @@
+---
+name: hash-cracking
+phase: cred
+mitre_ids: [T1110.002]
+opsec_level: 1
+description: Crack captured password hashes offline using dictionary and rule-based attacks
+module: phantom-cred
+tools: [hashcat, john, hashid]
+prerequisites: [captured_hashes_file]
+---
+# Offline Hash Cracking
+
+## Technique
+Recover plaintext passwords from captured hashes using dictionary attacks,
+rule-based mutations, and brute-force.  Entirely offline — no network traffic
+to the target.
+
+## Commands
+```bash
+# Identify hash type
+hashid hash.txt
+hashcat --identify hash.txt
+
+# NTLM hashes (mode 1000)
+hashcat -m 1000 ntlm_hashes.txt /usr/share/wordlists/rockyou.txt --force
+
+# NTLM with rules (best64 rule set)
+hashcat -m 1000 ntlm_hashes.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule
+
+# NetNTLMv2 (mode 5600) — from Responder captures
+hashcat -m 5600 netntlmv2.txt /usr/share/wordlists/rockyou.txt
+
+# bcrypt (mode 3200) — slow, use targeted wordlist
+hashcat -m 3200 bcrypt_hashes.txt targeted_wordlist.txt
+
+# John the Ripper — auto-detect format
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
+john --show hashes.txt
+```
+
+## Usage
+1. Identify the hash type before selecting the hashcat mode.
+2. Start with rockyou.txt + best64 rules for quick wins.
+3. Move to targeted wordlists (company name, domain, season+year patterns).
+
+## Detection Evasion
+- Fully offline — no detection risk on the target network.
+- Use GPU acceleration for faster cracking (hashcat -d 1).
+- Prioritise high-value hashes (domain admin, service accounts).
+
+## MITRE ATT&CK
+- T1110.002 — Brute Force: Password Cracking

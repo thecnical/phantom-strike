@@ -88,6 +88,31 @@ async def load_all_modules(event_bus: EventBus) -> dict[str, BaseModule]:
     except ImportError as e:
         logger.warning(f"Could not load Report module: {e}")
 
+    # v3.0 optional modules — missing dependencies must not prevent startup
+    try:
+        from phantom.modules.ad.engine import ADModule
+        module_classes.append(ADModule)
+    except ImportError as e:
+        logger.warning(f"Could not load AD module (phantom-ad): {e}")
+
+    try:
+        from phantom.modules.c2.sliver_engine import SliverC2Engine
+        module_classes.append(SliverC2Engine)
+    except ImportError as e:
+        logger.warning(f"Could not load Sliver C2 module (phantom-sliver): {e}")
+
+    try:
+        from phantom.modules.exploit.exploitdb import ExploitDB
+        module_classes.append(ExploitDB)
+    except ImportError as e:
+        logger.warning(f"Could not load ExploitDB module (phantom-exploitdb): {e}")
+
+    try:
+        from phantom.modules.reverser.engine import ReverserEngine
+        module_classes.append(ReverserEngine)
+    except ImportError as e:
+        logger.warning(f"Could not load Reverser module (phantom-reverser): {e}")
+
     # Instantiate and initialize all modules
     for ModuleClass in module_classes:
         try:

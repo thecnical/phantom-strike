@@ -1,0 +1,44 @@
+---
+name: whois-osint
+phase: recon
+mitre_ids: [T1590.002, T1591.001]
+opsec_level: 1
+description: Gather organisation and network ownership data via WHOIS and RDAP lookups
+module: phantom-osint
+tools: [whois, curl]
+prerequisites: []
+---
+# WHOIS / RDAP OSINT
+
+## Technique
+Query WHOIS and RDAP registries to identify IP block ownership, ASN, registrant
+contact details, and related domains.  Entirely passive — no packets reach the
+target.
+
+## Commands
+```bash
+# WHOIS lookup for a domain
+whois target.com
+
+# WHOIS lookup for an IP
+whois 203.0.113.10
+
+# RDAP query (structured JSON)
+curl -s "https://rdap.arin.net/registry/ip/203.0.113.10" | python3 -m json.tool
+
+# ASN lookup
+whois -h whois.cymru.com " -v 203.0.113.10"
+```
+
+## Usage
+1. Identify the registrant organisation and abuse contact.
+2. Map IP ranges owned by the target for scope confirmation.
+3. Discover related domains registered to the same entity.
+
+## Detection Evasion
+- Fully passive — no detection risk.
+- Use RDAP over WHOIS where possible for structured data.
+
+## MITRE ATT&CK
+- T1590.002 — Gather Victim Network Information: DNS
+- T1591.001 — Gather Victim Org Information: Determine Physical Locations

