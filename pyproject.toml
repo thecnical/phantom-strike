@@ -142,6 +142,7 @@ v3 = [
 [project.scripts]
 phantom = "phantom.__main__:main"
 phantom-strike = "phantom.__main__:main"
+phantom-update = "phantom.__main__:_run_update"
 
 [project.urls]
 Homepage = "https://github.com/phantom-strike/phantom-strike"

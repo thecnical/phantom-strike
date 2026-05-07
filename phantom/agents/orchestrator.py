@@ -530,9 +530,9 @@ class PhantomOrchestrator:
                 ]
 
                 if hasattr(self._ai_engine, "chat"):
-                    response_text = self._ai_engine.chat(messages)
+                    response_text = await self._ai_engine.chat(messages)
                 elif hasattr(self._ai_engine, "query"):
-                    response_text = self._ai_engine.query(prompt, context=context)
+                    response_text = await self._ai_engine.query(prompt=prompt, system_prompt=messages[0]["content"])
                 else:
                     response_text = None
 
@@ -763,9 +763,9 @@ class PhantomOrchestrator:
             ]
 
             if hasattr(self._ai_engine, "chat"):
-                response_text = self._ai_engine.chat(messages)
+                response_text = await self._ai_engine.chat(messages)
             elif hasattr(self._ai_engine, "query"):
-                response_text = self._ai_engine.query(prompt)
+                response_text = (await self._ai_engine.query(prompt=prompt, system_prompt=messages[0]["content"])).content
             else:
                 return []
 

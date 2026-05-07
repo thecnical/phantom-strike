@@ -83,6 +83,8 @@ class RemoteAIClient:
         temperature: float = 0.7,
         max_tokens: int = 4096,
         force_provider: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,  # accepted but unused — backend handles context
+        messages: Optional[List[Dict]] = None,      # accepted for chat-style calls
     ) -> AIResponse:
         """Send AI query to remote backend."""
         await self._ensure_client()
@@ -131,6 +133,29 @@ class RemoteAIClient:
                 provider="error",
                 model="error",
             )
+
+    async def chat(self, messages: List[Dict]) -> str:
+        """
+        Chat-style interface: accepts a list of {role, content} dicts.
+        Extracts the last user message as the prompt and any system message
+        as the system_prompt, then routes through query().
+        Returns the response content string directly.
+        """
+        prompt = ""
+        system_prompt = ""
+        for msg in messages:
+            role = msg.get("role", "")
+            content = msg.get("content", "")
+            if role == "system":
+                system_prompt = content
+            elif role == "user":
+                prompt = content  # last user message wins
+
+        if not prompt:
+            return ""
+
+        response = await self.query(prompt=prompt, system_prompt=system_prompt)
+        return response.content
 
     async def analyze_vulnerability(self, vuln_data: Dict) -> AIResponse:
         """AI vulnerability analysis via backend."""

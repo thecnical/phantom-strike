@@ -201,12 +201,27 @@ class BaseAgent(ABC):
                 {"role": "user", "content": prompt},
             ]
 
-            # Support both sync and async AI engines via a common interface.
-            # EnhancedPhantomAIEngine exposes chat() which accepts a messages list.
+            import inspect
+
+            # ── chat() interface (preferred) ──────────────────────────
             if hasattr(self._ai_engine, "chat"):
-                response = self._ai_engine.chat(messages)
+                result = self._ai_engine.chat(messages)
+                if inspect.isawaitable(result):
+                    response = self._run_async(result)
+                else:
+                    response = result
+
+            # ── query() interface (fallback) ──────────────────────────
             elif hasattr(self._ai_engine, "query"):
-                response = self._ai_engine.query(prompt, context=context)
+                result = self._ai_engine.query(
+                    prompt=prompt, system_prompt=system_content
+                )
+                if inspect.isawaitable(result):
+                    ai_resp = self._run_async(result)
+                    response = ai_resp.content if hasattr(ai_resp, "content") else str(ai_resp)
+                else:
+                    response = result.content if hasattr(result, "content") else str(result)
+
             else:
                 logger.warning(
                     "[%s] AI engine has no recognised interface — using fallback", self.name
@@ -218,6 +233,32 @@ class BaseAgent(ABC):
         except Exception as exc:  # noqa: BLE001
             logger.warning("[%s] AI query failed (%s) — using rule-based fallback", self.name, exc)
             return self._rule_based_fallback(prompt)
+
+    @staticmethod
+    def _run_async(coro) -> Any:
+        """
+        Run an async coroutine from a synchronous context.
+
+        Agents' run() methods are synchronous but the AI engine (RemoteAIClient)
+        is async.  This helper runs the coroutine safely regardless of whether
+        an event loop is already running.
+        """
+        import asyncio
+        import concurrent.futures
+
+        try:
+            # If there's already a running loop (we're inside asyncio.run()),
+            # submit the coroutine to a fresh thread with its own loop.
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                    future = pool.submit(asyncio.run, coro)
+                    return future.result(timeout=120)
+            else:
+                return loop.run_until_complete(coro)
+        except Exception as exc:
+            logger.warning("[BaseAgent] _run_async failed: %s", exc)
+            raise
 
     def _rule_based_fallback(self, prompt: str) -> str:
         """

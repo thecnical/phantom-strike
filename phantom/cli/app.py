@@ -234,6 +234,7 @@ class PhantomStrikeCLI:
             "sandbox": self._cmd_sandbox,
             "roe": self._cmd_roe,
             "skills": self._cmd_skills,
+            "update": self._cmd_update,
             "exit": self._cmd_exit,
             "quit": self._cmd_exit,
             "q":    self._cmd_exit,
@@ -304,6 +305,7 @@ class PhantomStrikeCLI:
             ("sandbox status", "Docker sandbox availability", "sandbox status"),
             ("roe violations", "Show RoE violation log", "roe violations"),
             ("skills list", "List all offensive skills", "skills list"),
+            ("update", "Update PhantomStrike to latest version 🔄", "update"),
             ("report <target>", "Generate pentest report", "report example.com"),
             ("results [target]", "Show stored results", "results"),
             ("modules", "List all loaded modules", "modules"),
@@ -794,21 +796,75 @@ class PhantomStrikeCLI:
             except Exception:
                 roe_config = None
 
-        # Instantiate PhantomOrchestrator with all available dependencies.
+        # Collect shared dependencies from the engine
+        ai_engine    = getattr(self.engine, "ai_engine", None)
+        kg           = getattr(self.engine, "knowledge_graph", None)
+        roe          = getattr(self.engine, "roe_middleware", None)
+        skill_lib    = getattr(self.engine, "skill_library", None)
+        sandbox      = getattr(self.engine, "docker_sandbox", None)
+
+        # Instantiate PhantomOrchestrator
         try:
             from phantom.agents.orchestrator import PhantomOrchestrator
             orchestrator = getattr(self.engine, "orchestrator", None)
             if orchestrator is None:
                 orchestrator = PhantomOrchestrator(
-                    ai_engine=getattr(self.engine, "ai_engine", None),
-                    knowledge_graph=getattr(self.engine, "knowledge_graph", None),
-                    roe=getattr(self.engine, "roe_middleware", None),
-                    skill_library=getattr(self.engine, "skill_library", None),
-                    sandbox=getattr(self.engine, "docker_sandbox", None),
+                    ai_engine=ai_engine,
+                    knowledge_graph=kg,
+                    roe=roe,
+                    skill_library=skill_lib,
+                    sandbox=sandbox,
                 )
+                # Cache on engine so subsequent calls reuse the same instance
+                try:
+                    self.engine.orchestrator = orchestrator
+                except Exception:
+                    pass
         except Exception as e:
             console.print(f"[red]Failed to initialise PhantomOrchestrator: {e}[/red]")
             return
+
+        # ── Register all 13 specialist agents ──────────────────────────
+        # This is the critical step that was missing — without it every
+        # objective falls back to NullAgent and fails immediately.
+        if not orchestrator._agents:
+            try:
+                from phantom.agents.recon_agent       import ReconAgent
+                from phantom.agents.scanner_agent     import ScannerAgent
+                from phantom.agents.web_exploit_agent import WebExploitAgent
+                from phantom.agents.cloud_agent       import CloudAgent
+                from phantom.agents.cred_agent        import CredAgent
+                from phantom.agents.ad_agent          import ADAgent
+                from phantom.agents.exploit_agent     import ExploitAgent
+                from phantom.agents.post_exploit_agent import PostExploitAgent
+                from phantom.agents.c2_agent          import C2Agent
+                from phantom.agents.stealth_agent     import StealthAgent
+                from phantom.agents.reverser_agent    import ReverserAgent
+                from phantom.agents.analyst_agent     import AnalystAgent
+                from phantom.agents.report_agent      import ReportAgent
+
+                agent_kwargs = dict(
+                    ai_engine=ai_engine,
+                    knowledge_graph=kg,
+                    opplan=None,          # set per-run by orchestrator
+                    roe=roe,
+                    skill_library=skill_lib,
+                    sandbox=sandbox,
+                )
+
+                for AgentClass in [
+                    ReconAgent, ScannerAgent, WebExploitAgent, CloudAgent,
+                    CredAgent, ADAgent, ExploitAgent, PostExploitAgent,
+                    C2Agent, StealthAgent, ReverserAgent, AnalystAgent,
+                    ReportAgent,
+                ]:
+                    orchestrator.register_agent(AgentClass(**agent_kwargs))
+
+                console.print(
+                    f"[dim]  Registered {len(orchestrator._agents)} specialist agents[/dim]"
+                )
+            except Exception as e:
+                console.print(f"[yellow]⚠ Could not register all agents: {e}[/yellow]")
 
         console.print(f"[bold red]🤖 Launching autonomous attack on [cyan]{target}[/cyan]...[/bold red]")
 
@@ -816,6 +872,8 @@ class PhantomStrikeCLI:
             result = await orchestrator.autonomous_attack(target, roe_config)
         except Exception as e:
             console.print(f"[red]Autonomous attack error: {e}[/red]")
+            import traceback
+            console.print(f"[dim]{traceback.format_exc()}[/dim]")
             return
 
         # Display result summary
@@ -1202,6 +1260,99 @@ class PhantomStrikeCLI:
             console.print("[red]Usage: skills list[/red]")
 
     # ─── C2 Commands ──────────────────────────────────────────
+
+    async def _cmd_update(self, args: list):
+        """
+        Update PhantomStrike to the latest version from GitHub.
+
+        Usage: update
+
+        Pulls the latest code, reinstalls Python packages, and reports
+        what changed. Safe to run at any time — preserves your .env and
+        ~/.phantom-strike/ data directory.
+        """
+        import subprocess
+        import sys
+
+        console.print(Panel(
+            "[bold cyan]🔄 Updating PhantomStrike to latest version...[/bold cyan]\n"
+            "[dim]Pulling from GitHub and reinstalling packages.[/dim]",
+            border_style="cyan",
+            title="PhantomStrike Update",
+        ))
+
+        # ── Find repo root ────────────────────────────────────────────
+        repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+        # ── Step 1: git pull ──────────────────────────────────────────
+        console.print("[cyan][1/3][/] Pulling latest changes from GitHub...")
+        try:
+            result = subprocess.run(
+                ["git", "pull", "--rebase", "--autostash"],
+                capture_output=True,
+                text=True,
+                timeout=60,
+                cwd=repo_root,
+            )
+            if result.returncode == 0:
+                output = result.stdout.strip()
+                if "Already up to date" in output:
+                    console.print("  [green]✓[/] Already up to date — no changes pulled")
+                else:
+                    console.print(f"  [green]✓[/] Updated:\n[dim]{output}[/dim]")
+            else:
+                console.print(f"  [yellow]⚠ git pull warning:[/] {result.stderr.strip()}")
+        except FileNotFoundError:
+            console.print("  [red]✗ git not found — cannot pull updates[/red]")
+            console.print("  [dim]Install git: sudo apt install git[/dim]")
+            return
+        except subprocess.TimeoutExpired:
+            console.print("  [yellow]⚠ git pull timed out — check your internet connection[/yellow]")
+            return
+        except Exception as e:
+            console.print(f"  [red]✗ git pull failed: {e}[/red]")
+            return
+
+        # ── Step 2: pip install -e . ──────────────────────────────────
+        console.print("[cyan][2/3][/] Reinstalling Python packages...")
+        try:
+            result = subprocess.run(
+                [sys.executable, "-m", "pip", "install", "-e", ".[api]",
+                 "--quiet", "--no-warn-script-location"],
+                capture_output=True,
+                text=True,
+                timeout=300,
+                cwd=repo_root,
+            )
+            if result.returncode == 0:
+                console.print("  [green]✓[/] Packages up to date")
+            else:
+                console.print(f"  [yellow]⚠ pip install warning:[/] {result.stderr.strip()[:200]}")
+        except subprocess.TimeoutExpired:
+            console.print("  [yellow]⚠ pip install timed out[/yellow]")
+        except Exception as e:
+            console.print(f"  [red]✗ pip install failed: {e}[/red]")
+
+        # ── Step 3: show new version ──────────────────────────────────
+        console.print("[cyan][3/3][/] Verifying installation...")
+        try:
+            from phantom import __version__
+            # Force reload to get the new version
+            import importlib
+            import phantom
+            importlib.reload(phantom)
+            from phantom import __version__ as new_version
+            console.print(f"  [green]✓[/] PhantomStrike version: [bold cyan]{new_version}[/bold cyan]")
+        except Exception:
+            console.print("  [green]✓[/] Update complete")
+
+        console.print()
+        console.print(Panel(
+            "[bold green]✅ PhantomStrike updated successfully![/bold green]\n\n"
+            "[dim]Restart phantom to use the latest version:[/dim]\n"
+            "  [cyan]exit[/cyan]  then  [cyan]phantom[/cyan]",
+            border_style="green",
+        ))
 
     async def _cmd_c2(self, args: list):
         """C2 command & control."""
